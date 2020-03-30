@@ -1,0 +1,108 @@
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.dll.config
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.dll
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.pdb
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\obj\Debug\EuforyServices.dll
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\obj\Debug\EuforyServices.pdb
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.dll
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.dll
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.dll
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.pdb
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.pdb
+E:\My Working Folder\Project\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.pdb
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.dll.config
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.dll
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.pdb
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.dll
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.dll
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.dll
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.pdb
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.pdb
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.pdb
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\obj\Debug\EuforyServices.dll
+E:\Eufory Web Services Project\EuforyServices\EuforyServices\obj\Debug\EuforyServices.pdb
+E:\Web App Projects\EuforyServices\EuforyServices\bin\EuforyServices.dll.config
+E:\Web App Projects\EuforyServices\EuforyServices\bin\EuforyServices.dll
+E:\Web App Projects\EuforyServices\EuforyServices\bin\EuforyServices.pdb
+E:\Web App Projects\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.dll
+E:\Web App Projects\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.dll
+E:\Web App Projects\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.dll
+E:\Web App Projects\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.pdb
+E:\Web App Projects\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.pdb
+E:\Web App Projects\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.pdb
+E:\Web App Projects\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
+E:\Web App Projects\EuforyServices\EuforyServices\obj\Debug\EuforyServices.dll
+E:\Web App Projects\EuforyServices\EuforyServices\obj\Debug\EuforyServices.pdb
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.dll.config
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.dll
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.pdb
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.dll
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.dll
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.dll
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.pdb
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.pdb
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.pdb
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\obj\Debug\EuforyServices.dll
+E:\Eufory Web Services Project\HardeepWork\EuforyServices\EuforyServices\obj\Debug\EuforyServices.pdb
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.dll.config
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.dll
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.pdb
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.dll
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.dll
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.dll
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.pdb
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.pdb
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.pdb
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\obj\Debug\EuforyServices.dll
+G:\Projects\MusicPlayer\HardeepWork\EuforyServices\EuforyServices\obj\Debug\EuforyServices.pdb
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.dll.config
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.dll
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.pdb
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.dll
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.dll
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.dll
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.pdb
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.pdb
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.pdb
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\obj\Debug\EuforyServices.dll
+G:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\obj\Debug\EuforyServices.pdb
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.dll.config
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.dll
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.pdb
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.dll
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.dll
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.dll
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.pdb
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.pdb
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.pdb
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\obj\Debug\EuforyServices.dll
+F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\obj\Debug\EuforyServices.pdb
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.dll.config
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.pdb
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\Newtonsoft.Json.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\Stripe.net.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\System.Net.Http.Formatting.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\System.Web.Cors.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\System.Web.Http.Cors.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\System.Web.Http.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.DataContract.pdb
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.ServiceContract.pdb
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.ServiceImplementation.pdb
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\Newtonsoft.Json.xml
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\Stripe.net.pdb
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\Stripe.net.xml
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\System.Net.Http.Formatting.xml
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\System.Web.Http.xml
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\System.Web.Http.Cors.xml
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\obj\Debug\EuforyServices.dll
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\obj\Debug\EuforyServices.pdb
