@@ -126,6 +126,9 @@ namespace EuforyServices.DataContract
         public string LogoId { get; set; }
         [DataMember]
         public string IsIndicatorActive { get; set; }
+        [DataMember]
+        public string Rotation { get; set; }
+        
     }
 
     [DataContract]
@@ -895,6 +898,18 @@ namespace EuforyServices.DataContract
         public string ScheduleType { get; set; }
         [DataMember]
         public string fSpace { get; set; }
+        [DataMember]
+        public string IsIndicatorActive { get; set; }
+
+        [DataMember]
+        public string GroupId { get; set; }
+        [DataMember]
+        public string CountryId { get; set; }
+        [DataMember]
+        public string StateId { get; set; }
+        [DataMember]
+        public string CityId { get; set; }
+
     }
     [DataContract]
     public class ReqToken
@@ -1010,6 +1025,18 @@ namespace EuforyServices.DataContract
         public string ScheduleType { get; set; }
         [DataMember]
         public bool Indicator { get; set; }
+        [DataMember]
+        public string StateName { get; set; }
+        [DataMember]
+        public string CityName { get; set; }
+        [DataMember]
+        public string GroupName { get; set; }
+        [DataMember]
+        public string GroupId { get; set; }
+        [DataMember]
+        public string ClientId { get; set; }
+        [DataMember]
+        public string Rotation { get; set; }
     }
     [DataContract]
     public class ReqSaveTokenInfo
@@ -1048,7 +1075,10 @@ namespace EuforyServices.DataContract
         public string ScheduleType { get; set; }
         [DataMember]
         public bool chkIndicator { get; set; }
-        
+        [DataMember]
+        public string GroupId { get; set; }
+        [DataMember]
+        public string Rotation { get; set; }
     }
     [DataContract]
     public class ResResponce
@@ -1157,7 +1187,10 @@ namespace EuforyServices.DataContract
         public string DfClientId { get; set; }
         [DataMember]
         public string LoginId { get; set; }
-
+        [DataMember]
+        public string CustomerType { get; set; }
+        [DataMember]
+        public string MainCustomer { get; set; }
     }
     [DataContract]
     public class ResBestOf
@@ -1329,6 +1362,8 @@ namespace EuforyServices.DataContract
         public Boolean check { get; set; }
         [DataMember]
         public Boolean IsMute { get; set; }
+        [DataMember]
+        public Boolean IsFixed { get; set; }
 
     }
     [DataContract]
@@ -1703,6 +1738,8 @@ namespace EuforyServices.DataContract
         public string CategoryName { get; set; }
         [DataMember]
         public DateTime pDateTime { get; set; }
+        [DataMember]
+        public string TotalPlayed { get; set; }
 
     }
     [DataContract]
@@ -1748,6 +1785,8 @@ namespace EuforyServices.DataContract
         public string playlistid { get; set; }
         [DataMember]
         public Boolean chkMute { get; set; }
+        [DataMember]
+        public Boolean chkFixed { get; set; }
     }
     [DataContract]
     public class ReqUpdatePlaylistSRNo
@@ -1999,6 +2038,55 @@ namespace EuforyServices.DataContract
         public string genrename { get; set; }
         [DataMember]
         public string mediatype { get; set; }
+    }
+    [DataContract]
+    public class ReqSaveFolder
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string fname { get; set; }
+        [DataMember]
+        public string dfClientId { get; set; }
+    }
+    [DataContract]
+    public class ReqTitleLog
+    {
+        [DataMember]
+        public string ClientId { get; set; }
+        [DataMember]
+        public string tokenid { get; set; }
+        [DataMember]
+        public string cDate { get; set; }
+        [DataMember]
+        public string ToDate { get; set; }
+
+    }
+    [DataContract]
+    public class ReqCitySateNewModify
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string name { get; set; }
+        [DataMember]
+        public string type { get; set; }
+        [DataMember]
+        public string stateid { get; set; }
+        [DataMember]
+        public string CountryId { get; set; }
+        [DataMember]
+        public string dfClientId { get; set; }
+    }
+    [DataContract]
+    public class ReqCopyFormat
+    {
+        [DataMember]
+        public string FormatId { get; set; }
+        [DataMember]
+        public string CopyFormatId { get; set; }
+        [DataMember]
+        public string dfclientId { get; set; }
     }
 }
 

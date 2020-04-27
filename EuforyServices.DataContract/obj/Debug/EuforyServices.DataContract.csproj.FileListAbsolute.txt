@@ -50,3 +50,4 @@ F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.Da
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.DataContract\bin\Debug\System.Web.Http.Cors.xml
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.DataContract\obj\Debug\EuforyServices.DataContract.dll
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.DataContract\obj\Debug\EuforyServices.DataContract.pdb
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.DataContract\obj\Debug\EuforyServices.DataContract.csprojResolveAssemblyReference.cache

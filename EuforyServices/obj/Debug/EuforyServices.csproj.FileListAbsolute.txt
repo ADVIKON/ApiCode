@@ -82,6 +82,7 @@ F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\bin
 F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
 F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\obj\Debug\EuforyServices.dll
 F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices\obj\Debug\EuforyServices.pdb
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.dll.config
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.dll
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\EuforyServices.pdb
@@ -103,6 +104,5 @@ F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bi
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\System.Net.Http.Formatting.xml
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\System.Web.Http.xml
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\bin\System.Web.Http.Cors.xml
-F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\obj\Debug\EuforyServices.csprojResolveAssemblyReference.cache
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\obj\Debug\EuforyServices.dll
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices\obj\Debug\EuforyServices.pdb

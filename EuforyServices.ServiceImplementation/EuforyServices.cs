@@ -407,10 +407,16 @@ namespace EuforyServices.ServiceImplementation
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
                 DataSet ds = new DataSet();
                 ad.Fill(ds);
-
+                int isSepration = 0;
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
-
+                    if (Convert.ToBoolean(ds.Tables[0].Rows[i]["isShowDefault"]) == true)
+                    {
+                        isSepration = 0;
+                    }else
+                    {
+                        isSepration = 1;
+                    }
 
                     result.Add(new ResponceSplSplaylist()
                     {
@@ -420,7 +426,7 @@ namespace EuforyServices.ServiceImplementation
                         splPlaylistName = ds.Tables[0].Rows[i]["splPlaylistName"].ToString(),
                         StartTime = ds.Tables[0].Rows[i]["StartTime"].ToString(),
                         EndTime = ds.Tables[0].Rows[i]["EndTime"].ToString(),
-                        IsSeprationActive = Convert.ToInt32(ds.Tables[0].Rows[i]["isShowDefault"]),
+                        IsSeprationActive = isSepration,
                         IsFadingActive = Convert.ToInt32(ds.Tables[0].Rows[i]["IsFadingActive"]),
                         FormatId = 0,
                         IsMute = ds.Tables[0].Rows[i]["IsMute"].ToString(),
@@ -611,6 +617,7 @@ namespace EuforyServices.ServiceImplementation
                         scheduleType = ds.Tables[0].Rows[0]["scheduleType"].ToString(),
                         LogoId = ds.Tables[0].Rows[i]["AppLogoId"].ToString(),
                         IsIndicatorActive = ds.Tables[0].Rows[0]["IsIndicatorActive"].ToString(),
+                        Rotation= ds.Tables[0].Rows[0]["Rotation"].ToString(),
 
                     });
                 }
@@ -1067,22 +1074,29 @@ namespace EuforyServices.ServiceImplementation
                 {
                     //if (Player.TokenId.ToString() == "3250")
                     //{
-                    //    WriteData = "" + Player.TokenId + ", " + Player.PlayedDateTime + " , " + Player.TitleId + "," + Player.ArtistId + "," + Player.splPlaylistId + ", {0} ";
-                    //    using (StreamWriter writer = new StreamWriter(path, true))
-                    //    {
-                    //        writer.WriteLine(string.Format(WriteData, custDateTime.ToString("dd/MMM/yyyy hh:mm:ss tt")));
-                    //        writer.Close();
-                    //    }
+                    // WriteData = "" + Player.TokenId + ", " + Player.PlayedDateTime + " , " + Player.TitleId + "," + Player.ArtistId + "," + Player.splPlaylistId + ", {0} ";
+                    // using (StreamWriter writer = new StreamWriter(path, true))
+                    //{
+                    //     writer.WriteLine(string.Format(WriteData, custDateTime.ToString("dd/MMM/yyyy hh:mm:ss tt")));
+                    //    writer.Close();
+                    //}
                     //}
 
-                    string lType = "";
-                    SqlCommand cmd = new SqlCommand("spSaveTokenPlayedSongs_Status " + Player.TokenId + ", '" + Player.PlayedDateTime + "' , " + Player.TitleId + "," + Player.ArtistId + "," + Player.splPlaylistId + "", conMain);
-                    cmd.CommandType = System.Data.CommandType.Text;
-                    if (conMain.State == ConnectionState.Closed)
+
+
+                    
+                    if (Player.TokenId != 0)
                     {
-                        conMain.Open();
+                        SqlCommand cmd = new SqlCommand("spSaveTokenPlayedSongs_Status " + Player.TokenId + ", '" + Player.PlayedDateTime + "' , " + Player.TitleId + "," + Player.ArtistId + "," + Player.splPlaylistId + ",'" + Player.PlayedDateTime + "'", conMain);
+
+
+                        cmd.CommandType = System.Data.CommandType.Text;
+                        if (conMain.State == ConnectionState.Closed)
+                        {
+                            conMain.Open();
+                        }
+                        cmd.ExecuteNonQuery();
                     }
-                    cmd.ExecuteNonQuery();
                     resultSong.Add(new SongsArray()
                     {
                         Response = "1",
@@ -2797,6 +2811,11 @@ namespace EuforyServices.ServiceImplementation
                         token = ds.Rows[i]["token"].ToString(),
                         ScheduleType = ds.Rows[i]["shType"].ToString(),
                         fSpace = freeSp,
+                        IsIndicatorActive = ds.Rows[i]["IsIndicatorShow"].ToString(),
+                        GroupId = ds.Rows[i]["grpId"].ToString(),
+                        CountryId = ds.Rows[i]["CountryId"].ToString(),
+                        StateId = ds.Rows[i]["StateId"].ToString(),
+                        CityId = ds.Rows[i]["CityId"].ToString(),
                     });
                 }
                 con.Close();
@@ -2946,6 +2965,12 @@ namespace EuforyServices.ServiceImplementation
                         DeviceId = ds.Rows[i]["deviceId"].ToString(),
                         ScheduleType = ds.Rows[i]["ScheduleType"].ToString(),
                         Indicator = Convert.ToBoolean(ds.Rows[i]["Indicator"]),
+                        StateName = ds.Rows[i]["statename"].ToString(),
+                        CityName = ds.Rows[i]["cityname"].ToString(),
+                        GroupName = ds.Rows[i]["grpName"].ToString(),
+                        GroupId = ds.Rows[i]["grpId"].ToString(),
+                        ClientId = ds.Rows[i]["ClientId"].ToString(),
+                        Rotation = ds.Rows[i]["Rotation"].ToString(),
                     });
                 }
 
@@ -3056,6 +3081,16 @@ namespace EuforyServices.ServiceImplementation
 
                 cmd.Parameters.Add(new SqlParameter("@IsIndicatorActive", SqlDbType.Int));
                 cmd.Parameters["@IsIndicatorActive"].Value = Convert.ToByte(data.chkIndicator);
+
+                cmd.Parameters.Add(new SqlParameter("@groupId", SqlDbType.Int));
+                cmd.Parameters["@groupId"].Value = data.GroupId;
+
+                cmd.Parameters.Add(new SqlParameter("@Rotation", SqlDbType.Int));
+                cmd.Parameters["@Rotation"].Value = data.Rotation;
+
+                cmd.Parameters.Add(new SqlParameter("@MediaType", SqlDbType.VarChar));
+                cmd.Parameters["@MediaType"].Value = data.chkMediaType.Trim();
+
                 if (con.State == ConnectionState.Closed) { con.Open(); }
                 cmd.ExecuteNonQuery();
                 con.Close();
@@ -3195,6 +3230,16 @@ namespace EuforyServices.ServiceImplementation
                 Int32 SaveDfClientId = 0;
                 Int32 User_id = 0;
                 Int32 OldToken = 0;
+                int IsMain = 0;
+                int IsSub = 0;
+                if (data.CustomerType == "MainCustomer")
+                {
+                    IsMain = 1;
+                }
+                if (data.CustomerType == "SubCustomer")
+                {
+                    IsSub = 1;
+                }
                 if (string.IsNullOrEmpty(data.DfClientId) == true)
                 {
                     SqlCommand cmdIns = new SqlCommand("sp_DealerRegistration", con);
@@ -3237,16 +3282,16 @@ namespace EuforyServices.ServiceImplementation
                     cmdIns.Parameters["@StateId"].Value = data.stateName;
 
                     cmdIns.Parameters.Add(new SqlParameter("@IsMainDealer", SqlDbType.Bit));
-                    cmdIns.Parameters["@IsMainDealer"].Value = 1;
+                    cmdIns.Parameters["@IsMainDealer"].Value = IsMain;
 
                     cmdIns.Parameters.Add(new SqlParameter("@Vatnumber", SqlDbType.VarChar));
                     cmdIns.Parameters["@Vatnumber"].Value = "Nill";
 
                     cmdIns.Parameters.Add(new SqlParameter("@IsSubDealer", SqlDbType.Bit));
-                    cmdIns.Parameters["@IsSubDealer"].Value = 0;
+                    cmdIns.Parameters["@IsSubDealer"].Value = IsSub;
 
                     cmdIns.Parameters.Add(new SqlParameter("@MainDealerId", SqlDbType.BigInt));
-                    cmdIns.Parameters["@MainDealerId"].Value = 0;
+                    cmdIns.Parameters["@MainDealerId"].Value = data.MainCustomer;
 
                     cmdIns.Parameters.Add(new SqlParameter("@supportEmail", SqlDbType.VarChar));
                     cmdIns.Parameters["@supportEmail"].Value = data.supportEmail;
@@ -3312,16 +3357,16 @@ namespace EuforyServices.ServiceImplementation
                     cmdU.Parameters["@StateId"].Value = data.stateName;
 
                     cmdU.Parameters.Add(new SqlParameter("@IsMainDealer", SqlDbType.Bit));
-                    cmdU.Parameters["@IsMainDealer"].Value = 1;
+                    cmdU.Parameters["@IsMainDealer"].Value = IsMain;
 
                     cmdU.Parameters.Add(new SqlParameter("@Vatnumber", SqlDbType.VarChar));
                     cmdU.Parameters["@Vatnumber"].Value = "Nill";
 
                     cmdU.Parameters.Add(new SqlParameter("@IsSubDealer", SqlDbType.Bit));
-                    cmdU.Parameters["@IsSubDealer"].Value = 0;
+                    cmdU.Parameters["@IsSubDealer"].Value = IsSub;
 
                     cmdU.Parameters.Add(new SqlParameter("@MainDealerId", SqlDbType.BigInt));
-                    cmdU.Parameters["@MainDealerId"].Value = 0;
+                    cmdU.Parameters["@MainDealerId"].Value = data.MainCustomer;
 
                     cmdU.Parameters.Add(new SqlParameter("@supportEmail", SqlDbType.VarChar));
                     cmdU.Parameters["@supportEmail"].Value = data.supportEmail;
@@ -3517,12 +3562,20 @@ namespace EuforyServices.ServiceImplementation
 
                 //====================================================
                 con.Close();
-                result.Responce = "1";
+                if (string.IsNullOrEmpty(data.DfClientId) == true)
+                {
+                    result.Responce = SaveDfClientId.ToString();
+                }
+                else
+                {
+                    result.Responce = "1";
+                }
                 return result;
             }
             catch (Exception ex)
             {
                 con.Close();
+                result.Responce = "0";
                 var g = ex.Message;
                 HttpContext.Current.Response.StatusCode = 1;
                 return result;
@@ -3561,6 +3614,15 @@ namespace EuforyServices.ServiceImplementation
                     result.Street = ds.Rows[0]["streetname"].ToString();
                     result.DfClientId = ds.Rows[0]["DFClientID"].ToString();
                     result.LoginId = ds.Rows[0]["loginid"].ToString();
+                    if (Convert.ToBoolean(ds.Rows[0]["IsMainDealer"]) == true)
+                    {
+                        result.CustomerType = "MainCustomer";
+                    }
+                    if (Convert.ToBoolean(ds.Rows[0]["isSubdealer"]) == true)
+                    {
+                        result.CustomerType = "SubCustomer";
+                    }
+                    result.MainCustomer = ds.Rows[0]["MainDealerId"].ToString();
                 }
 
 
@@ -4013,8 +4075,17 @@ namespace EuforyServices.ServiceImplementation
                     sQr = sQr + " LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  ";
                     sQr = sQr + " where TitlesInPlaylists.PlaylistID = '" + data.searchText + "' and Titles.mediatype='" + data.mediaType + "'";
                     sQr = sQr + "  order by Titles.TitleID desc    ";
-
-
+                }
+                else if (data.searchType == "Folder")
+                {
+                    sQr = " select distinct top 500 TitleID, ltrim(Title) as Title,Time, ltrim(ArtistName) as ArtistName, ltrim(AlbumName) as AlbumName , isnull(genre,'') as genre, Tempo ,titleyear,Category,AlbumID, ArtistID, mediatype  from( ";
+                    sQr = sQr + " SELECT  Titles.TitleID, Titles.Title,Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, tbGenre.genre, isnull(Titles.tempo,'') as Tempo,Titles.titleyear , isnull(acategory,'') as Category ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype FROM Titles ";
+                    sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID  ";
+                    sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID  ";
+                    sQr = sQr + " LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  ";
+                    sQr = sQr + " LEFT OUTER JOIN tbFolder ON Titles.folderId = tbFolder.folderId  ";
+                    sQr = sQr + " where Titles.folderId= " + data.searchText + " and Titles.mediatype='" + data.mediaType + "' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " ) as d  order by TitleID desc    ";
                 }
                 if (string.IsNullOrEmpty(data.searchText) == true)
                 {
@@ -4260,7 +4331,8 @@ namespace EuforyServices.ServiceImplementation
                             Id = ds.Rows[i]["splplaylistid"].ToString(),
                             DisplayName = ds.Rows[i]["splplaylistname"].ToString(),
                             check = iCheck,
-                            IsMute = Convert.ToBoolean(Convert.ToByte(ds.Rows[i]["IsMute"]))
+                            IsMute = Convert.ToBoolean(Convert.ToByte(ds.Rows[i]["IsMute"])),
+                            IsFixed = Convert.ToBoolean(Convert.ToByte(ds.Rows[i]["isFixed"]))
                         });
                     }
                 }
@@ -4286,7 +4358,7 @@ namespace EuforyServices.ServiceImplementation
 
                 string sQr = "";
 
-                sQr = "SELECT TOP (500) Titles.TitleID, Titles.Title, Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, isnull(Titles.tempo,'') as Tempo,isnull(tbGenre.genre,'') as genre , Titles.titleyear ,isnull(acategory,'') as Category, Titles.AlbumID, Titles.ArtistID, Titles.mediatype FROM Titles INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId    where   mediaType='" + data.mediaType + "' and IsRoyaltyFree=" + data.IsRf + " ";
+                sQr = "SELECT TOP (500) Titles.TitleID, Titles.Title, Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, isnull(Titles.tempo,'') as Tempo,isnull(tbGenre.genre,'') as genre , Titles.titleyear ,isnull(acategory,'') as Category, Titles.AlbumID, Titles.ArtistID, Titles.mediatype FROM Titles INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId    where   Titles.mediaType='" + data.mediaType + "' and IsRoyaltyFree=" + data.IsRf + " ";
                 if (data.mediaType == "Image")
                 {
                     if ((data.ClientId != "6") && (data.ClientId != "2"))
@@ -5122,21 +5194,21 @@ namespace EuforyServices.ServiceImplementation
                 if (string.IsNullOrEmpty(data.UserId) == true)
                 {
                     sQr = "SELECT AMPlayerTokens.TokenID , iif(isnull(AMPlayerTokens.tokenno,'')='' ,iif(AMPlayerTokens.token='used',convert(varchar(100) ,AMPlayerTokens.Tokenid),AMPlayerTokens.token),AMPlayerTokens.tokenno) as tNo, isnull(AMPlayerTokens.Location,'') as Location,";
-                    sQr = sQr + " isnull(tbCity.CityName,'') as CityName, isnull(tbState.StateName,'') as StateName, isnull(CountryCodes.CountryName,'') as CountryName,isnull(AMPlayerTokens.PersonName ,'') as PersonName , AMPlayerTokens.userid, isnull(AMPlayerTokens.IsStore,0) as IsStore, isnull(AMPlayerTokens.IsStream,0) as IsStream, 'false' as [check] FROM  AMPlayerTokens ";
+                    sQr = sQr + " isnull(tbCity.CityName,'') as CityName, isnull(tbState.StateName,'') as StateName, isnull(CountryCodes.CountryName,'') as CountryName,isnull(AMPlayerTokens.PersonName ,'') as PersonName , AMPlayerTokens.userid, isnull(AMPlayerTokens.IsStore,0) as IsStore, isnull(AMPlayerTokens.IsStream,0) as IsStream, 'false' as [check] ,isnull(AMPlayerTokens.groupid,0) as grpId  , isnull(AMPlayerTokens.CountryId,0) as CountryId, isnull(AMPlayerTokens.StateId,0) as StateId,  isnull(AMPlayerTokens.CityId,0) as CityId FROM  AMPlayerTokens ";
                     sQr = sQr + " LEFT OUTER JOIN tbCity ON AMPlayerTokens.CityId = tbCity.CityId LEFT OUTER JOIN tbState ON AMPlayerTokens.StateId = tbState.StateId LEFT OUTER JOIN CountryCodes ON AMPlayerTokens.CountryId = CountryCodes.CountryCode";
                     sQr = sQr + " where AMPlayerTokens.clientid in( " + cid + " )";
                 }
                 else if (data.UserId == "0")
                 {
                     sQr = "SELECT AMPlayerTokens.TokenID , iif(isnull(AMPlayerTokens.tokenno,'')='' ,iif(AMPlayerTokens.token='used',convert(varchar(100) ,AMPlayerTokens.Tokenid),AMPlayerTokens.token),AMPlayerTokens.tokenno) as tNo, isnull(AMPlayerTokens.Location,'') as Location,";
-                    sQr = sQr + " isnull(tbCity.CityName,'') as CityName, isnull(tbState.StateName,'') as StateName, isnull(CountryCodes.CountryName,'') as CountryName,isnull(AMPlayerTokens.PersonName ,'') as PersonName , AMPlayerTokens.userid, isnull(AMPlayerTokens.IsStore,0) as IsStore, isnull(AMPlayerTokens.IsStream,0) as IsStream, 'false' as [check] FROM  AMPlayerTokens ";
+                    sQr = sQr + " isnull(tbCity.CityName,'') as CityName, isnull(tbState.StateName,'') as StateName, isnull(CountryCodes.CountryName,'') as CountryName,isnull(AMPlayerTokens.PersonName ,'') as PersonName , AMPlayerTokens.userid, isnull(AMPlayerTokens.IsStore,0) as IsStore, isnull(AMPlayerTokens.IsStream,0) as IsStream, 'false' as [check],isnull(AMPlayerTokens.groupid,0) as grpId  , isnull(AMPlayerTokens.CountryId,0) as CountryId, isnull(AMPlayerTokens.StateId,0) as StateId,  isnull(AMPlayerTokens.CityId,0) as CityId FROM  AMPlayerTokens ";
                     sQr = sQr + " LEFT OUTER JOIN tbCity ON AMPlayerTokens.CityId = tbCity.CityId LEFT OUTER JOIN tbState ON AMPlayerTokens.StateId = tbState.StateId LEFT OUTER JOIN CountryCodes ON AMPlayerTokens.CountryId = CountryCodes.CountryCode";
                     sQr = sQr + " where AMPlayerTokens.clientid in( " + cid + " )";
                 }
                 else
                 {
                     sQr = "SELECT AMPlayerTokens.TokenID , iif(isnull(AMPlayerTokens.tokenno,'')='' ,iif(AMPlayerTokens.token='used',convert(varchar(100) ,AMPlayerTokens.Tokenid),AMPlayerTokens.token),AMPlayerTokens.tokenno) as tNo, isnull(AMPlayerTokens.Location,'') as Location,";
-                    sQr = sQr + " isnull(tbCity.CityName,'') as CityName, isnull(tbState.StateName,'') as StateName, isnull(CountryCodes.CountryName,'') as CountryName,isnull(AMPlayerTokens.PersonName ,'') as PersonName , AMPlayerTokens.userid, isnull(AMPlayerTokens.IsStore,0) as IsStore, isnull(AMPlayerTokens.IsStream,0) as IsStream, 'false' as [check] FROM  AMPlayerTokens ";
+                    sQr = sQr + " isnull(tbCity.CityName,'') as CityName, isnull(tbState.StateName,'') as StateName, isnull(CountryCodes.CountryName,'') as CountryName,isnull(AMPlayerTokens.PersonName ,'') as PersonName , AMPlayerTokens.userid, isnull(AMPlayerTokens.IsStore,0) as IsStore, isnull(AMPlayerTokens.IsStream,0) as IsStream, 'false' as [check], isnull(AMPlayerTokens.groupid,0) as grpId  , isnull(AMPlayerTokens.CountryId,0) as CountryId, isnull(AMPlayerTokens.StateId,0) as StateId,  isnull(AMPlayerTokens.CityId,0) as CityId FROM  AMPlayerTokens ";
                     sQr = sQr + " LEFT OUTER JOIN tbCity ON AMPlayerTokens.CityId = tbCity.CityId LEFT OUTER JOIN tbState ON AMPlayerTokens.StateId = tbState.StateId LEFT OUTER JOIN CountryCodes ON AMPlayerTokens.CountryId = CountryCodes.CountryCode";
                     sQr = sQr + " where AMPlayerTokens.clientid in( " + cid + " )";
                     sQr = sQr + " and AMPlayerTokens.TokenID in (select tokenid from tbuserTokens_web where userid =" + data.UserId + ")";
@@ -5154,6 +5226,11 @@ namespace EuforyServices.ServiceImplementation
                         tokenid = ds.Rows[i]["tokenid"].ToString(),
                         tokenCode = ds.Rows[i]["tNo"].ToString(),
                         location = ds.Rows[i]["Location"].ToString() + " , " + ds.Rows[i]["PersonName"].ToString(),
+                        GroupId = ds.Rows[i]["grpId"].ToString(),
+                        CountryId = ds.Rows[i]["CountryId"].ToString(),
+                        StateId = ds.Rows[i]["StateId"].ToString(),
+                        CityId = ds.Rows[i]["CityId"].ToString(),
+
                         check = false,
                     });
                 }
@@ -6700,9 +6777,12 @@ namespace EuforyServices.ServiceImplementation
             SqlConnection constr = new SqlConnection(cs);
             string str = "GetAdvtStatus_Web " + data.tokenid + ",'" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.cDate)) + "','" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.cDate)) + "'";
             //str = "GetAdvtStatus_Web  292,'01-May-2019','01-May-2019'";
-            SqlCommand cmd = new SqlCommand(str, constr);
-            try
-            {
+           try
+          {
+
+
+                SqlCommand cmd = new SqlCommand(str, constr);
+
                 constr.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
                 while (rdr.Read())
@@ -6711,9 +6791,15 @@ namespace EuforyServices.ServiceImplementation
                     ResPlayerLog td = new ResPlayerLog();
                     td.PlayedDateTime = string.Format("{0:dd-MMM-yyyy HH:mm}", rdr["aDateTime"]);
                     td.Name = rdr["AdvtName"].ToString();
+                    td.ArtistName = "";
+                    td.SplPlaylistName = "";
+                    td.CategoryName = "";
+                    td.pDateTime = DateTime.Now;
+                    td.TotalPlayed = "";
                     lstTd.Add(td);
 
                 }
+                rdr.Close();
                 constr.Close();
                 return lstTd;
             }
@@ -6725,6 +6811,8 @@ namespace EuforyServices.ServiceImplementation
                 return lstTd;
             }
         }
+
+         
         //public void SaveState(ReqState data)
         //        {
         //            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
@@ -7168,8 +7256,11 @@ namespace EuforyServices.ServiceImplementation
                 var GenreName = HttpContext.Current.Request.Form[1];
                 var CustomerId = HttpContext.Current.Request.Form[2];
                 var MediaType = HttpContext.Current.Request.Form[3];
+                var folderId = HttpContext.Current.Request.Form[4];
+                var k = postedFile.ContentLength;
                 var Artist = "";
                 var Title = "";
+              
                 if (MediaType.Trim() == "Image")
                 {
                     Artist = "Image";
@@ -7256,8 +7347,14 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters.Add(new SqlParameter("@isrc", SqlDbType.VarChar));
                 cmd.Parameters["@isrc"].Value = "";
 
+                cmd.Parameters.Add(new SqlParameter("@FileSize", SqlDbType.VarChar));
+                cmd.Parameters["@FileSize"].Value = postedFile.ContentLength;
+
                 cmd.Parameters.Add(new SqlParameter("@dfclientid", SqlDbType.BigInt));
                 cmd.Parameters["@dfclientid"].Value = CustomerId;
+
+                cmd.Parameters.Add(new SqlParameter("@folderid", SqlDbType.BigInt));
+                cmd.Parameters["@folderid"].Value = folderId;
 
                 Int32 Title_Id =   Convert.ToInt32(cmd.ExecuteScalar());
 
@@ -7272,7 +7369,7 @@ namespace EuforyServices.ServiceImplementation
                 }
                 if (MediaType.Trim() == "Video")
                 {
-                    fName = Title_Id.ToString() + ".mp4";
+                    fName = Title_Id.ToString() + ".mp4"; 
                 }
                 var filePath = HttpContext.Current.Server.MapPath("~/mp3files/" + fName);
                 postedFile.SaveAs(filePath);
@@ -7298,7 +7395,7 @@ namespace EuforyServices.ServiceImplementation
             {
                 string strDel = "";
                 DataTable dtDetail = new DataTable();
-                strDel = "update  tbSpecialPlaylists set isVideoMute =" + Convert.ToByte(data.chkMute) + " where splplaylistid = " + data.playlistid;
+                strDel = "update  tbSpecialPlaylists set isVideoMute =" + Convert.ToByte(data.chkMute) + ", isshowdefault=" + Convert.ToByte(data.chkFixed) + " where splplaylistid = " + data.playlistid;
                 SqlCommand cmd = new SqlCommand(strDel, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 con.Open();
@@ -7841,10 +7938,17 @@ namespace EuforyServices.ServiceImplementation
             {
                 con.Open();
                 string strDel = "";
-                strDel = "update AMPlayerTokens set IsIndicatorActive =" + Convert.ToByte(data.chkIndicator) + " where clientId=  " + data.ClientId;
+                strDel = "update AMPlayerTokens set IsIndicatorActive =" + Convert.ToByte(data.chkIndicator) + " where  token='used' and clientId=  " + data.ClientId;
                 SqlCommand cmd = new SqlCommand(strDel, con);
                 cmd.CommandType = CommandType.Text;
                 cmd.ExecuteNonQuery();
+
+
+                strDel = "update AMPlayerTokens set IsIndicatorActive =0 where  code is null  and clientId=  " + data.ClientId;
+                cmd = new SqlCommand(strDel, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+
                 con.Close();
                 result.Responce = "1";
                 return result;
@@ -7869,11 +7973,11 @@ namespace EuforyServices.ServiceImplementation
                 string strDel = "";
                 if (data.tokenid == "0")
                 {
-                    strDel = "update AMPlayerTokens set isPublishUpdate =1  where clientId=  " + data.clientId;
+                    strDel = "update AMPlayerTokens set isPublishUpdate =1  where token='used' and clientId=  " + data.clientId;
                 }
                 else
                 {
-                    strDel = "update AMPlayerTokens set isPublishUpdate =1  where tokenid=  " + data.tokenid;
+                    strDel = "update AMPlayerTokens set isPublishUpdate =1  where token='used' and tokenid=  " + data.tokenid;
                 }
                 SqlCommand cmd = new SqlCommand(strDel, con);
                 cmd.CommandType = CommandType.Text;
@@ -7881,6 +7985,8 @@ namespace EuforyServices.ServiceImplementation
                 con.Close();
                 result.Responce = "1";
                 return result;
+
+                 
             }
             catch (Exception ex)
             {
@@ -8029,7 +8135,7 @@ namespace EuforyServices.ServiceImplementation
                         }
                     }
                 }
-                if (dtM.Columns.Count != 7)
+                if (dtM.Columns.Count != 9)
                 {
                     Result.Responce = "0";
                     Result.message = "Selected excel file is not a correct file. Columns are not match";
@@ -8050,10 +8156,10 @@ namespace EuforyServices.ServiceImplementation
                     conSql.Close();
                     return Result;
                 }
-                if (dtM.Columns[2].ToString().ToLower() != "code")
+                if (dtM.Columns[2].ToString().ToLower() != "serial-mac")
                 {
                     Result.Responce = "0";
-                    Result.message = "Code column is not match with sequence";
+                    Result.message = "Serial-MAC column is not match with sequence";
                     conSql.Close();
                     return Result;
                 }
@@ -8078,10 +8184,24 @@ namespace EuforyServices.ServiceImplementation
                     conSql.Close();
                     return Result;
                 }
-                if (dtM.Columns[6].ToString().ToLower() != "isaudioplayer")
+                if (dtM.Columns[6].ToString().ToLower() != "iswindowplayer")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsWindowPlayer column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[7].ToString().ToLower() != "isaudioplayer")
                 {
                     Result.Responce = "0";
                     Result.message = "IsAudioPlayer column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[8].ToString().ToLower() != "isvideoplayer")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsVideoPlayer column is not match with sequence";
                     conSql.Close();
                     return Result;
                 }
@@ -8089,18 +8209,18 @@ namespace EuforyServices.ServiceImplementation
                 var h = "";
                 for (int i = 0; i < dtM.Rows.Count; i++)
                 {
-                    if ((dtM.Rows[i]["TokenId"].ToString() != "") && (dtM.Rows[i]["tokencode"].ToString() != "") && (dtM.Rows[i]["code"].ToString() != "") && (dtM.Rows[i]["name"].ToString() != "") && (dtM.Rows[i]["location"].ToString() != "")&&(dtM.Rows[i]["IsAndroidPlayer"].ToString() != "") && (dtM.Rows[i]["IsAudioPlayer"].ToString() != ""))
+                    if ((dtM.Rows[i]["TokenId"].ToString() != "") && (dtM.Rows[i]["tokencode"].ToString() != "") && (dtM.Rows[i]["Serial-MAC"].ToString() != "")  && (dtM.Rows[i]["location"].ToString() != ""))
                     {
                         string str = "";
                         
-                        str = "update AMPlayerTokens set IsStore=1, token='used', code='" + dtM.Rows[i]["code"] + "'";
+                        str = "update AMPlayerTokens set IsStore=1, token='used', code='" + dtM.Rows[i]["Serial-MAC"] + "'";
                         str = str + ", ptype='Copyright', personname = '" + dtM.Rows[i]["Name"] + "' ";
                         str = str + ", Location = '" + dtM.Rows[i]["Location"] + "' ";
                         if ((dtM.Rows[i]["IsAndroidPlayer"].ToString()=="1") || (dtM.Rows[i]["IsAndroidPlayer"].ToString().ToLower() == "yes"))
                         {
                             str = str + ", lType = 'Android' ";
                         }
-                        else
+                        if ((dtM.Rows[i]["IsWindowPlayer"].ToString() == "1") || (dtM.Rows[i]["IsWindowPlayer"].ToString().ToLower() == "yes"))
                         {
                             str = str + ", lType = 'Desktop' ";
                         }
@@ -8108,7 +8228,7 @@ namespace EuforyServices.ServiceImplementation
                         {
                             str = str + ", IsVedioActive = 0 ";
                         }
-                        else
+                        if ((dtM.Rows[i]["IsVideoPlayer"].ToString() == "1") || (dtM.Rows[i]["IsVideoPlayer"].ToString().ToLower() == "yes"))
                         {
                             str = str + ", IsVedioActive = 1 ";
                         }
@@ -8203,12 +8323,47 @@ namespace EuforyServices.ServiceImplementation
 
 
 
+        public ResResponce SaveFolder(ReqSaveFolder data)
+        {
+            ResResponce clsResult = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                SqlCommand cmd = new SqlCommand("spSaveFolder", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@Id", SqlDbType.Int));
+                cmd.Parameters["@Id"].Value = data.id;
+
+                cmd.Parameters.Add(new SqlParameter("@fName", SqlDbType.VarChar));
+                cmd.Parameters["@fName"].Value = data.fname;
+
+                cmd.Parameters.Add(new SqlParameter("@dfClientId", SqlDbType.Int));
+                cmd.Parameters["@dfClientId"].Value = data.dfClientId;
+                con.Open();
+                clsResult.Responce = cmd.ExecuteScalar().ToString();
+
+                con.Close();
+
+
+                return clsResult;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                clsResult.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return clsResult;
+            }
+        }
+
 
 
         public ResponseTokenCrashLog ClientRegistration(DataClientRegistration data)
         {
             ResponseTokenCrashLog result = new ResponseTokenCrashLog();
-            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["con"].ConnectionString);
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["ALcon"].ConnectionString);
             Int32 SaveDfClientId = 0;
             try
             {
@@ -8712,7 +8867,7 @@ namespace EuforyServices.ServiceImplementation
 
         public ResponseTokenCrashLog RenewPayment(DataRenewPayment data)
         {
-            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["con"].ConnectionString);
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["ALcon"].ConnectionString);
             ResponseTokenCrashLog clsResult = new ResponseTokenCrashLog();
             try
             {
@@ -8887,14 +9042,293 @@ namespace EuforyServices.ServiceImplementation
 
 
 
+        public List<ResPlayerLog> FillPlayedTitleSummary(ReqTitleLog data)
+        {
+            List<ResPlayerLog> lstTd = new List<ResPlayerLog>();
+            string cs = ConfigurationManager.ConnectionStrings["Panel"].ConnectionString;
+            SqlConnection constr = new SqlConnection(cs);
+            if (string.IsNullOrEmpty(data.ToDate) == true)
+            {
+                data.ToDate = data.cDate;
+            }
+            string str = "GetPlayedTitleSummary " + data.ClientId + "," + data.tokenid + "  ,'" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.cDate)) + "','" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.ToDate)) + "'";
+            SqlCommand cmd = new SqlCommand(str, constr);
+            try
+            {
+                constr.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+                    ResPlayerLog td = new ResPlayerLog();
+                    td.Name = rdr["title"].ToString();
+                    td.ArtistName = rdr["name"].ToString();
+                    td.TotalPlayed =  rdr["TotalPlayed"].ToString();
+                    td.PlayedDateTime = string.Format("{0:dd-MMM-yyyy HH:mm}", DateTime.Now);
+                    td.SplPlaylistName = "";
+                    td.CategoryName = "";
+                    td.pDateTime = Convert.ToDateTime(DateTime.Now);
+                    lstTd.Add(td);
+                }
+                constr.Close();
+                return lstTd;
+            }
+            catch (Exception ex)
+            {
+                constr.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return lstTd;
+            }
+        }
+
+        public ResResponce SendMail(ReqTokenInfo data)
+        {
+            ResResponce Result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+
+            try
+            {
+                DataTable dtDetail = new DataTable();
+                string strResend = "";
+                DataTable dtGetToken = new DataTable();
+                string strQ = "";
+               int TotalTok = 0;
+               string MailMatter = "";
+                strQ = "select * from AMPlayerTokens where Clientid=" + data.clientId + " and Code is null";
+                SqlCommand cmd = new SqlCommand(strQ, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                if (con.State == ConnectionState.Closed) { con.Open(); }
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(dtGetToken);
+                 
+                if (dtGetToken.Rows.Count > 0)
+                {
+                    for (int i = 0; i <= dtGetToken.Rows.Count - 1; i++)
+                    {
+                        TotalTok = TotalTok + 1;
+                        MailMatter = MailMatter + TotalTok + ". " + dtGetToken.Rows[i]["Token"].ToString() + " \n";
+                    }
+                }
+                ad.Dispose();
+                cmd.Dispose();
+string SupportMatter = "";
+
+                string ClientEmail = "";
+                int TotalToken = 0;
+                string ExpiryDate = "";
+                string ClientName = "";
+                string LoginName = "";
+                string LoginPassword = "";
+
+                strResend = "  select DFClients.*, tbDealerLogin.LoginPassword,tbDealerLogin.ExpiryDate, tbdealerlogin.DamTotalToken,tbdealerlogin.CopyrightTotalToken,tbdealerlogin.SanjivaniTotalToken ";
+                strResend = strResend + "  from DFClients inner join tbDealerLogin on DFClients.DFClientID= tbDealerLogin.DFClientID ";
+                strResend = strResend + " where   DFClients.DFClientID = " + data.clientId;
+                cmd = new SqlCommand(strResend, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                ad = new SqlDataAdapter(cmd);
+                ad.Fill(dtDetail);
+                if (dtDetail.Rows.Count > 0)
+                {
+                    for (int i = 0; i <= dtDetail.Rows.Count - 1; i++)
+                    {
+                        ClientEmail = dtDetail.Rows[i]["Email"].ToString();
+                        TotalToken = Convert.ToInt32(dtDetail.Rows[i]["DealerNoTotalToken"]);
+                        ExpiryDate = string.Format("{0:dd/MMM/yyyy}", dtDetail.Rows[i]["ExpiryDate"]);
+                        ClientName = dtDetail.Rows[i]["ClientName"].ToString();
+                        LoginName = dtDetail.Rows[i]["Email"].ToString();
+                        LoginPassword = dtDetail.Rows[i]["LoginPassword"].ToString();
+                    }
+                }
+                var fromAddress = new MailAddress("advikonservice@gmail.com", "Advikon Service");
+                var toAddress = new MailAddress(ClientEmail);
+
+                const string fromPassword = "Gilles23789@";
+                string subject = "Notification";
+                string body = "Dear Customer, \n";
+                body += "\n";
+                body += "Thank you for registering with ADVIKON music services. You have registered " + TotalTok + " tokens.";
+                body += "\n";
+                body += "\n";
+                body += "Customer Name: " + ClientName + "\n";
+
+                body += "\n";
+                body += "You can manage your players through web panel. Login details are: \n";
+                body += "Website: https://advikon.com/ \n";
+                body += "Login Name: " + LoginName + " \n";
+                body += "Password: " + LoginPassword + " \n";
+                body += "License Expiry: " + ExpiryDate + "   \n";
+                body += "\n";
+                body += "Player download links are avilable on website under the Links menu. \n";
+                body += "\n";
+                body += "Regards \n";
+                body += "Support Team";
+                body += "\n";
+                body += "\n";
+                body += "Note: Please Unzip the window player file after download. Then click on player exe for activation.";
+                body += "\n";
+                body += "\n";
+                var smtp = new SmtpClient
+                {
+                    Host = "smtp.gmail.com",
+                    Port = 587,
+                    EnableSsl = true,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+                };
+                MailMessage message = new MailMessage();
+                message.Subject = subject;
+                message.Body = body;
+                message.To.Add(toAddress);
+                message.To.Add("jan@advikon.eu");
+                message.To.Add("talwinder@advikon.eu");
+                message.From = fromAddress;
+                smtp.Send(message);
+                Result.Responce = "1";
+                con.Close();
+                return Result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                Result.Responce = "0";
+                HttpContext.Current.Response.StatusCode = 1;
+                return Result;
+            }
+        }
 
 
 
+        public ResResponce CitySateNewModify(ReqCitySateNewModify data)
+        {
+            ResResponce clsResult = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            string returnValue = "";
+            try
+            {
+                if (data.type == "State")
+                {
+                    SqlCommand cmd = new SqlCommand("SaveState", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add(new SqlParameter("@CountryId", SqlDbType.BigInt));
+                    cmd.Parameters["@CountryId"].Value = data.CountryId;
+                    cmd.Parameters.Add(new SqlParameter("@StateName", SqlDbType.VarChar));
+                    cmd.Parameters["@StateName"].Value = data.name;
+                    cmd.Parameters.Add(new SqlParameter("@Stateid", SqlDbType.BigInt));
+                    cmd.Parameters["@Stateid"].Value = data.stateid;
+                    if (con.State == ConnectionState.Closed) con.Open();
+                    returnValue = cmd.ExecuteScalar().ToString();
+                }
+                if (data.type == "City")
+                {
+                    SqlCommand cmd = new SqlCommand("SaveCity", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add(new SqlParameter("@CountryId", SqlDbType.BigInt));
+                    cmd.Parameters["@CountryId"].Value = data.CountryId;
+                    cmd.Parameters.Add(new SqlParameter("@StateId", SqlDbType.BigInt));
+                    cmd.Parameters["@StateId"].Value = data.stateid;
+                    cmd.Parameters.Add(new SqlParameter("@CityName", SqlDbType.VarChar));
+                    cmd.Parameters["@CityName"].Value = data.name;
+                    cmd.Parameters.Add(new SqlParameter("@CityId", SqlDbType.BigInt));
+                    cmd.Parameters["@CityId"].Value = data.id;
 
+                    if (con.State == ConnectionState.Closed) con.Open();
+                    returnValue = cmd.ExecuteScalar().ToString();
+                }
+                if (data.type == "Group")
+                {
+                    SqlCommand cmd = new SqlCommand("SaveGroup", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add(new SqlParameter("@groupId", SqlDbType.BigInt));
+                    cmd.Parameters["@groupId"].Value = data.id;
+                    cmd.Parameters.Add(new SqlParameter("@groupname", SqlDbType.VarChar));
+                    cmd.Parameters["@groupname"].Value = data.name;
+                    cmd.Parameters.Add(new SqlParameter("@dfClientId", SqlDbType.BigInt));
+                    cmd.Parameters["@dfClientId"].Value = data.dfClientId;
 
+                    if (con.State == ConnectionState.Closed) con.Open();
+                    returnValue = cmd.ExecuteScalar().ToString();
+                }
+                if (returnValue == "-2")
+                {
+                    clsResult.Responce = returnValue;
+                }
+                else
+                {
+                    clsResult.Responce = "1";
+                }
+                con.Close();
+                return clsResult;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return clsResult;
+            }
+        }
 
+        public ResResponce CopyFormat(ReqCopyFormat data)
+        {
+            ResResponce clsResult = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                int splId = 0;
+                string str = "";
+                str = "select  * from tbSpecialPlaylists where formatid= "+ data.CopyFormatId;
+                DataTable dt = new DataTable();
+                SqlCommand cmdDT = new SqlCommand(str, con);
+                cmdDT.CommandType = System.Data.CommandType.Text;
+                SqlDataAdapter ad = new SqlDataAdapter(cmdDT);
+                ad.Fill(dt);
+                ad.Dispose();
+                cmdDT.Dispose();
+                con.Open();
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        SqlCommand cmd = new SqlCommand("spSpecialPlaylists_Save_Update", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add(new SqlParameter("@pAction", SqlDbType.VarChar));
+                        cmd.Parameters["@pAction"].Value = "New";
+                        cmd.Parameters.Add(new SqlParameter("@splPlaylistId", SqlDbType.BigInt));
+                        cmd.Parameters["@splPlaylistId"].Value = 0;
+                        cmd.Parameters.Add(new SqlParameter("@splPlaylistName", SqlDbType.VarChar));
+                        cmd.Parameters["@splPlaylistName"].Value = dt.Rows[i]["splPlaylistName"].ToString().Trim();
+                        cmd.Parameters.Add(new SqlParameter("@pVersion", SqlDbType.VarChar));
+                        cmd.Parameters["@pVersion"].Value = "c";
+                        cmd.Parameters.Add(new SqlParameter("@Formatid", SqlDbType.BigInt));
+                        cmd.Parameters["@Formatid"].Value = data.FormatId;
+                        cmd.Parameters.Add(new SqlParameter("@mType", SqlDbType.VarChar));
+                        cmd.Parameters["@mType"].Value = "Audio";
+                        if (con.State == ConnectionState.Closed) { con.Open(); }
+                        splId = Convert.ToInt32(cmd.ExecuteScalar());
 
-
+                         str = "";
+                        str = "insert into tbSpecialPlaylists_Titles select " + splId + ", titleid,srno from tbSpecialPlaylists_Titles where splplaylistid= "+ dt.Rows[i]["splPlaylistId"];
+                        SqlCommand cmdTitle = new SqlCommand(str, con);
+                        cmdTitle.CommandType = System.Data.CommandType.Text;
+                        if (con.State == ConnectionState.Closed) { con.Open(); }
+                        cmdTitle.ExecuteNonQuery();
+                        cmdTitle.Dispose();
+                    }
+                    clsResult.Responce = "1";
+                }
+                con.Close();
+                return clsResult;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                var g = ex.Message;
+                clsResult.Responce = "0";
+                HttpContext.Current.Response.StatusCode = 1;
+                return clsResult;
+            }
+        }
 
 
 

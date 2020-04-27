@@ -61,6 +61,7 @@ F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices.Ser
 F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices.ServiceImplementation\obj\Debug\EuforyServices.ServiceImplementation.csprojResolveAssemblyReference.cache
 F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices.ServiceImplementation\obj\Debug\EuforyServices.ServiceImplementation.dll
 F:\Projects\MusicPlayer\WorkingProjects\Alenka\EuforyServices\EuforyServices.ServiceImplementation\obj\Debug\EuforyServices.ServiceImplementation.pdb
+F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.ServiceImplementation\obj\Debug\EuforyServices.ServiceImplementation.csprojResolveAssemblyReference.cache
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.ServiceImplementation\bin\Debug\EuforyServices.ServiceImplementation.dll.config
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.ServiceImplementation\bin\Debug\EuforyServices.ServiceImplementation.dll
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.ServiceImplementation\bin\Debug\EuforyServices.ServiceImplementation.pdb
@@ -80,6 +81,5 @@ F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.Se
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.ServiceImplementation\bin\Debug\System.Net.Http.Formatting.xml
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.ServiceImplementation\bin\Debug\System.Web.Http.xml
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.ServiceImplementation\bin\Debug\System.Web.Http.Cors.xml
-F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.ServiceImplementation\obj\Debug\EuforyServices.ServiceImplementation.csprojResolveAssemblyReference.cache
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.ServiceImplementation\obj\Debug\EuforyServices.ServiceImplementation.dll
 F:\Projects\MusicPlayer\WorkingProjects\MyClaud\EuforyServices\EuforyServices.ServiceImplementation\obj\Debug\EuforyServices.ServiceImplementation.pdb

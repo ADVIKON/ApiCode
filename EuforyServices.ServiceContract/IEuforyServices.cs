@@ -670,5 +670,31 @@ namespace EuforyServices.ServiceContract
         [Description("SaveGenre")]
         ResResponce SaveGenre(ReqSaveGenre data);
 
+        [WebInvoke(Method = "POST", UriTemplate = "SaveFolder", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveFolder")]
+        ResResponce SaveFolder(ReqSaveFolder data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "FillPlayedTitleSummary", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("FillPlayedTitleSummary")]
+        List<ResPlayerLog> FillPlayedTitleSummary(ReqTitleLog data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SendMail", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SendMail")]
+        ResResponce SendMail(ReqTokenInfo data);
+
+
+        [WebInvoke(Method = "POST", UriTemplate = "CitySateNewModify", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("CitySateNewModify")]
+        ResResponce CitySateNewModify(ReqCitySateNewModify data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "CopyFormat", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("CopyFormat")]
+        ResResponce CopyFormat(ReqCopyFormat data);
+         
     }
 }
