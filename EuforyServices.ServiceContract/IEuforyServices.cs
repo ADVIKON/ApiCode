@@ -695,6 +695,10 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("CopyFormat")]
         ResResponce CopyFormat(ReqCopyFormat data);
-         
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveTranferToken", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveTranferToken")]
+        ResResponce SaveTranferToken(ReqTranferToken data);
     }
 }

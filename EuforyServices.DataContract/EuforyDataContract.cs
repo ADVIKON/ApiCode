@@ -909,7 +909,8 @@ namespace EuforyServices.DataContract
         public string StateId { get; set; }
         [DataMember]
         public string CityId { get; set; }
-
+        [DataMember]
+        public int SpaceStatus { get; set; }
     }
     [DataContract]
     public class ReqToken
@@ -2087,6 +2088,16 @@ namespace EuforyServices.DataContract
         public string CopyFormatId { get; set; }
         [DataMember]
         public string dfclientId { get; set; }
+    }
+    [DataContract]
+    public class ReqTranferToken
+    {
+        [DataMember]
+        public string CustomerId { get; set; }
+        [DataMember]
+        public string TransferCustomerId { get; set; }
+        [DataMember]
+        public string[] TransferTokens { get; set; }
     }
 }
 

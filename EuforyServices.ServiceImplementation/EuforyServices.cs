@@ -2786,6 +2786,8 @@ namespace EuforyServices.ServiceImplementation
                 for (int i = 0; i < ds.Rows.Count; i++)
                 {
                     var freeSp = "";
+                    int aSpace = 0;
+                    int FinalStatus = 0;
                     if(Convert.ToInt32(ds.Rows[i]["fSpace"]) <= 1024)
                     {
                         freeSp =  ds.Rows[i]["fSpace"].ToString() + " MB";
@@ -2793,6 +2795,33 @@ namespace EuforyServices.ServiceImplementation
                     else
                     {
                         freeSp = (Convert.ToInt32(ds.Rows[i]["fSpace"]) / 1024).ToString() + " GB";
+                    }
+                    aSpace = Convert.ToInt32(ds.Rows[i]["fSpace"]);
+                    if (ds.Rows[i]["PlType"].ToString() == "Desktop")
+                    {
+                        aSpace = 23552;
+                        freeSp = "23 GB";
+                    }
+
+                    if ((aSpace>=0) && (aSpace <= 2048))
+                    {
+                        FinalStatus = 100;
+                    }
+                   else if ((aSpace > 2048 ) && (aSpace <= 4096))
+                    {
+                        FinalStatus = 70;
+                    }
+                    else if ((aSpace > 4096) && (aSpace <= 6144))
+                    {
+                        FinalStatus = 50;
+                    }
+                    else if ((aSpace > 6144) && (aSpace <= 8192))
+                    {
+                        FinalStatus = 30;
+                    }
+                    else if (aSpace > 8192)
+                    {
+                        FinalStatus = 10;
                     }
                     lstResult.Add(new ResTokenInfo()
                     {
@@ -2816,6 +2845,7 @@ namespace EuforyServices.ServiceImplementation
                         CountryId = ds.Rows[i]["CountryId"].ToString(),
                         StateId = ds.Rows[i]["StateId"].ToString(),
                         CityId = ds.Rows[i]["CityId"].ToString(),
+                        SpaceStatus= FinalStatus,
                     });
                 }
                 con.Close();
@@ -9330,7 +9360,39 @@ string SupportMatter = "";
             }
         }
 
-
+        public ResResponce SaveTranferToken(ReqTranferToken data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand();
+                foreach (var tTokens in data.TransferTokens)
+                {
+                    cmd = new SqlCommand("TransferToken", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Add(new SqlParameter("@tokenId", SqlDbType.BigInt));
+                    cmd.Parameters["@tokenId"].Value = tTokens;
+                    cmd.Parameters.Add(new SqlParameter("@TransferClientId", SqlDbType.BigInt));
+                    cmd.Parameters["@TransferClientId"].Value = data.TransferCustomerId;
+                    cmd.Parameters.Add(new SqlParameter("@Clientid", SqlDbType.BigInt));
+                    cmd.Parameters["@Clientid"].Value = data.CustomerId;
+                    cmd.ExecuteNonQuery();
+                }
+                result.Responce = "1";
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                result.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
 
 
 
