@@ -117,15 +117,26 @@ namespace EuforyServices.ServiceImplementation
         #endregion
 
         #region Stream
-        public List<ResponceStream> GetOnlineStream()
+        public List<ResponceStream> GetOnlineStream(DataStream data)
         {
             List<ResponceStream> result = new List<ResponceStream>();
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["con"].ConnectionString);
 
             try
             {
-
-                SqlCommand cmd = new SqlCommand("Select streamnameApp,StreamLinkApp,imgpath from  tblOnlineStreaming_App where titlecategoryid=1 order by streamnameApp", con);
+                string str = "";
+                if (string.IsNullOrEmpty(data.OwnerCustomerId) == false)
+                {
+                    str = "Select streamid, streamnameApp,StreamLinkApp,imgpath from  tblOnlineStreaming_App where dfclientid=" + data.OwnerCustomerId + " order by streamnameApp";
+                }
+                else
+                {
+                    str = "select os.streamid, os.streamnameApp,os.StreamLinkApp,os.imgpath from tbAssignMobileStreamToken ams";
+                    str = str + " inner join tblOnlineStreaming_App os on os.streamid = ams.streamid ";
+                    str = str + " where ams.tokenid="+ data.TokenId;
+                    str = str+ " order by os.streamnameApp";
+                }
+                SqlCommand cmd = new SqlCommand(str, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 if (con.State == ConnectionState.Closed) { con.Open(); }
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
@@ -135,9 +146,11 @@ namespace EuforyServices.ServiceImplementation
                 {
                     result.Add(new ResponceStream()
                     {
-                        StreamName = ds.Tables[0].Rows[i][0].ToString(),
-                        StreamLink = ds.Tables[0].Rows[i][1].ToString(),
-                        StreamImgPath = ds.Tables[0].Rows[i][2].ToString(),
+                        StreamId = ds.Tables[0].Rows[i]["streamid"].ToString(),
+                        StreamName = ds.Tables[0].Rows[i]["streamnameApp"].ToString(),
+                        StreamLink = ds.Tables[0].Rows[i]["StreamLinkApp"].ToString(),
+                        StreamImgPath = ds.Tables[0].Rows[i]["imgpath"].ToString(),
+                        check= false,
                     });
                 }
                 con.Close();
@@ -244,7 +257,7 @@ namespace EuforyServices.ServiceImplementation
         #endregion
 
         #region MiddleImage
-        public List<ResponceMiddleImage> GetMiddleImage()
+        public List<ResponceMiddleImage> GetMiddleImage(DataStream data)
         {
             List<ResponceMiddleImage> result = new List<ResponceMiddleImage>();
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["con"].ConnectionString);
@@ -252,7 +265,7 @@ namespace EuforyServices.ServiceImplementation
             try
             {
 
-                SqlCommand cmd = new SqlCommand("Select imgpath from  tblMiddleImage_App ", con);
+                SqlCommand cmd = new SqlCommand("Select imgpath from  tblMiddleImage_App where tokenid= " + data.TokenId, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 if (con.State == ConnectionState.Closed) { con.Open(); }
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
@@ -9394,19 +9407,349 @@ string SupportMatter = "";
             }
         }
 
+        public ResResponce UploadStreamImage()
+        {
+            ResResponce Result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+           
+            try
+            {
+                HttpPostedFile postedFile = HttpContext.Current.Request.Files[0];
+
+                var StreamName = HttpContext.Current.Request.Form[0];
+                var CustomerId = HttpContext.Current.Request.Form[1];
+                var StreamLink = HttpContext.Current.Request.Form[2];
+                var k = postedFile.ContentLength;
+                 
+                SqlCommand cmd = new SqlCommand("sp_AppStream_Save", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.BigInt));
+                cmd.Parameters["@StreamId"].Value = 0;
+
+                cmd.Parameters.Add(new SqlParameter("@StreamName", SqlDbType.NVarChar));
+                cmd.Parameters["@StreamName"].Value = StreamName;
+
+                cmd.Parameters.Add(new SqlParameter("@StreamLink", SqlDbType.NVarChar));
+                cmd.Parameters["@StreamLink"].Value = "";
+
+                cmd.Parameters.Add(new SqlParameter("@dfclientid", SqlDbType.BigInt));
+                cmd.Parameters["@dfclientid"].Value = 0;
+                cmd.Parameters.Add(new SqlParameter("@ImgPath", SqlDbType.NVarChar));
+                cmd.Parameters["@ImgPath"].Value = "";
+
+                con.Open();
+
+                Int32 Id= Convert.ToInt32(cmd.ExecuteScalar());
+                cmd.Dispose();
+                string fName = Id.ToString() + Path.GetExtension(postedFile.FileName);
+                var filePath = HttpContext.Current.Server.MapPath("~/AppStreamPic/" + fName);
+                postedFile.SaveAs(filePath);
+
+                cmd = new SqlCommand("sp_AppStream_Save", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.BigInt));
+                cmd.Parameters["@StreamId"].Value = Id;
+
+                cmd.Parameters.Add(new SqlParameter("@StreamName", SqlDbType.NVarChar));
+                cmd.Parameters["@StreamName"].Value = StreamName;
+
+                cmd.Parameters.Add(new SqlParameter("@StreamLink", SqlDbType.NVarChar));
+                cmd.Parameters["@StreamLink"].Value = StreamLink;
+
+                cmd.Parameters.Add(new SqlParameter("@dfclientid", SqlDbType.BigInt));
+                cmd.Parameters["@dfclientid"].Value = CustomerId;
+                cmd.Parameters.Add(new SqlParameter("@ImgPath", SqlDbType.NVarChar));
+                cmd.Parameters["@ImgPath"].Value = "http://134.119.178.26/AppStreamPic/"+ fName;
+                cmd.ExecuteNonQuery();
+
+                Result.Responce = "1";
+                con.Close();
+                return Result;
+            }
+            catch (Exception ex)
+            {
+                var g = ex.Message;
+                con.Close();
+                return Result;
+            }
+        }
+
+        public ResResponce UpdateStream(ReqStream data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+               
+                SqlCommand cmd = new SqlCommand("sp_AppStream_Save", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@StreamId", SqlDbType.BigInt));
+                cmd.Parameters["@StreamId"].Value = data.sId;
+
+                cmd.Parameters.Add(new SqlParameter("@StreamName", SqlDbType.NVarChar));
+                cmd.Parameters["@StreamName"].Value = data.sName.Trim();
+
+                cmd.Parameters.Add(new SqlParameter("@StreamLink", SqlDbType.NVarChar));
+                cmd.Parameters["@StreamLink"].Value = data.sLink;
+
+                cmd.Parameters.Add(new SqlParameter("@dfclientid", SqlDbType.BigInt));
+                cmd.Parameters["@dfclientid"].Value = data.OwnerId;
+                cmd.Parameters.Add(new SqlParameter("@ImgPath", SqlDbType.NVarChar));
+                cmd.Parameters["@ImgPath"].Value = data.sImgLink;
+                con.Open();
+                cmd.ExecuteNonQuery();
+
+                result.Responce = "1";
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                result.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
 
 
+        public ResResponce DeleteStream(ReqDeleteStream data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
 
 
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandText = "delete from tblOnlineStreaming_App where streamid=" + data.sId;
+                con.Open();
+                cmd.ExecuteNonQuery();
+                result.Responce = "1";
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                result.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
 
+        public ResResponce AssignStream(ReqAssignStream data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                SqlCommand cmdOnline = new SqlCommand();
+                foreach (var iStream in data.StreamSelected)
+                {
+                    foreach (var iToken in data.TokenSelected)
+                    {
+                        cmdOnline = new SqlCommand();
+                        cmdOnline.Connection = con;
+                        cmdOnline.CommandType = CommandType.Text;
+                        cmdOnline.CommandText = "insert into tbAssignMobileStreamToken (tokenid,streamid,StreamOwnerClientid) values (" + iToken + "," + iStream + "," + data.OwnerId + ")";
+                        if (con.State == ConnectionState.Closed)
+                        {
+                            con.Open();
+                        }
+                        cmdOnline.ExecuteNonQuery();
+                        cmdOnline.Dispose();
+                    }
+                }
+                
+                result.Responce = "1";
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                result.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
 
+        public ResResponce DeleteAssignStream(ReqDeleteAssignStream data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandText = "delete from tbAssignMobileStreamToken where tokenid=" + data.TokenId + " and streamid="+ data.StreamId;
+                con.Open();
+                cmd.ExecuteNonQuery();
+                result.Responce = "1";
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                result.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
 
+        public List<ResFillMiddleImage> FillMiddleImage(DataStream data)
+        {
+            List<ResFillMiddleImage> lstResult = new List<ResFillMiddleImage>();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
 
+            try
+            {
+                string str = "";
+                str = "select distinct  TitleID, ltrim(Title) as Title,Titles.GenreId, isnull(titleimgid,0) as titleImgId ,imgpath FROM Titles ";
+                str = str + "  LEFT JOIN (select distinct titleimgid,imgpath from tblMiddleImage_App where tokenid=" + data.TokenId + ") a ";
+                str = str + "  on a.titleimgid= Titles.TitleID ";
+                str = str + "  where Titles.GenreId= 326  ";
+                if ((data.OwnerCustomerId != "6") && (data.OwnerCustomerId != "2"))
+                {
+                    str = str + " and dfclientid= " + data.OwnerCustomerId;
+                }
+                
 
+                SqlCommand cmd = new SqlCommand(str, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                if (con.State == ConnectionState.Closed) { con.Open(); }
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(ds);
+                for (int i = 0; i < ds.Rows.Count; i++)
+                {
+                    lstResult.Add(new ResFillMiddleImage()
+                    {
+                        id = ds.Rows[i]["TitleID"].ToString(),
+                        IsFind = ds.Rows[i]["titleImgId"].ToString(),
+                        TitleIdLink = "http://134.119.178.26/mp3files/" + ds.Rows[i]["TitleID"].ToString() + ".jpg"
 
+                });
+                }
+                con.Close();
+                return lstResult;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return lstResult;
+            }
+        }
 
+        public ResResponce SetMiddleImg(ReqSetMiddleImg data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                var url = "http://134.119.178.26/mp3files/" + data.TitleId.ToString() + ".jpg";
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandText = "insert into tblMiddleImage_App(titleimgid,imgpath,tokenid)" +
+                    " values (" + data.TitleId + " ,'" + url + "'," + data.TokenId + ")";
+                con.Open();
+                cmd.ExecuteNonQuery();
+                result.Responce = "1";
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                result.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
 
+        public ResResponce DeleteMiddleImg(ReqSetMiddleImg data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandText = "delete tblMiddleImage_App where titleimgid= "+data.TitleId+" " +
+                    " and tokenid= " + data.TokenId + "";
+                con.Open();
+                cmd.ExecuteNonQuery();
+                result.Responce = "1";
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                result.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
 
+        public List<ResFillMiddleImage> FillSignageLogo(ReqFillSignageLogo data)
+        {
+            List<ResFillMiddleImage> lstResult = new List<ResFillMiddleImage>();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+
+            try
+            {
+                string str = "";
+                str = "select distinct  TitleID, ltrim(Title) as Title,Titles.GenreId FROM Titles ";
+                str = str + "  where Titles.GenreId= 326  ";
+                if ((data.CustomerId!= "6") && (data.CustomerId!= "2"))
+                {
+                    str = str + " and dfclientid= " + data.CustomerId;
+                }
+                if (data.FolderId != "777")
+                {
+                    str = str + " and isnull(folderId,0)= " + data.FolderId;
+                }
+
+                SqlCommand cmd = new SqlCommand(str, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                if (con.State == ConnectionState.Closed) { con.Open(); }
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(ds);
+                for (int i = 0; i < ds.Rows.Count; i++)
+                {
+                    lstResult.Add(new ResFillMiddleImage()
+                    {
+                        id = ds.Rows[i]["TitleID"].ToString(),
+                        IsFind = ds.Rows[i]["TitleID"].ToString(),
+                        TitleIdLink = "http://134.119.178.26/mp3files/" + ds.Rows[i]["TitleID"].ToString() + ".jpg"
+
+                    });
+                }
+                con.Close();
+                return lstResult;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return lstResult;
+            }
+        }
 
 
 

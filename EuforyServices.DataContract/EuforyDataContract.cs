@@ -57,6 +57,8 @@ namespace EuforyServices.DataContract
         public string StreamImgPath { get; set; }
         [DataMember]
         public string StreamId { get; set; }
+        [DataMember]
+        public bool check { get; set; }
     }
 
     [DataContract]
@@ -2099,6 +2101,84 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string[] TransferTokens { get; set; }
     }
+    [DataContract]
+    public class DataStream
+    {
+        [DataMember]
+        public string TokenId { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "OwnerCustomerId", Order = 1)]
+        public string OwnerCustomerId { get; set; }
+
+    }
+    [DataContract]
+    public class ReqStream
+    {
+        [DataMember]
+        public string sId { get; set; }
+        [DataMember]
+        public string sName { get; set; }
+        [DataMember]
+        public string sLink { get; set; }
+        [DataMember]
+        public string OwnerId { get; set; }
+        [DataMember]
+        public string sImgLink { get; set; }
+    }
+    [DataContract]
+    public class ReqDeleteStream
+    {
+        [DataMember]
+        public string sId { get; set; }
+        
+    }
+    [DataContract]
+    public class ReqAssignStream
+    {
+        [DataMember]
+        public string[] TokenSelected { get; set; }
+        [DataMember]
+        public string[] StreamSelected { get; set; }
+        [DataMember]
+        public string OwnerId { get; set; }
+    }
+    [DataContract]
+    public class ReqDeleteAssignStream
+    {
+        [DataMember]
+        public string TokenId { get; set; }
+        [DataMember]
+        public string StreamId { get; set; }
+
+    }
+    [DataContract]
+    public class ResFillMiddleImage
+    {
+        [DataMember]
+        public string TitleIdLink { get; set; }
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string IsFind { get; set; }
+    }
+    [DataContract]
+    public class ReqSetMiddleImg
+    {
+        [DataMember]
+        public string TokenId { get; set; }
+        [DataMember]
+        public string TitleId { get; set; }
+
+    }
+    [DataContract]
+    public class ReqFillSignageLogo
+    {
+        [DataMember]
+        public string CustomerId { get; set; }
+        [DataMember]
+        public string FolderId { get; set; }
+
+    }
+    
 }
 
      

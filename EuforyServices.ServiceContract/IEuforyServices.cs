@@ -29,10 +29,10 @@ namespace EuforyServices.ServiceContract
         [Description("Get All Genre Titles")]
         List<ResponceGenreTitles> GetGenreTitles(DataGenreTitles data);
 
-        [WebInvoke(Method = "GET", UriTemplate = "GetOnlineStream", ResponseFormat = WebMessageFormat.Json)]
+        [WebInvoke(Method = "POST", UriTemplate = "GetOnlineStream", ResponseFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
         [Description("Get All Stream")]
-        List<ResponceStream> GetOnlineStream();
+        List<ResponceStream> GetOnlineStream(DataStream data);
 
 
         [WebInvoke(Method = "POST", UriTemplate = "CheckUserLogin", ResponseFormat = WebMessageFormat.Json)]
@@ -46,10 +46,10 @@ namespace EuforyServices.ServiceContract
         [Description("Check user rights")]
         List<ResponceUserRights> CheckUserRights(DataUserRights data);
 
-        [WebInvoke(Method = "GET", UriTemplate = "GetMiddleImage", ResponseFormat = WebMessageFormat.Json)]
+        [WebInvoke(Method = "POST", UriTemplate = "GetMiddleImage", ResponseFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
         [Description("Get Middle Image")]
-        List<ResponceMiddleImage> GetMiddleImage();
+        List<ResponceMiddleImage> GetMiddleImage(DataStream data);
 
 
         [WebInvoke(Method = "POST", UriTemplate = "GetSplPlaylist", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
@@ -700,5 +700,53 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("SaveTranferToken")]
         ResResponce SaveTranferToken(ReqTranferToken data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "UploadStreamImage", ResponseFormat = WebMessageFormat.Json,
+    BodyStyle = WebMessageBodyStyle.Bare)]
+        [FaultContract(typeof(FaultException))]
+        [Description("UploadStreamImage")]
+        ResResponce UploadStreamImage();
+
+        [WebInvoke(Method = "POST", UriTemplate = "UpdateStream", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("UpdateStream")]
+        ResResponce UpdateStream(ReqStream data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteStream", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteStream")]
+        ResResponce DeleteStream(ReqDeleteStream data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "AssignStream", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("AssignStream")]
+        ResResponce AssignStream(ReqAssignStream data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteAssignStream", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteAssignStream")]
+        ResResponce DeleteAssignStream(ReqDeleteAssignStream data);
+
+
+        [WebInvoke(Method = "POST", UriTemplate = "FillMiddleImage", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("FillMiddleImage")]
+        List<ResFillMiddleImage> FillMiddleImage(DataStream data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SetMiddleImg", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SetMiddleImg")]
+        ResResponce SetMiddleImg(ReqSetMiddleImg data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteMiddleImg", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteMiddleImg")]
+        ResResponce DeleteMiddleImg(ReqSetMiddleImg data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "FillSignageLogo", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("FillSignageLogo")]
+        List<ResFillMiddleImage> FillSignageLogo(ReqFillSignageLogo data);
+
     }
 }
