@@ -648,7 +648,8 @@ namespace EuforyServices.DataContract
         public string verNo { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "FreeSpace", Order = 1)]
         public string FreeSpace { get; set; }
-
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "TotalSpace", Order = 2)]
+        public string TotalSpace { get; set; }
     }
 
 
@@ -913,6 +914,8 @@ namespace EuforyServices.DataContract
         public string CityId { get; set; }
         [DataMember]
         public int SpaceStatus { get; set; }
+        [DataMember]
+        public int SpacePer { get; set; }
     }
     [DataContract]
     public class ReqToken

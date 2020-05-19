@@ -1457,6 +1457,15 @@ namespace EuforyServices.ServiceImplementation
                     {
                         e_time = ds.Tables[0].Rows[i]["EndTime"].ToString();
                     }
+                    int isShowDefaultVar = 0;
+                    if (Convert.ToInt32(ds.Tables[0].Rows[i]["isShowDefault"]) == 1)
+                    {
+                        isShowDefaultVar = 0;
+                    }
+                    else
+                    {
+                        isShowDefaultVar = 1;
+                    }
                     result.Add(new ResponceSplSplaylist()
                     {
                         pScid = Convert.ToInt32(ds.Tables[0].Rows[i]["pSchid"]),
@@ -1465,7 +1474,7 @@ namespace EuforyServices.ServiceImplementation
                         splPlaylistName = ds.Tables[0].Rows[i]["splPlaylistName"].ToString(),
                         StartTime = ds.Tables[0].Rows[i]["StartTime"].ToString(),
                         EndTime = e_time,
-                        IsSeprationActive = Convert.ToInt32(ds.Tables[0].Rows[i]["isShowDefault"]),
+                        IsSeprationActive = isShowDefaultVar,
                         IsFadingActive = Convert.ToInt32(ds.Tables[0].Rows[i]["IsFadingActive"]),
                         FormatId = 0,
                         IsMute = ds.Tables[0].Rows[i]["IsMute"].ToString(),
@@ -1994,6 +2003,7 @@ namespace EuforyServices.ServiceImplementation
             {
                 string TotalSong = "";
                 string free = "";
+                string TotalSpace = "";
                 if (string.IsNullOrEmpty(data.FreeSpace) == true)
                 {
                     free = "0";
@@ -2003,8 +2013,15 @@ namespace EuforyServices.ServiceImplementation
                     free = data.FreeSpace;
                 }
                 TotalSong = data.totalSong;
-
-                string lType = "SaveDownloadsongStatus " + data.TokenId + ", " + TotalSong + ",'" + data.verNo + "', " + free;
+                if (string.IsNullOrEmpty(data.TotalSpace) == true)
+                {
+                    TotalSpace = "0";
+                }
+                else
+                {
+                    TotalSpace = data.TotalSpace;
+                }
+                string lType = "SaveDownloadsongStatus " + data.TokenId + ", " + TotalSong + ",'" + data.verNo + "', " + free + "," + TotalSpace;
                 SqlCommand cmd = new SqlCommand(lType, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 if (con.State == ConnectionState.Closed) { con.Open(); }
@@ -2317,13 +2334,13 @@ namespace EuforyServices.ServiceImplementation
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
 
-                    if (Convert.ToInt32(ds.Tables[0].Rows[i]["isShowDefault"]) == 0)
+                    if (Convert.ToInt32(ds.Tables[0].Rows[i]["isShowDefault"]) == 1)
                     {
-                        isShowDefaultVar = 1;
+                        isShowDefaultVar = 0;
                     }
                     else
                     {
-                        isShowDefaultVar = 0;
+                        isShowDefaultVar = 1;
                     }
                     /* var e_time="" ;
                      if (string.Format(fi,"{0:hh:mm tt}", ds.Tables[0].Rows[i]["EndTime"]) == "11:59 PM")
@@ -2799,43 +2816,43 @@ namespace EuforyServices.ServiceImplementation
                 for (int i = 0; i < ds.Rows.Count; i++)
                 {
                     var freeSp = "";
-                    int aSpace = 0;
+                    decimal aSpace = 0;
+                    decimal tSpace = 0;
                     int FinalStatus = 0;
                     if(Convert.ToInt32(ds.Rows[i]["fSpace"]) <= 1024)
-                    {
+                    {  
                         freeSp =  ds.Rows[i]["fSpace"].ToString() + " MB";
                     }
                     else
                     {
                         freeSp = (Convert.ToInt32(ds.Rows[i]["fSpace"]) / 1024).ToString() + " GB";
                     }
-                    aSpace = Convert.ToInt32(ds.Rows[i]["fSpace"]);
+                    aSpace = Convert.ToInt32(ds.Rows[i]["fSpace"])-2048;
+                    tSpace = Convert.ToInt32(ds.Rows[i]["tSpace"])-2048;
                     if (ds.Rows[i]["PlType"].ToString() == "Desktop")
                     {
-                        aSpace = 23552;
-                        freeSp = "23 GB";
+                        aSpace = 20480;
+                        freeSp = "20 GB";
+                        tSpace = 23552;
                     }
-
-                    if ((aSpace>=0) && (aSpace <= 2048))
-                    {
-                        FinalStatus = 100;
-                    }
-                   else if ((aSpace > 2048 ) && (aSpace <= 4096))
-                    {
-                        FinalStatus = 70;
-                    }
-                    else if ((aSpace > 4096) && (aSpace <= 6144))
+                    int perSpace = 0;
+                    decimal Persp;
+                    aSpace = tSpace- aSpace;
+                    Persp = Math.Round((aSpace / tSpace),2)*100;
+                    perSpace = Convert.ToInt16(Persp);
+                    if ((perSpace >= 0) && (perSpace <= 50))
                     {
                         FinalStatus = 50;
                     }
-                    else if ((aSpace > 6144) && (aSpace <= 8192))
+                   else if ((perSpace <= 75 ) && (perSpace > 50))
                     {
-                        FinalStatus = 30;
+                        FinalStatus = 75;
                     }
-                    else if (aSpace > 8192)
+                    else if ((perSpace < 50))
                     {
-                        FinalStatus = 10;
+                        FinalStatus = 100;
                     }
+                    
                     lstResult.Add(new ResTokenInfo()
                     {
                         tokenid = ds.Rows[i]["tokenid"].ToString(),
@@ -2859,6 +2876,7 @@ namespace EuforyServices.ServiceImplementation
                         StateId = ds.Rows[i]["StateId"].ToString(),
                         CityId = ds.Rows[i]["CityId"].ToString(),
                         SpaceStatus= FinalStatus,
+                        SpacePer= perSpace,
                     });
                 }
                 con.Close();
@@ -6306,7 +6324,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                     else
                     {
-                        LastStatus = string.Format(fi, "{0:dd/MMM/yyyy HH:mm}", Convert.ToDateTime(ds.Rows[i]["sDateTime"]));
+                        LastStatus = string.Format(fi, "{0:dd/MMM/yyyy HH:mm:ss}", Convert.ToDateTime(ds.Rows[i]["sDateTime"]));
                     }
                      
                     sDateTime = string.Format(fi, "{0:dd/MMM/yyyy}", Convert.ToDateTime(LastStatus));
@@ -6793,7 +6811,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         OldTitle = rdr["title"].ToString();
                         ResPlayerLog td = new ResPlayerLog();
-                        td.PlayedDateTime = string.Format("{0:dd-MMM-yyyy HH:mm}", rdr["pDateTime"]);
+                        td.PlayedDateTime = string.Format("{0:dd-MMM-yyyy HH:mm:ss}", rdr["pDateTime"]);
                         td.Name = rdr["title"].ToString();
                         td.ArtistName = rdr["name"].ToString();
                         td.SplPlaylistName = rdr["splPlaylistname"].ToString();
@@ -6832,7 +6850,7 @@ namespace EuforyServices.ServiceImplementation
                 {
 
                     ResPlayerLog td = new ResPlayerLog();
-                    td.PlayedDateTime = string.Format("{0:dd-MMM-yyyy HH:mm}", rdr["aDateTime"]);
+                    td.PlayedDateTime = string.Format("{0:dd-MMM-yyyy HH:mm:ss}", rdr["aDateTime"]);
                     td.Name = rdr["AdvtName"].ToString();
                     td.ArtistName = "";
                     td.SplPlaylistName = "";
