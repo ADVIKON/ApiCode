@@ -2360,7 +2360,8 @@ namespace EuforyServices.ServiceImplementation
                         StartTime = ds.Tables[0].Rows[i]["StartTime"].ToString(),
                         EndTime = ds.Tables[0].Rows[i]["EndTime"].ToString(),
                         IsSeprationActive = isShowDefaultVar,
-                        IsFadingActive = Convert.ToInt32(ds.Tables[0].Rows[i]["IsFadingActive"]),
+                        //IsFadingActive = Convert.ToInt32(ds.Tables[0].Rows[i]["IsFadingActive"]),
+                        IsFadingActive = 1,
                         FormatId = 0,
                         IsMute = ds.Tables[0].Rows[i]["IsMute"].ToString(),
                     });
