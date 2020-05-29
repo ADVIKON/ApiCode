@@ -139,6 +139,7 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string DeviceId { get; set; }
     }
+
     #endregion
 
     #region MiddleImage
@@ -1313,6 +1314,8 @@ namespace EuforyServices.DataContract
         public string IsRf { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "ClientId", Order = 1)]
         public string ClientId { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "IsExplicit", Order = 1)]
+        public bool IsExplicit { get; set; }
     }
     [DataContract]
     public class ReqDeletePlaylistSong
@@ -2181,7 +2184,29 @@ namespace EuforyServices.DataContract
         public string FolderId { get; set; }
 
     }
-    
+    [DataContract]
+    public class DataUserRights_Bulk
+    {
+        [DataMember]
+        public string DeviceId { get; set; }
+    }
+    [DataContract]
+    public class ReqDeleteTitlePercentage
+    {
+        [DataMember]
+        public string playlistid { get; set; }
+        [DataMember]
+        public string titlepercentage { get; set; }
+
+    }
+    [DataContract]
+    public class ResGetMachineAnnouncement
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string url { get; set; }
+    }
 }
 
      

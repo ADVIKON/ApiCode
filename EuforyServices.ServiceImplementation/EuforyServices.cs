@@ -4079,15 +4079,15 @@ namespace EuforyServices.ServiceImplementation
                 string sQr = "";
                 if (data.searchType == "title")
                 {
-                    sQr = "spSearch_Title_Comman '" + data.searchText + "','" + data.mediaType + "', " + data.IsRf;
+                    sQr = "spSearch_Title_Comman '" + data.searchText + "','" + data.mediaType + "', " + data.IsRf+ ","+ Convert.ToByte(data.IsExplicit);
                 }
                 else if (data.searchType == "artist")
                 {
-                    sQr = "spSearch_Artist_Comman '" + data.searchText + "','" + data.mediaType + "', " + data.IsRf;
+                    sQr = "spSearch_Artist_Comman '" + data.searchText + "','" + data.mediaType + "', " + data.IsRf + "," + Convert.ToByte(data.IsExplicit);
                 }
                 else if (data.searchType == "album")
                 {
-                    sQr = "spSearch_Album_spl " + data.searchText + " ,'" + data.mediaType + "', " + data.IsRf;
+                    sQr = "spSearch_Album_spl " + data.searchText + " ,'" + data.mediaType + "', " + data.IsRf + "," + Convert.ToByte(data.IsExplicit);
                 }
                 else if (data.searchType == "Genre")
                 {
@@ -4097,6 +4097,18 @@ namespace EuforyServices.ServiceImplementation
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID  ";
                     sQr = sQr + " LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  ";
                     sQr = sQr + " where Titles.GenreId= " + data.searchText + " and Titles.mediatype='" + data.mediaType + "' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
+                    sQr = sQr + " ) as d  order by TitleID desc    ";
+                }
+                else if (data.searchType == "Label")
+                {
+                    sQr = " select distinct top 300 TitleID, ltrim(Title) as Title,Time, ltrim(ArtistName) as ArtistName, ltrim(AlbumName) as AlbumName , isnull(genre,'') as genre, Tempo ,titleyear,Category,AlbumID, ArtistID, mediatype  from( ";
+                    sQr = sQr + " SELECT  Titles.TitleID, Titles.Title,Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, tbGenre.genre, isnull(Titles.tempo,'') as Tempo,Titles.titleyear , isnull(acategory,'') as Category ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype FROM Titles ";
+                    sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID  ";
+                    sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID  ";
+                    sQr = sQr + " LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  ";
+                    sQr = sQr + " where Titles.label= '" + data.searchText + "' and Titles.mediatype='" + data.mediaType + "' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + " ) as d  order by TitleID desc    ";
                 }
                 else if (data.searchType == "Category")
@@ -4107,6 +4119,7 @@ namespace EuforyServices.ServiceImplementation
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID  ";
                     sQr = sQr + " LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  ";
                     sQr = sQr + " where Titles.acategory= '" + data.searchText + "'  and Titles.mediatype='" + data.mediaType + "' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     if (data.mediaType == "Image")
                     {
                         if ((data.ClientId != "6") && (data.ClientId != "2"))
@@ -4126,6 +4139,7 @@ namespace EuforyServices.ServiceImplementation
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID  ";
                     sQr = sQr + " LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  ";
                     sQr = sQr + " where Titles.Language = '" + data.searchText + "' and Titles.mediatype='" + data.mediaType + "' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + " ) as d  order by TitleID desc    ";
                 }
                 else if (data.searchType == "BestOf")
@@ -4136,6 +4150,7 @@ namespace EuforyServices.ServiceImplementation
                     sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID  INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID ";
                     sQr = sQr + " LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  ";
                     sQr = sQr + " where TitlesInPlaylists.PlaylistID = '" + data.searchText + "' and Titles.mediatype='" + data.mediaType + "'";
+                    sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + "  order by Titles.TitleID desc    ";
                 }
                 else if (data.searchType == "Folder")
@@ -4147,11 +4162,12 @@ namespace EuforyServices.ServiceImplementation
                     sQr = sQr + " LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  ";
                     sQr = sQr + " LEFT OUTER JOIN tbFolder ON Titles.folderId = tbFolder.folderId  ";
                     sQr = sQr + " where Titles.folderId= " + data.searchText + " and Titles.mediatype='" + data.mediaType + "' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + " ) as d  order by TitleID desc    ";
                 }
                 if (string.IsNullOrEmpty(data.searchText) == true)
                 {
-                    sQr = "SELECT TOP (300) Titles.TitleID, Titles.Title, Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, aCategory as Category,Titles.AlbumID, Titles.ArtistID, Titles.mediatype FROM Titles INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID where    mediaType='" + data.mediaType + "' and IsRoyaltyFree=" + data.IsRf + " order by TitleID desc";
+                    sQr = "SELECT TOP (300) Titles.TitleID, Titles.Title, Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, aCategory as Category,Titles.AlbumID, Titles.ArtistID, Titles.mediatype FROM Titles INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID where    mediaType='" + data.mediaType + "' and IsRoyaltyFree=" + data.IsRf + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit) + " order by TitleID desc";
                 }
                 SqlCommand cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
@@ -4420,7 +4436,7 @@ namespace EuforyServices.ServiceImplementation
 
                 string sQr = "";
 
-                sQr = "SELECT TOP (500) Titles.TitleID, Titles.Title, Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, isnull(Titles.tempo,'') as Tempo,isnull(tbGenre.genre,'') as genre , Titles.titleyear ,isnull(acategory,'') as Category, Titles.AlbumID, Titles.ArtistID, Titles.mediatype FROM Titles INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId    where   Titles.mediaType='" + data.mediaType + "' and IsRoyaltyFree=" + data.IsRf + " ";
+                sQr = "SELECT TOP (500) Titles.TitleID, Titles.Title, Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, isnull(Titles.tempo,'') as Tempo,isnull(tbGenre.genre,'') as genre , Titles.titleyear ,isnull(acategory,'') as Category, Titles.AlbumID, Titles.ArtistID, Titles.mediatype FROM Titles INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId    where   Titles.mediaType='" + data.mediaType + "' and IsRoyaltyFree=" + data.IsRf + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit) + " ";
                 if (data.mediaType == "Image")
                 {
                     if ((data.ClientId != "6") && (data.ClientId != "2"))
@@ -9208,7 +9224,7 @@ string SupportMatter = "";
                 string subject = "Notification";
                 string body = "Dear Customer, \n";
                 body += "\n";
-                body += "Thank you for registering with ADVIKON music services. You have registered " + TotalTok + " tokens.";
+                body += "Thank you for registering with Advikon services. You have registered " + TotalTok + " tokens.";
                 body += "\n";
                 body += "\n";
                 body += "Customer Name: " + ClientName + "\n";
@@ -9245,9 +9261,12 @@ string SupportMatter = "";
                 message.To.Add("jan@advikon.eu");
                 message.To.Add("talwinder@advikon.eu");
                 message.From = fromAddress;
+                string Manualfile = HttpContext.Current.Server.MapPath("~/Manual.pdf");
+                message.Attachments.Add(new Attachment(Manualfile));
                 smtp.Send(message);
                 Result.Responce = "1";
                 con.Close();
+
                 return Result;
             }
             catch (Exception ex)
@@ -9769,6 +9788,149 @@ string SupportMatter = "";
                 return lstResult;
             }
         }
+
+
+        public List<ResponceUserRights> CheckUserRightsLive_bulk(List<DataUserRights_Bulk> lstdata)
+        {
+            List<ResponceUserRights> result = new List<ResponceUserRights>();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
+
+            try
+            {
+                string mType = "";
+                string IsFind = "No";
+                SqlCommand cmd = new SqlCommand();
+                SqlDataAdapter ad = new SqlDataAdapter();
+                DataTable dt = new DataTable();
+                foreach (var device in lstdata)
+                {
+                    cmd = new SqlCommand("spGetTokenExpiryStatus_Mobile '" + device.DeviceId + "'", con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    if (con.State == ConnectionState.Closed) { con.Open(); }
+                    ad = new SqlDataAdapter(cmd);
+                     dt = new DataTable();
+                    ad.Fill(dt);
+                    ad.Dispose();
+                    cmd.Dispose();
+                    if (dt.Rows.Count > 0)
+                    {
+                        IsFind = "Yes";
+                        break;
+                    }
+                }
+                if (IsFind == "No")
+                {
+                    result.Add(new ResponceUserRights()
+                    {
+                        Response = "0",
+                        LeftDays = "0",
+                        TokenId = "0",
+                    });
+                    con.Close();
+                    return result;
+                }
+                if (Convert.ToInt32(dt.Rows[0]["MediaType"]) == 1)
+                {
+                    mType = "Video";
+                }
+                else
+                {
+                    mType = "Audio";
+                }
+                 
+                    result.Add(new ResponceUserRights()
+                    {
+                        Response = dt.Rows[0][0].ToString(),
+                        LeftDays = dt.Rows[0]["LeftDays"].ToString(),
+                        TokenId = dt.Rows[0]["tokenid"].ToString(),
+                        dfClientId = dt.Rows[0]["dfClientId"].ToString(),
+                        CountryId = Convert.ToInt32(dt.Rows[0]["countryId"]),
+                        StateId = Convert.ToInt32(dt.Rows[0]["stateId"]),
+                        Cityid = Convert.ToInt32(dt.Rows[0]["cityId"]),
+                        IsStopControl = Convert.ToInt32(dt.Rows[0]["IsStopControl"]),
+                        MediaType = mType,
+                        FcmId = dt.Rows[0]["FcmID"].ToString(),
+                        scheduleType = dt.Rows[0]["scheduleType"].ToString(),
+                        LogoId = dt.Rows[0]["AppLogoId"].ToString(),
+                        IsIndicatorActive = dt.Rows[0]["IsIndicatorActive"].ToString(),
+                        Rotation = dt.Rows[0]["Rotation"].ToString(),
+                    });
+                
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
+        public ResResponce DeleteTitlePercentage(ReqDeleteTitlePercentage data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string str = "";
+                str= "DELETE TOP("+ data.titlepercentage + ") PERCENT from tbSpecialPlaylists_Titles where splPlaylistid = " + data.playlistid;
+                SqlCommand cmd = new SqlCommand();
+                cmd.Connection = con;
+                cmd.CommandText = str;
+                con.Open();
+                cmd.ExecuteNonQuery();
+                result.Responce = "1";
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                result.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
+
+        public List<ResGetMachineAnnouncement> GetMachineAnnouncement(DataCustomerTokenId data)
+        {
+            List<ResGetMachineAnnouncement> result = new List<ResGetMachineAnnouncement>();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
+
+            try
+            {
+
+                result.Add(new ResGetMachineAnnouncement()
+                {
+                    id = "1",
+                    url = "http://api.nusign.eu/mp3files/194688.jpg",
+                });
+
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

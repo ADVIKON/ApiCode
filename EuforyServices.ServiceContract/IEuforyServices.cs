@@ -748,5 +748,19 @@ namespace EuforyServices.ServiceContract
         [Description("FillSignageLogo")]
         List<ResFillMiddleImage> FillSignageLogo(ReqFillSignageLogo data);
 
+        [WebInvoke(Method = "POST", UriTemplate = "CheckUserRightsLive_bulk", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("Check user rights")]
+        List<ResponceUserRights> CheckUserRightsLive_bulk(List<DataUserRights_Bulk> data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteTitlePercentage", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteTitlePercentage")]
+        ResResponce DeleteTitlePercentage(ReqDeleteTitlePercentage data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "GetMachineAnnouncement", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("GetMachineAnnouncement")]
+        List<ResGetMachineAnnouncement> GetMachineAnnouncement(DataCustomerTokenId data);
     }
 }
