@@ -1044,6 +1044,10 @@ namespace EuforyServices.DataContract
         public string ClientId { get; set; }
         [DataMember]
         public string Rotation { get; set; }
+        [DataMember]
+        public string CommunicationType { get; set; }
+        [DataMember]
+        public string DeviceType { get; set; }
     }
     [DataContract]
     public class ReqSaveTokenInfo
@@ -1086,6 +1090,10 @@ namespace EuforyServices.DataContract
         public string GroupId { get; set; }
         [DataMember]
         public string Rotation { get; set; }
+        [DataMember]
+        public string CommunicationType { get; set; }
+        [DataMember]
+        public string DeviceType { get; set; }
     }
     [DataContract]
     public class ResResponce
@@ -1198,6 +1206,8 @@ namespace EuforyServices.DataContract
         public string CustomerType { get; set; }
         [DataMember]
         public string MainCustomer { get; set; }
+        [DataMember]
+        public string personName { get; set; }
     }
     [DataContract]
     public class ResBestOf
@@ -2207,6 +2217,7 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string url { get; set; }
     }
+    
 }
 
      
