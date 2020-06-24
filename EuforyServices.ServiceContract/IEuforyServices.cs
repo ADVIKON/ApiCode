@@ -235,7 +235,7 @@ namespace EuforyServices.ServiceContract
         [WebInvoke(Method = "POST", UriTemplate = "GetTokenContent", ResponseFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
         [Description("Get Token Content")]
-        List<ResponceUserRights> GetTokenContent(DataTokenId data);
+        List<ResponceSplSplaylistTitle> GetTokenContent(DataTokenId data);
 
         [WebInvoke(Method = "POST", UriTemplate = "DownloadingProcess", ResponseFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
@@ -363,10 +363,10 @@ namespace EuforyServices.ServiceContract
         ResResponce UpdateTokenSchedule(ReqUpdateSchedule data);
 
 
-        [WebInvoke(Method = "GET", UriTemplate = "FillCustomer", ResponseFormat = WebMessageFormat.Json)]
+        [WebInvoke(Method = "POST", UriTemplate = "FillCustomer", ResponseFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
         [Description("FillCustomer")]
-        List<ResCustomerList> FillCustomer();
+        List<ResCustomerList> FillCustomer(ReqFillCustomer data);
 
         [WebInvoke(Method = "POST", UriTemplate = "SaveCustomer", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
@@ -767,5 +767,35 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("DeletePlaylistAds")]
         ResResponce DeletePlaylistAds(ReqAdsId data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "MachineEventLogs", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("MachineEventLogs")]
+        List<ResMachineLogs> MachineEventLogs(List<ReqMachineLogs> data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "FillMachineLogs", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("FillMachineLogs")]
+        List<ResPlayerLog> FillMachineLogs(ReqTitleLog data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DispenserAlertMail", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DispenserAlertMail")]
+        ResResponce DispenserAlertMail(ReqDispenserAlertMail data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteMachineTitle", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteMachineTitle")]
+        ResResponce DeleteMachineTitle(ReqDeleteMachineTitle data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveMachineAnnouncement", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveMachineAnnouncement")]
+        ResResponce SaveMachineAnnouncement(ReqSaveMachineAnnouncement data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "UpdateMachineAnnouncementSRNo", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("UpdateMachineAnnouncementSRNo")]
+        ResResponce UpdateMachineAnnouncementSRNo(ReqMachineAnnouncementSRNo data);
     }
 }
