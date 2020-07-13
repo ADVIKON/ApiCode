@@ -434,11 +434,11 @@ namespace EuforyServices.ServiceImplementation
                     }
                     if (Convert.ToBoolean(ds.Tables[0].Rows[i]["isShowDefault"]) == true)
                     {
-                        isSepration_old = 1;
+                        isSepration_old = 0;
                     }
                     else
                     {
-                        isSepration_old = 0;
+                        isSepration_old = 1;
                     }
                     result.Add(new ResponceSplSplaylist()
                     {
@@ -1536,11 +1536,11 @@ namespace EuforyServices.ServiceImplementation
                     }
                     if (Convert.ToBoolean(ds.Tables[0].Rows[i]["isShowDefault"]) == true)
                     {
-                        isSepration_old = 1;
+                        isSepration_old = 0;
                     }
                     else
                     {
-                        isSepration_old = 0;
+                        isSepration_old = 1;
                     }
                     result.Add(new ResponceSplSplaylist()
                     {
@@ -2193,27 +2193,58 @@ namespace EuforyServices.ServiceImplementation
             try
             {
 
-                SqlCommand cmd = new SqlCommand("select * from AMPlayerTokens where tokenid= " + data.Tokenid + " and IsPublishUpdate=1 ", con);
+                SqlCommand cmd = new SqlCommand("select isnull(IsPublishUpdate,0) as IsPublishUpdate, isnull(TotalShot,0) as TotalShot, isnull(DispenserAlert,'') as DispenserAlert, isnull(IsShowShotToast,0) as IsShowShotToast from AMPlayerTokens where tokenid= " + data.Tokenid + " ", con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 if (con.State == ConnectionState.Closed) { con.Open(); }
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
-                DataSet ds = new DataSet();
+                DataTable ds = new DataTable();
                 ad.Fill(ds);
-                if (ds.Tables[0].Rows.Count == 0)
+
+
+
+                if (ds.Rows.Count == 0)
                 {
                     result.Add(new ResponcePublish()
                     {
                         Response = "0",
-                        IsPublishUpdate = "0"
+                        IsPublishUpdate = "0",
+                        DispenserAlert = "",
+                        TotalShot = 0,
+                        IsDemoToken = false
+
                     });
                     con.Close();
                     return result;
                 }
-                result.Add(new ResponcePublish()
+                else
                 {
-                    Response = "1",
-                    IsPublishUpdate = "1"
-                });
+                    if (Convert.ToBoolean(ds.Rows[0]["IsPublishUpdate"]) == true)
+                    {
+                        result.Add(new ResponcePublish()
+                        {
+                            Response = "1",
+                            IsPublishUpdate = "1",
+                            DispenserAlert = ds.Rows[0]["DispenserAlert"].ToString(),
+                            TotalShot = Convert.ToInt32(ds.Rows[0]["TotalShot"]),
+                            IsDemoToken = Convert.ToBoolean(ds.Rows[0]["IsShowShotToast"])
+
+                        });
+                    }
+                    else
+                    {
+                        result.Add(new ResponcePublish()
+                        {
+                            Response = "1",
+                            IsPublishUpdate = "0",
+                            DispenserAlert = ds.Rows[0]["DispenserAlert"].ToString(),
+                            TotalShot = Convert.ToInt32(ds.Rows[0]["TotalShot"]),
+                            IsDemoToken = Convert.ToBoolean(ds.Rows[0]["IsShowShotToast"])
+                        });
+                    }
+
+
+
+                }
                 con.Close();
                 return result;
             }
@@ -2483,11 +2514,11 @@ namespace EuforyServices.ServiceImplementation
                     }
                     if (Convert.ToBoolean(ds.Tables[0].Rows[i]["isShowDefault"]) == true)
                     {
-                        isSepration_old = 1;
+                        isSepration_old = 0;
                     }
                     else
                     {
-                        isSepration_old = 0;
+                        isSepration_old = 1;
                     }
                     /* var e_time="" ;
                      if (string.Format(fi,"{0:hh:mm tt}", ds.Tables[0].Rows[i]["EndTime"]) == "11:59 PM")
@@ -2964,6 +2995,8 @@ namespace EuforyServices.ServiceImplementation
                 ad.Fill(ds);
                 for (int i = 0; i < ds.Rows.Count; i++)
                 {
+
+                    var tokenid1 = ds.Rows[i]["tokenid"].ToString();
                     var freeSp = "";
                     decimal aSpace = 0;
                     decimal tSpace = 0;
@@ -2978,11 +3011,19 @@ namespace EuforyServices.ServiceImplementation
                     }
                     aSpace = Convert.ToInt32(ds.Rows[i]["fSpace"]) - 2048;
                     tSpace = Convert.ToInt32(ds.Rows[i]["tSpace"]) - 2048;
+                    if (Convert.ToInt32(ds.Rows[i]["fSpace"]) == 0)
+                    {
+                        aSpace = 21504;
+                    }
                     if (ds.Rows[i]["PlType"].ToString() == "Desktop")
                     {
                         aSpace = 20480;
                         freeSp = "20 GB";
                         tSpace = 23552;
+                    }
+                    if (aSpace <= 0)
+                    {
+                        aSpace = 0;
                     }
                     int perSpace = 0;
                     decimal Persp;
@@ -2997,7 +3038,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         FinalStatus = 75;
                     }
-                    else if ((perSpace < 50))
+                    else if ((perSpace > 75))
                     {
                         FinalStatus = 100;
                     }
@@ -3058,6 +3099,7 @@ namespace EuforyServices.ServiceImplementation
             List<ResTokenAds> lstAd = new List<ResTokenAds>();
             List<ResTokenPrayer> lstPra = new List<ResTokenPrayer>();
             List<ResTokenData> lstTokend = new List<ResTokenData>();
+            List<ReqDispenserAlert> dAlert = new List<ReqDispenserAlert>();
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
 
             try
@@ -3164,6 +3206,21 @@ namespace EuforyServices.ServiceImplementation
                 ad.Fill(ds);
                 for (int i = 0; i < ds.Rows.Count; i++)
                 {
+                    var dAt = ds.Rows[i]["DispenserAlert"].ToString().Split(',');
+                    var h = ds.Rows[i]["DispenserAlert"].ToString();
+                    if (h != "")
+                    {
+                        foreach (var item in dAt)
+                        {
+                            dAlert.Add(new ReqDispenserAlert()
+                            {
+                                id = item,
+                                itemName = item + "%",
+                            });
+
+                        }
+                    }
+
                     lstTokend.Add(new ResTokenData()
                     {
                         token = ds.Rows[i]["tokenno"].ToString(),
@@ -3192,8 +3249,10 @@ namespace EuforyServices.ServiceImplementation
                         Rotation = ds.Rows[i]["Rotation"].ToString(),
                         CommunicationType = ds.Rows[i]["CommunicationType"].ToString(),
                         DeviceType = ds.Rows[i]["DeviceType"].ToString(),
-                        DispenserAlert = ds.Rows[i]["DispenserAlert"].ToString(),
+                        DispenserAlert = dAlert,
                         TotalShot = ds.Rows[i]["TotalShot"].ToString(),
+                        AlertMail = ds.Rows[i]["AlertEmail"].ToString(),
+                        IsShowShotToast = Convert.ToBoolean(ds.Rows[i]["IsShowShotToast"]),
                     });
                 }
 
@@ -3219,6 +3278,19 @@ namespace EuforyServices.ServiceImplementation
 
             try
             {
+                var DispenserAlert = "";
+                foreach (var iAlert in data.DispenserAlert)
+                {
+                    if (DispenserAlert == "")
+                    {
+                        DispenserAlert = iAlert.id.ToString();
+                    }
+                    else
+                    {
+                        DispenserAlert = DispenserAlert + "," + iAlert.id.ToString();
+                    }
+                }
+
                 SqlCommand cmd = new SqlCommand("spTokenInformation", con);
                 cmd.CommandType = CommandType.StoredProcedure;
 
@@ -3321,10 +3393,14 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters["@DeviceType"].Value = data.DeviceType.Trim();
 
                 cmd.Parameters.Add(new SqlParameter("@DispenserAlert", SqlDbType.NVarChar));
-                cmd.Parameters["@DispenserAlert"].Value = data.DispenserAlert;
+                cmd.Parameters["@DispenserAlert"].Value = DispenserAlert;
 
                 cmd.Parameters.Add(new SqlParameter("@TotalShot", SqlDbType.Int));
                 cmd.Parameters["@TotalShot"].Value = data.TotalShot;
+                cmd.Parameters.Add(new SqlParameter("@AlertEmail", SqlDbType.NVarChar));
+                cmd.Parameters["@AlertEmail"].Value = data.AlertMail;
+                cmd.Parameters.Add(new SqlParameter("@IsShowShotToast", SqlDbType.Bit));
+                cmd.Parameters["@IsShowShotToast"].Value = Convert.ToByte(data.IsShowShotToast);
 
                 if (con.State == ConnectionState.Closed) { con.Open(); }
                 cmd.ExecuteNonQuery();
@@ -4001,10 +4077,13 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 string sQr = "";
+
+
+                sQr = "";
                 if (data.IsBestOffPlaylist == "Yes")
                 {
                     sQr = "SELECT  Titles.TitleID, rtrim(ltrim(Titles.Title)) as Title, Titles.Time,rtrim(ltrim(Albums.Name)) AS AlbumName ,";
-                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName,'' as Category  ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, '0' as srno , isnull(tbGenre.genre,'') as genre FROM ((( TitlesInPlaylists  ";
+                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName,'' as Category  ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, '0' as srno , isnull(tbGenre.genre,'') as genre, isnull(Titles.label,'') as label FROM ((( TitlesInPlaylists  ";
                     sQr = sQr + " INNER JOIN Titles ON TitlesInPlaylists.TitleID = Titles.TitleID )  ";
                     sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID ) ";
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID ) ";
@@ -4014,17 +4093,19 @@ namespace EuforyServices.ServiceImplementation
                 else
                 {
                     sQr = "SELECT  Titles.TitleID, rtrim(ltrim(Titles.Title)) as Title, Titles.Time,rtrim(ltrim(Albums.Name)) AS AlbumName ,";
-                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName , isnull(tbGenre.genre,'') as genre, isnull(Titles.tempo,'') as Tempo  , isnull(acategory,'') as Category ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, tbSpecialPlaylists_Titles.srno FROM   tbSpecialPlaylists_Titles  ";
+                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName , isnull(tbGenre.genre,'') as genre, isnull(Titles.tempo,'') as Tempo  , isnull(acategory,'') as Category ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, tbSpecialPlaylists_Titles.srno, isnull(Titles.label,'') as label FROM   tbSpecialPlaylists_Titles  ";
                     sQr = sQr + " INNER JOIN Titles ON tbSpecialPlaylists_Titles.TitleID = Titles.TitleID   ";
                     sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID  ";
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID  ";
                     sQr = sQr + " LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  ";
-                    sQr = sQr + " where tbSpecialPlaylists_Titles.splPlaylistId= " + data.playlistid + " order by tbSpecialPlaylists_Titles.srno ";
+                    sQr = sQr + " where tbSpecialPlaylists_Titles.splPlaylistId= " + data.playlistid + " ";
+
+                    sQr = sQr + " order by tbSpecialPlaylists_Titles.srno ";
+
                 }
 
                 SqlCommand cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
-                con.Open();
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
                 DataTable ds = new DataTable();
                 ad.Fill(ds);
@@ -4060,6 +4141,7 @@ namespace EuforyServices.ServiceImplementation
                         TitleIdLink = url,
                         SrNo = ds.Rows[i]["srno"].ToString(),
                         GenreName = ds.Rows[i]["genre"].ToString(),
+                        Label = ds.Rows[i]["label"].ToString(),
                     });
                 }
                 con.Close();
@@ -4429,6 +4511,7 @@ namespace EuforyServices.ServiceImplementation
 
                     lstSong.Add(new ResSongList()
                     {
+                        check = false,
                         id = ds.Rows[i]["TitleID"].ToString(),
                         title = ds.Rows[i]["Title"].ToString().Trim(),
                         Length = ds.Rows[i]["Time"].ToString(),
@@ -6954,14 +7037,14 @@ namespace EuforyServices.ServiceImplementation
             {
                 con.Open();
 
-                string sQr = "select * from tbuserlogin_web where username= '" + data.email + "' and password= '" + data.password + "'";
+                string sQr = "spCustomerUserLogin  '" + data.email + "' ,'" + data.password + "'";
                 SqlCommand cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
                 DataTable dsUser = new DataTable();
                 ad.Fill(dsUser);
 
-                sQr = "select * from tbDealerLogin where LoginName='" + data.email + "' and Loginpassword='" + data.password + "'";
+                sQr = "spCustomerLogin '" + data.email + "', '" + data.password + "'";
                 cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 ad = new SqlDataAdapter(cmd);
@@ -6970,38 +7053,35 @@ namespace EuforyServices.ServiceImplementation
 
                 if (dsUser.Rows.Count > 0)
                 {
-                    Result.Responce = "1";
+                    if (dsUser.Rows[0]["DBType"].ToString() == data.DBType)
+                    {
+                        Result.Responce = "1";
+                    }
+                    else
+                    {
+                        Result.Responce = "0";
+                    }
                     Result.dfClientId = dsUser.Rows[0]["dfclientid"].ToString();
                     Result.UserId = dsUser.Rows[0]["id"].ToString();
-
-                    sQr = "select * from tbDealerLogin where dfClientId =" + dsUser.Rows[0]["dfclientid"].ToString();
-                    cmd = new SqlCommand(sQr, con);
-                    cmd.CommandType = System.Data.CommandType.Text;
-                    ad = new SqlDataAdapter(cmd);
-                    dsCustomer = new DataTable();
-                    ad.Fill(dsCustomer);
-
-                    Result.IsRf = Convert.ToByte(dsCustomer.Rows[0]["IsDam"]).ToString();
-
-                    sQr = "select * from tbUserLogin_web where id= " + Result.UserId + "";
-                    cmd = new SqlCommand(sQr, con);
-                    cmd.CommandType = System.Data.CommandType.Text;
-                    ad = new SqlDataAdapter(cmd);
-                    DataTable ds = new DataTable();
-                    ad.Fill(ds);
-                    if (ds.Rows.Count > 0)
-                    {
-                        Result.chkDashboard = Convert.ToBoolean(ds.Rows[0]["chkDashboard"]);
-                        Result.chkPlayerDetail = Convert.ToBoolean(ds.Rows[0]["chkPlayerDetail"]);
-                        Result.chkPlaylistLibrary = Convert.ToBoolean(ds.Rows[0]["chkPlaylistLibrary"]);
-                        Result.chkScheduling = Convert.ToBoolean(ds.Rows[0]["chkScheduling"]);
-                        Result.chkAdvertisement = Convert.ToBoolean(ds.Rows[0]["chkAdvertisement"]);
-                        Result.chkInstantPlay = Convert.ToBoolean(ds.Rows[0]["chkInstantPlay"]);
-                    }
+                    Result.IsRf = Convert.ToByte(dsUser.Rows[0]["IsDam"]).ToString();
+                    Result.chkDashboard = Convert.ToBoolean(dsUser.Rows[0]["chkDashboard"]);
+                    Result.chkPlayerDetail = Convert.ToBoolean(dsUser.Rows[0]["chkPlayerDetail"]);
+                    Result.chkPlaylistLibrary = Convert.ToBoolean(dsUser.Rows[0]["chkPlaylistLibrary"]);
+                    Result.chkScheduling = Convert.ToBoolean(dsUser.Rows[0]["chkScheduling"]);
+                    Result.chkAdvertisement = Convert.ToBoolean(dsUser.Rows[0]["chkAdvertisement"]);
+                    Result.chkInstantPlay = Convert.ToBoolean(dsUser.Rows[0]["chkInstantPlay"]);
+                    Result.ContentType = dsUser.Rows[0]["ContentType"].ToString();
                 }
                 else if (dsCustomer.Rows.Count > 0)
                 {
-                    Result.Responce = "1";
+                    if (dsCustomer.Rows[0]["DBType"].ToString() == data.DBType)
+                    {
+                        Result.Responce = "1";
+                    }
+                    else
+                    {
+                        Result.Responce = "0";
+                    }
                     Result.dfClientId = dsCustomer.Rows[0]["dfclientid"].ToString();
                     Result.IsRf = Convert.ToByte(dsCustomer.Rows[0]["IsDam"]).ToString();
                     Result.UserId = "0";
@@ -7011,6 +7091,7 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkScheduling = true;
                     Result.chkAdvertisement = true;
                     Result.chkInstantPlay = true;
+                    Result.ContentType = dsCustomer.Rows[0]["ContentType"].ToString();
                 }
                 else
                 {
@@ -7043,6 +7124,9 @@ namespace EuforyServices.ServiceImplementation
             SqlCommand cmd = new SqlCommand(str, constr);
             try
             {
+                DateTimeFormatInfo fi = new DateTimeFormatInfo();
+                fi.AMDesignator = "AM";
+                fi.PMDesignator = "PM";
                 //                string rSave = "0";
                 //              rSave = AppDomain.CurrentDomain.BaseDirectory;
                 //            string path = Path.GetDirectoryName(rSave) + "\\data.txt";
@@ -7067,12 +7151,12 @@ namespace EuforyServices.ServiceImplementation
                     {
                         OldTitle = rdr["title"].ToString();
                         ResPlayerLog td = new ResPlayerLog();
-                        td.PlayedDateTime = string.Format("{0:dd-MMM-yyyy HH:mm:ss}", rdr["pDateTime"]);
+                        td.PlayedDateTime = string.Format(fi, "{0:dd-MMM-yyyy}", rdr["playdate"]) + ' ' + string.Format(fi, "{0:HH:mm:ss}", rdr["pDateTime"]);
                         td.Name = rdr["title"].ToString();
                         td.ArtistName = rdr["name"].ToString();
                         td.SplPlaylistName = rdr["splPlaylistname"].ToString();
                         td.CategoryName = rdr["CategoryName"].ToString();
-                        td.pDateTime =  rdr["pDateTime"].ToString();
+                        td.pDateTime = rdr["pDateTime"].ToString();
                         lstTd.Add(td);
                     }
                 }
@@ -7582,6 +7666,16 @@ namespace EuforyServices.ServiceImplementation
                 var Artist = "";
                 var Title = "";
 
+                var ext = Path.GetExtension(postedFile.FileName.ToString());
+                if ((ext == ".mp4") && (MediaType.Trim() == "Image"))
+                {
+                    Result.Responce = "0";
+                    Result.message = "Media Type is not match with content";
+                    con.Close();
+                    return Result;
+                }
+
+
                 if (MediaType.Trim() == "Image")
                 {
                     Artist = "Image";
@@ -7862,7 +7956,7 @@ namespace EuforyServices.ServiceImplementation
                 str = "select tbgenre.genreid, tbgenre.genre from tbgenre";
                 str = str + " inner join Titles on Titles.genreid= tbgenre.genreid ";
                 str = str + " where tbgenre.genreid!=1 ";
-                str = str + " and Titles.mediatype='" + data.mediatype + "' and (Titles.dbtype='"+data.DBType+ "' or  Titles.dbtype='Both') ";
+                str = str + " and Titles.mediatype='" + data.mediatype + "' and (Titles.dbtype='" + data.DBType + "' or  Titles.dbtype='Both') ";
                 if (data.IsAdmin == false)
                 {
                     str = str + " and (isnull(Titles.dfclientid,0)=0 or Titles.dfclientid=" + data.ClientId + ") ";
@@ -8484,45 +8578,45 @@ namespace EuforyServices.ServiceImplementation
                     conSql.Close();
                     return Result;
                 }
-                if (dtM.Columns[3].ToString().ToLower() != "name")
-                {
-                    Result.Responce = "0";
-                    Result.message = "Name column is not match with sequence";
-                    conSql.Close();
-                    return Result;
-                }
-                if (dtM.Columns[4].ToString().ToLower() != "location")
+                if (dtM.Columns[3].ToString().ToLower() != "location")
                 {
                     Result.Responce = "0";
                     Result.message = "Location column is not match with sequence";
                     conSql.Close();
                     return Result;
                 }
-                if (dtM.Columns[5].ToString().ToLower() != "isandroidplayer")
+                if (dtM.Columns[4].ToString().ToLower() != "isandroidplayer")
                 {
                     Result.Responce = "0";
                     Result.message = "IsAndroidPlayer column is not match with sequence";
                     conSql.Close();
                     return Result;
                 }
-                if (dtM.Columns[6].ToString().ToLower() != "iswindowplayer")
+                if (dtM.Columns[5].ToString().ToLower() != "iswindowplayer")
                 {
                     Result.Responce = "0";
                     Result.message = "IsWindowPlayer column is not match with sequence";
                     conSql.Close();
                     return Result;
                 }
-                if (dtM.Columns[7].ToString().ToLower() != "isaudioplayer")
+                if (dtM.Columns[6].ToString().ToLower() != "isaudioplayer")
                 {
                     Result.Responce = "0";
                     Result.message = "IsAudioPlayer column is not match with sequence";
                     conSql.Close();
                     return Result;
                 }
-                if (dtM.Columns[8].ToString().ToLower() != "isvideoplayer")
+                if (dtM.Columns[7].ToString().ToLower() != "isvideoplayer")
                 {
                     Result.Responce = "0";
                     Result.message = "IsVideoPlayer column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[8].ToString().ToLower() != "issanitizerplayer")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsSanitizerPlayer column is not match with sequence";
                     conSql.Close();
                     return Result;
                 }
@@ -8530,12 +8624,12 @@ namespace EuforyServices.ServiceImplementation
                 var h = "";
                 for (int i = 0; i < dtM.Rows.Count; i++)
                 {
-                    if ((dtM.Rows[i]["TokenId"].ToString() != "") && (dtM.Rows[i]["tokencode"].ToString() != "") && (dtM.Rows[i]["Serial-MAC"].ToString() != "") && (dtM.Rows[i]["location"].ToString() != ""))
+                    if ((dtM.Rows[i]["TokenId"].ToString() != "") && (dtM.Rows[i]["tokencode"].ToString() != "") && (dtM.Rows[i]["Serial-MAC"].ToString() != ""))
                     {
                         string str = "";
 
                         str = "update AMPlayerTokens set IsStore=1, token='used', code='" + dtM.Rows[i]["Serial-MAC"] + "'";
-                        str = str + ", ptype='Copyright', personname = '" + dtM.Rows[i]["Name"] + "' ";
+                        str = str + ", ptype='Copyright', personname = '' ";
                         str = str + ", Location = '" + dtM.Rows[i]["Location"] + "' ";
                         if ((dtM.Rows[i]["IsAndroidPlayer"].ToString() == "1") || (dtM.Rows[i]["IsAndroidPlayer"].ToString().ToLower() == "yes"))
                         {
@@ -8552,6 +8646,10 @@ namespace EuforyServices.ServiceImplementation
                         if ((dtM.Rows[i]["IsVideoPlayer"].ToString() == "1") || (dtM.Rows[i]["IsVideoPlayer"].ToString().ToLower() == "yes"))
                         {
                             str = str + ", IsVedioActive = 1 ";
+                        }
+                        if ((dtM.Rows[i]["IsSanitizerPlayer"].ToString() == "1") || (dtM.Rows[i]["IsSanitizerPlayer"].ToString().ToLower() == "yes"))
+                        {
+                            str = str + ", IsVedioActive = 1, mediatype='Signage',DeviceType='Sanitizer', TotalShot=5000, DispenserAlert='80,90,100' ";
                         }
                         str = str + " Where tokenid = " + dtM.Rows[i]["TokenId"] + " ";
 
@@ -8578,14 +8676,14 @@ namespace EuforyServices.ServiceImplementation
                 if (h == "Find")
                 {
                     Result.Responce = "1";
-                    if (k == "")
-                    {
-                        Result.message = "Saved";
-                    }
-                    else
-                    {
-                        Result.message = k + Environment.NewLine + "These tokens columns are not fill proper so these tokens are not activate";
-                    }
+                    //if (k == "")
+                    //{
+                    Result.message = "Saved";
+                    //}
+                    //else
+                    //{
+                    //    Result.message = k + Environment.NewLine + "These tokens columns are not fill proper so these tokens are not activate";
+                    //}
                 }
                 else
                 {
@@ -9388,7 +9486,7 @@ namespace EuforyServices.ServiceImplementation
                     td.PlayedDateTime = string.Format("{0:dd-MMM-yyyy HH:mm}", DateTime.Now);
                     td.SplPlaylistName = "";
                     td.CategoryName = "";
-                    td.pDateTime =  DateTime.Now.ToString();
+                    td.pDateTime = DateTime.Now.ToString();
                     lstTd.Add(td);
                 }
                 constr.Close();
@@ -9560,8 +9658,8 @@ namespace EuforyServices.ServiceImplementation
                     message.To.Add(toAddress);
                     string Manualfile = HttpContext.Current.Server.MapPath("~/Manual.pdf");
                     message.Attachments.Add(new Attachment(Manualfile));
-                   message.To.Add("info@sanisign.eu");
-                   message.To.Add("talwinder@advikon.eu");
+                    message.To.Add("info@sanisign.eu");
+                    message.To.Add("talwinder@advikon.eu");
                     message.From = fromAddress;
                     smtp.Send(message);
                     Result.Responce = "1";
@@ -9957,7 +10055,7 @@ namespace EuforyServices.ServiceImplementation
                 str = str + "  LEFT JOIN (select distinct titleimgid,imgpath from tblMiddleImage_App where tokenid=" + data.TokenId + ") a ";
                 str = str + "  on a.titleimgid= Titles.TitleID ";
                 str = str + "  where Titles.GenreId= 326  ";
-                if ((data.OwnerCustomerId != "6") && (data.OwnerCustomerId != "2"))
+                if (data.IsAdmin== false)
                 {
                     str = str + " and dfclientid= " + data.OwnerCustomerId;
                 }
@@ -10053,7 +10151,7 @@ namespace EuforyServices.ServiceImplementation
                 string str = "";
                 str = "select distinct  TitleID, ltrim(Title) as Title,Titles.GenreId FROM Titles ";
                 str = str + "  where Titles.GenreId= 326  ";
-                if ((data.CustomerId != "6") && (data.CustomerId != "2"))
+                if (data.IsAdmin==false)
                 {
                     str = str + " and dfclientid= " + data.CustomerId;
                 }
@@ -10154,7 +10252,7 @@ namespace EuforyServices.ServiceImplementation
                     LogoId = dt.Rows[0]["AppLogoId"].ToString(),
                     IsIndicatorActive = dt.Rows[0]["IsIndicatorActive"].ToString(),
                     Rotation = dt.Rows[0]["Rotation"].ToString(),
-                    IsDemoToken= Convert.ToBoolean(dt.Rows[0]["IsDemoToken"]),
+                    IsDemoToken = Convert.ToBoolean(dt.Rows[0]["IsDemoToken"]),
                     TotalShot = Convert.ToInt32(dt.Rows[0]["TotalShot"]),
                     DispenserAlert = dt.Rows[0]["DispenserAlert"].ToString(),
                 });
@@ -10234,7 +10332,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         id = ds.Tables[0].Rows[i]["titleId"].ToString(),
                         url = url,
-                        srno =Convert.ToInt32(ds.Tables[0].Rows[i]["srno"]),
+                        srno = Convert.ToInt32(ds.Tables[0].Rows[i]["srno"]),
                         Artist = ds.Tables[0].Rows[i]["Artist"].ToString(),
                         title = ds.Tables[0].Rows[i]["title"].ToString(),
                         Genre = ds.Tables[0].Rows[i]["genre"].ToString(),
@@ -10313,6 +10411,7 @@ namespace EuforyServices.ServiceImplementation
                 dtInsert.Columns.Add("Event", typeof(string));
                 dtInsert.Columns.Add("playdate", typeof(DateTime));
                 dtInsert.Columns.Add("command", typeof(string));
+                dtInsert.Columns.Add("titleid", typeof(string));
                 foreach (var Player in data)
                 {
                     if (Player.TokenId != 0)
@@ -10323,6 +10422,14 @@ namespace EuforyServices.ServiceImplementation
                         nr["PlayDTP"] = "01-01-1900 " + k;
                         nr["Event"] = Player.Logs;
                         nr["playdate"] = string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(Player.PlayedDateTime));
+                        if (string.IsNullOrEmpty(Player.titleId) == false)
+                        {
+                            nr["titleid"] = Player.titleId;
+                        }
+                        else
+                        {
+                            nr["titleid"] = "0";
+                        }
                         dtInsert.Rows.Add(nr);
                     }
                     resultSong.Add(new LogsArray()
@@ -10361,6 +10468,44 @@ namespace EuforyServices.ServiceImplementation
                         bulkCopy.WriteToServer(dtInsert);
 
                     }
+
+
+
+
+
+
+                    using (SqlBulkCopy bulkCopyTitle = new SqlBulkCopy(conMain))
+                    {
+
+                        SqlBulkCopyColumnMapping TokenId =
+                           new SqlBulkCopyColumnMapping("TokenId", "tokenid");
+                        bulkCopyTitle.ColumnMappings.Add(TokenId);
+                        SqlBulkCopyColumnMapping titleid =
+                           new SqlBulkCopyColumnMapping("titleid", "titleid");
+                        bulkCopyTitle.ColumnMappings.Add(titleid);
+                        SqlBulkCopyColumnMapping playdate =
+                           new SqlBulkCopyColumnMapping("playdate", "playdate");
+                        bulkCopyTitle.ColumnMappings.Add(playdate);
+                        SqlBulkCopyColumnMapping playTime =
+                         new SqlBulkCopyColumnMapping("PlayDTP", "playTime");
+                        bulkCopyTitle.ColumnMappings.Add(playTime);
+                        bulkCopyTitle.DestinationTableName = "dbo.tbMachinePlayedLogs";
+                        if (conMain.State == ConnectionState.Closed)
+                        {
+                            conMain.Open();
+                        }
+                        bulkCopyTitle.WriteToServer(dtInsert);
+
+
+                    }
+
+
+
+
+
+
+
+
                 }
                 result.Add(new ResMachineLogs()
                 {
@@ -10399,7 +10544,7 @@ namespace EuforyServices.ServiceImplementation
             {
                 data.ToDate = data.cDate;
             }
-            string str = "GetMachineLogs " + data.tokenid + "  ,'" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.cDate)) + "','" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.ToDate)) + "'";
+            string str = "GetMachineLogs " + data.tokenid + "  ,'" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.cDate)) + "','" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.ToDate)) + "'," + Convert.ToByte(data.ShowOnlyTankChangeLog);
             SqlCommand cmd = new SqlCommand(str, constr);
             try
             {
@@ -10407,9 +10552,9 @@ namespace EuforyServices.ServiceImplementation
                 SqlDataReader rdr = cmd.ExecuteReader();
                 while (rdr.Read())
                 {
-                    var k= string.Format("{0:HH:mm:ss}", rdr["PlayDTP"]);
+                    var k = string.Format("{0:HH:mm:ss}", rdr["PlayDTP"]);
                     ResPlayerLog td = new ResPlayerLog();
-                    td.Name = "";
+                    td.Name = "Dispenser Tank Changed";
                     td.ArtistName = "";
                     td.TotalPlayed = rdr["Event"].ToString();
                     td.PlayedDateTime = string.Format("{0:dd-MMM-yyyy}", rdr["playdate"]);
@@ -10440,7 +10585,7 @@ namespace EuforyServices.ServiceImplementation
                 string strResend = "";
                 DataTable dtGetToken = new DataTable();
                 string strQ = "";
-                strQ = "select clientid,location from AMPlayerTokens where tokenid=" + data.TokenId + " ";
+                strQ = "select clientid,location, isnull(AlertEmail,'') as AlertEmail from AMPlayerTokens where tokenid=" + data.TokenId + " ";
                 SqlCommand cmd = new SqlCommand(strQ, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 if (con.State == ConnectionState.Closed) { con.Open(); }
@@ -10451,30 +10596,31 @@ namespace EuforyServices.ServiceImplementation
                 if (dtGetToken.Rows.Count > 0)
                 {
 
-                
-                ad.Dispose();
-                cmd.Dispose();
 
-                string ClientEmail = "";
-                
-                string Location = dtGetToken.Rows[0]["Location"].ToString();
-                string ClientName = "";
+                    ad.Dispose();
+                    cmd.Dispose();
 
-                strResend = "  select Email,ClientName from   DFClients where DFClientID = " + dtGetToken.Rows[0]["clientid"].ToString();
-                cmd = new SqlCommand(strResend, con);
-                cmd.CommandType = System.Data.CommandType.Text;
-                ad = new SqlDataAdapter(cmd);
-                ad.Fill(dtDetail);
-                if (dtDetail.Rows.Count > 0)
-                {
-                    for (int i = 0; i <= dtDetail.Rows.Count - 1; i++)
+                    string ClientEmail = "";
+                    string ClientAlertEmail = dtGetToken.Rows[0]["AlertEmail"].ToString().Trim();
+
+                    string Location = dtGetToken.Rows[0]["Location"].ToString();
+                    string ClientName = "";
+
+                    strResend = "  select Email,ClientName from   DFClients where DFClientID = " + dtGetToken.Rows[0]["clientid"].ToString();
+                    cmd = new SqlCommand(strResend, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    ad = new SqlDataAdapter(cmd);
+                    ad.Fill(dtDetail);
+                    if (dtDetail.Rows.Count > 0)
                     {
-                        ClientEmail = dtDetail.Rows[i]["Email"].ToString();
-                        ClientName = dtDetail.Rows[i]["ClientName"].ToString();
+                        for (int i = 0; i <= dtDetail.Rows.Count - 1; i++)
+                        {
+                            ClientEmail = dtDetail.Rows[i]["Email"].ToString();
+                            ClientName = dtDetail.Rows[i]["ClientName"].ToString();
+                        }
                     }
-                }
-                 
-                 
+
+
                     var fromAddress = new MailAddress("support@nusign.eu", "Nusign services");
                     var toAddress = new MailAddress(ClientEmail);
 
@@ -10482,9 +10628,9 @@ namespace EuforyServices.ServiceImplementation
                     string subject = "! WARNING !";
                     string body = "Dear Customer, \n";
                     body += "\n";
-                    body += "Sanitizer machine consume "+data.TankStatusPercent+ "% gel. Please refill the dispenser\n";
+                    body += "You sanitizer dispenser has consumed " + data.TankStatusPercent + "% of its handgel. Please refill at your earliest convenience.\n";
                     body += "Your Player details are: \n";
-                    body += "Token Id: "+data.TokenId+" \n";
+                    body += "Token Id: " + data.TokenId + " \n";
                     body += "Location: " + Location + " \n";
                     body += "\n";
                     body += "Best Regards \n";
@@ -10505,6 +10651,10 @@ namespace EuforyServices.ServiceImplementation
                     message.Subject = subject;
                     message.Body = body;
                     //message.To.Add(toAddress);
+                    if (ClientAlertEmail != "")
+                    {
+                        message.To.Add(ClientAlertEmail);
+                    }
                     message.To.Add("jan@advikon.eu");
                     message.To.Add("talwinder@advikon.eu");
                     message.From = fromAddress;
@@ -10559,15 +10709,15 @@ namespace EuforyServices.ServiceImplementation
             {
                 var pid = data.TokenId;
 
-
-                 
-                    DataTable dt = new DataTable();
-                    dt.Columns.Add("tokenid", typeof(int));
-                    dt.Columns.Add("titleid", typeof(int));
-                    dt.Columns.Add("srno", typeof(int));
+                DataTable dt = new DataTable();
+                dt.Columns.Add("tokenid", typeof(int));
+                dt.Columns.Add("titleid", typeof(int));
+                dt.Columns.Add("srno", typeof(int));
+                foreach (var tId in data.TokenId)
+                {
                     foreach (string iTitle in data.titleid)
                     {
-                        string sQr = "select * from tbMachineAnnouncement where tokenid=" + pid + " and TitleID=" + iTitle;
+                        string sQr = "select * from tbMachineAnnouncement where tokenid=" + tId.tokenid + " and TitleID=" + iTitle;
                         SqlCommand cmd = new SqlCommand(sQr, con);
                         cmd.CommandType = System.Data.CommandType.Text;
                         SqlDataAdapter ad = new SqlDataAdapter(cmd);
@@ -10576,38 +10726,38 @@ namespace EuforyServices.ServiceImplementation
                         if (ds.Rows.Count == 0)
                         {
                             DataRow nr = dt.NewRow();
-                            nr["tokenid"] = pid;
+                            nr["tokenid"] = tId.tokenid;
                             nr["titleid"] = iTitle;
                             nr["srno"] = dt.Rows.Count + 1;
                             dt.Rows.Add(nr);
                         }
                     }
-
-                    if (dt.Rows.Count > 0)
+                }
+                if (dt.Rows.Count > 0)
+                {
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
                     {
-                        using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
-                        {
-                            SqlBulkCopyColumnMapping mapID =
-                             new SqlBulkCopyColumnMapping("tokenid", "tokenid");
-                            bulkCopy.ColumnMappings.Add(mapID);
+                        SqlBulkCopyColumnMapping mapID =
+                         new SqlBulkCopyColumnMapping("tokenid", "tokenid");
+                        bulkCopy.ColumnMappings.Add(mapID);
 
-                            SqlBulkCopyColumnMapping mapMumber =
-                                new SqlBulkCopyColumnMapping("titleid", "titleid");
-                            bulkCopy.ColumnMappings.Add(mapMumber);
+                        SqlBulkCopyColumnMapping mapMumber =
+                            new SqlBulkCopyColumnMapping("titleid", "titleid");
+                        bulkCopy.ColumnMappings.Add(mapMumber);
 
-                            SqlBulkCopyColumnMapping mapName =
-                             new SqlBulkCopyColumnMapping("srno", "srno");
-                            bulkCopy.ColumnMappings.Add(mapName);
+                        SqlBulkCopyColumnMapping mapName =
+                         new SqlBulkCopyColumnMapping("srno", "srno");
+                        bulkCopy.ColumnMappings.Add(mapName);
 
-                            bulkCopy.DestinationTableName = "dbo.tbMachineAnnouncement";
+                        bulkCopy.DestinationTableName = "dbo.tbMachineAnnouncement";
 
-                            if (con.State == ConnectionState.Open) con.Close();
-                            con.Open();
-                            bulkCopy.WriteToServer(dt);
-                            con.Close();
+                        if (con.State == ConnectionState.Open) con.Close();
+                        con.Open();
+                        bulkCopy.WriteToServer(dt);
+                        con.Close();
 
-                        }
                     }
+                }
 
 
                 clsResult.Responce = "1";
@@ -10655,10 +10805,235 @@ namespace EuforyServices.ServiceImplementation
 
 
 
+        public ResponseTokenCrashLog SendMachineNoti(MachineNoti data)
+        {
+            ResponseTokenCrashLog ReturnResult = new ResponseTokenCrashLog();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+
+            try
+            {
+                ClsMachineNoti td = new ClsMachineNoti();
+
+                string sQr = "select NotificationDeviceId, TotalShot, DispenserAlert, IsShowShotToast from AMPlayerTokens where TokenID=" + data.tokenId + " and isnull(NotificationDeviceId,'') !='' ";
+                SqlCommand cmd = new SqlCommand(sQr, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(ds);
+                if (ds.Rows.Count > 0)
+                {
+                    td.DispenserAlert = ds.Rows[0]["DispenserAlert"].ToString();
+                    td.TotalShot = Convert.ToInt32(ds.Rows[0]["TotalShot"]);
+                    td.IsDemoToken = Convert.ToBoolean(ds.Rows[0]["IsShowShotToast"]);
+                    td.DeviceToken = ds.Rows[0]["NotificationDeviceId"].ToString();
+                    td.type = "Settings";
+                    string DeviceToken = td.DeviceToken;
 
 
+                    var result = "-1";
+                    var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://fcm.googleapis.com/fcm/send");
+                    httpWebRequest.ContentType = "application/json";
+                    httpWebRequest.Headers.Add(string.Format("Authorization: key={0}", "AAAAVNhkSB0:APA91bFvqS4tV4d8EBd_R9EPR5OwiSYNAu-WpZoE6u4gsxkurkMscL1Gal-PY_0ZC8j2rl5OV38t531qHK8RTXT1mISNVvVcfdoD7JMRROimfEfnN2ppxEli67eiRGmmfwgJEa_ZK3OP"));
+                    httpWebRequest.Method = "POST";
+                    httpWebRequest.UseDefaultCredentials = true;
+                    httpWebRequest.PreAuthenticate = true;
+                    httpWebRequest.Credentials = CredentialCache.DefaultCredentials;
+                    var payload = new
+                    {
+                        to = DeviceToken,
+                        priority = "high",
+                        content_available = true,
+                        notification = new
+                        {
+
+                            body = td,
+                            title = "Nusign"
+                        },
+                    };
+                    var serializer = new JavaScriptSerializer();
+                    using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                    {
+                        string json = serializer.Serialize(payload);
+                        streamWriter.Write(json);
+                        streamWriter.Flush();
+                    }
+                    var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        result = streamReader.ReadToEnd();
+                    }
+                    var objs = JsonConvert.DeserializeObject<ResNoti>(result);
+                    if (objs.success == "0")
+                    {
+                        ReturnResult.Response = 0;
+                        ReturnResult.ErrorMessage = "Error";
+
+                    }
+                    else
+                    {
+                        ReturnResult.Response = 1;
+                        ReturnResult.ErrorMessage = "Success";
+                    }
+                }
+                else
+                {
+                    ReturnResult.Response = 0;
+                    ReturnResult.ErrorMessage = "Not found";
+                }
+
+                return ReturnResult;
+            }
+            catch (Exception ex)
+            {
+                HttpContext.Current.Response.StatusCode = 1;
+                ReturnResult.ErrorMessage = ex.ToString();
+                ReturnResult.Response = 0;
+                return ReturnResult;
+            }
+        }
 
 
+        public List<ResponcePlayedSong> MachinePlayedLogs(List<DataPlayedSong> data)
+        {
+            List<ResponcePlayedSong> result = new List<ResponcePlayedSong>();
+            List<SongsArray> resultSong = new List<SongsArray>();
+            SqlConnection conMain = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
+            try
+            {
+                DateTimeFormatInfo fi = new DateTimeFormatInfo();
+                fi.AMDesignator = "AM";
+                fi.PMDesignator = "PM";
+
+                DataTable dtInsert = new DataTable();
+                dtInsert.Columns.Add("tokenid", typeof(int));
+                dtInsert.Columns.Add("titleid", typeof(int));
+                dtInsert.Columns.Add("artistid", typeof(int));
+                dtInsert.Columns.Add("playdate", typeof(DateTime));
+                dtInsert.Columns.Add("playTime", typeof(DateTime));
+
+                foreach (var Player in data)
+                {
+                    if (Player.TokenId != 0)
+                    {
+                        DataRow nr = dtInsert.NewRow();
+                        var k = string.Format(fi, "{0:HH:mm:ss}", Convert.ToDateTime(Player.PlayedDateTime));
+                        nr["tokenid"] = Player.TokenId;
+                        nr["playTime"] = "01-01-1900 " + k;
+                        nr["titleid"] = Player.TitleId;
+                        nr["artistid"] = Player.ArtistId;
+                        nr["playdate"] = string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(Player.PlayedDateTime));
+                        dtInsert.Rows.Add(nr);
+                    }
+                    resultSong.Add(new SongsArray()
+                    {
+                        Response = "1",
+                        returnPlayedDateTime = Player.PlayedDateTime,
+                        returnTitleId = Player.TitleId.ToString()
+                    });
+                }
+                if (dtInsert.Rows.Count > 0)
+                {
+
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(conMain))
+                    {
+
+                        SqlBulkCopyColumnMapping TokenId =
+                           new SqlBulkCopyColumnMapping("tokenid", "tokenid");
+                        bulkCopy.ColumnMappings.Add(TokenId);
+                        SqlBulkCopyColumnMapping titleid =
+                           new SqlBulkCopyColumnMapping("titleid", "titleid");
+                        bulkCopy.ColumnMappings.Add(titleid);
+                        SqlBulkCopyColumnMapping artistid =
+                           new SqlBulkCopyColumnMapping("artistid", "artistid");
+                        bulkCopy.ColumnMappings.Add(artistid);
+                        SqlBulkCopyColumnMapping playdate =
+                           new SqlBulkCopyColumnMapping("playdate", "playdate");
+                        bulkCopy.ColumnMappings.Add(playdate);
+                        SqlBulkCopyColumnMapping playTime =
+                         new SqlBulkCopyColumnMapping("playTime", "playTime");
+                        bulkCopy.ColumnMappings.Add(playTime);
+                        bulkCopy.DestinationTableName = "dbo.tbMachinePlayedLogs";
+                        if (conMain.State == ConnectionState.Closed)
+                        {
+                            conMain.Open();
+                        }
+                        bulkCopy.WriteToServer(dtInsert);
+
+                    }
+                }
+                result.Add(new ResponcePlayedSong()
+                {
+                    Response = "1",
+                    SongArray = resultSong
+                });
+
+                //}
+                conMain.Close();
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                result.Add(new ResponcePlayedSong()
+                {
+                    Response = "0",
+                    SongArray = new List<SongsArray>
+                        {
+                           new SongsArray { Response = "0" },
+                           new SongsArray {  returnPlayedDateTime ="0"},
+                           new SongsArray {  returnTitleId = "0"}
+
+                        }
+                });
+                HttpContext.Current.Response.StatusCode = 1;
+                conMain.Close();
+                return result;
+            }
+        }
+        public List<ResPlayerLog> FillPlayedSanitiserLog(ReqPlayerLog data)
+        {
+            List<ResPlayerLog> lstTd = new List<ResPlayerLog>();
+            string OldTitle = "";
+            string cs = ConfigurationManager.ConnectionStrings["Panel"].ConnectionString;
+            SqlConnection constr = new SqlConnection(cs);
+            if (string.IsNullOrEmpty(data.ToDate) == true)
+            {
+                data.ToDate = data.cDate;
+            }
+            string str = "GetTokenMachinePlayedLogs " + data.tokenid + "  ,'" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.cDate)) + "','" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.ToDate)) + "'";
+            SqlCommand cmd = new SqlCommand(str, constr);
+            try
+            {
+                DateTimeFormatInfo fi = new DateTimeFormatInfo();
+                fi.AMDesignator = "AM";
+                fi.PMDesignator = "PM";
+                constr.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+
+                    ResPlayerLog td = new ResPlayerLog();
+                    td.PlayedDateTime = string.Format(fi, "{0:dd-MMM-yyyy}", rdr["playdate"]) + ' ' + string.Format(fi, "{0:HH:mm:ss}", rdr["pDateTime"]);
+                    td.Name = rdr["title"].ToString();
+                    td.ArtistName = rdr["name"].ToString();
+                    td.SplPlaylistName = rdr["splPlaylistname"].ToString();
+                    td.CategoryName = rdr["CategoryName"].ToString();
+                    td.pDateTime = rdr["pDateTime"].ToString();
+                    lstTd.Add(td);
+
+                }
+                constr.Close();
+                return lstTd;
+            }
+            catch (Exception ex)
+            {
+                constr.Close();
+
+                HttpContext.Current.Response.StatusCode = 1;
+                return lstTd;
+            }
+        }
 
 
 

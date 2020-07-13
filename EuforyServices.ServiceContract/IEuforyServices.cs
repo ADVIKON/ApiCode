@@ -797,5 +797,20 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("UpdateMachineAnnouncementSRNo")]
         ResResponce UpdateMachineAnnouncementSRNo(ReqMachineAnnouncementSRNo data);
+        
+        [WebInvoke(Method = "POST", UriTemplate = "SendMachineNoti", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SendMachineNoti")]
+        ResponseTokenCrashLog SendMachineNoti(MachineNoti data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "MachinePlayedLogs", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("MachinePlayedLogs")]
+        List<ResponcePlayedSong> MachinePlayedLogs(List<DataPlayedSong> data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "FillPlayedSanitiserLog", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("FillPlayedSanitiserLog")]
+        List<ResPlayerLog> FillPlayedSanitiserLog(ReqPlayerLog data);
     }
 }

@@ -670,6 +670,12 @@ namespace EuforyServices.DataContract
         public string Response { get; set; }
         [DataMember]
         public string IsPublishUpdate { get; set; }
+        [DataMember]
+        public int TotalShot { get; set; }
+        [DataMember]
+        public bool IsDemoToken { get; set; }
+        [DataMember]
+        public string DispenserAlert { get; set; }
     }
     [DataContract]
     public class DataPlaylistDownloadStatus
@@ -1060,9 +1066,13 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string DeviceType { get; set; }
         [DataMember]
-        public string DispenserAlert { get; set; }
+        public List<ReqDispenserAlert> DispenserAlert { get; set; }
         [DataMember]
         public string TotalShot { get; set; }
+        [DataMember]
+        public string AlertMail { get; set; }
+        [DataMember]
+        public bool IsShowShotToast { get; set; }
     }
     [DataContract]
     public class ReqSaveTokenInfo
@@ -1110,9 +1120,21 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string DeviceType { get; set; }
         [DataMember]
-        public string DispenserAlert { get; set; }
-        [DataMember]
         public string TotalShot { get; set; }
+        [DataMember]
+        public List<ReqDispenserAlert> DispenserAlert { get; set; }
+        [DataMember]
+        public string AlertMail { get; set; }
+        [DataMember]
+        public bool IsShowShotToast { get; set; }
+    }
+    [DataContract]
+    public class ReqDispenserAlert
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string itemName { get; set; }
     }
     [DataContract]
     public class ResResponce
@@ -1153,6 +1175,8 @@ namespace EuforyServices.DataContract
 
         [DataMember]
         public string IsRf { get; set; }
+        [DataMember]
+        public string ContentType { get; set; }
     }
     [DataContract]
     public class ReqResetToken
@@ -1279,6 +1303,8 @@ namespace EuforyServices.DataContract
         public string Label { get; set; }
         [DataMember]
         public string FolderName { get; set; }
+        [DataMember]
+        public Boolean check { get; set; }
     }
     [DataContract]
     public class ResPlaylistSongList
@@ -1307,6 +1333,8 @@ namespace EuforyServices.DataContract
         public string SrNo { get; set; }
         [DataMember]
         public string GenreName { get; set; }
+        [DataMember]
+        public string Label { get; set; }
     }
 
     [DataContract]
@@ -1647,7 +1675,8 @@ namespace EuforyServices.DataContract
         public string email { get; set; }
         [DataMember]
         public string password { get; set; }
-        
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "DBType", Order = 1)]
+        public string DBType { get; set; }
     }
     [DataContract]
     public class ReqDashboard
@@ -2115,6 +2144,8 @@ namespace EuforyServices.DataContract
         public string cDate { get; set; }
         [DataMember]
         public string ToDate { get; set; }
+        [DataMember]
+        public bool ShowOnlyTankChangeLog { get; set; }
 
     }
     [DataContract]
@@ -2160,7 +2191,8 @@ namespace EuforyServices.DataContract
         public string TokenId { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "OwnerCustomerId", Order = 1)]
         public string OwnerCustomerId { get; set; }
-
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "IsAdmin", Order = 1)]
+        public bool IsAdmin { get; set; }
     }
     [DataContract]
     public class ReqStream
@@ -2228,7 +2260,8 @@ namespace EuforyServices.DataContract
         public string CustomerId { get; set; }
         [DataMember]
         public string FolderId { get; set; }
-
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "IsAdmin", Order = 1)]
+        public bool IsAdmin { get; set; }
     }
     [DataContract]
     public class DataUserRights_Bulk
@@ -2272,6 +2305,8 @@ namespace EuforyServices.DataContract
         public string Logs { get; set; }
         [DataMember]
         public string command { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "titleId", Order = 1)]
+        public string titleId { get; set; }
     }
     [DataContract]
     public class ResMachineLogs
@@ -2314,12 +2349,19 @@ namespace EuforyServices.DataContract
     [DataContract]
     public class ReqSaveMachineAnnouncement
     {
-        
         [DataMember]
-        public string TokenId { get; set; }
+        public List<ReqTokenMachineAnnouncement> TokenId { get; set; }
         [DataMember]
         public List<string> titleid { get; set; }
 
+    }
+    [DataContract]
+    public class ReqTokenMachineAnnouncement
+    {
+        [DataMember]
+        public string tokenid { get; set; }
+        [DataMember]
+        public string tokenCode { get; set; }
     }
     [DataContract]
     public class ReqMachineAnnouncementSRNo
@@ -2328,6 +2370,27 @@ namespace EuforyServices.DataContract
         public string tokenId { get; set; }
         [DataMember]
         public List<ReqUpdatePlaylistSRNo_Detail> lstTitleSR { get; set; }
+    }
+    [DataContract]
+    public class MachineNoti
+    {
+        [DataMember]
+        public string tokenId { get; set; }
+    }
+    [DataContract]
+    public class ClsMachineNoti
+    {
+        [DataMember]
+        public int TotalShot { get; set; }
+        [DataMember]
+        public string type { get; set; }
+        [DataMember]
+        public bool IsDemoToken { get; set; }
+        [DataMember]
+        public string DispenserAlert { get; set; }
+        [DataMember]
+        public string DeviceToken { get; set; }
+        
     }
 }
 
