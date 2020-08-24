@@ -411,7 +411,7 @@ namespace EuforyServices.ServiceContract
         [WebInvoke(Method = "POST", UriTemplate = "DeleteTitle", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
         [Description("DeleteTitle")]
-        ResResponce DeleteTitle(ReqDeletePlaylistSong data);
+        ResResponce DeleteTitle(ReqDeleteTitle data);
 
         [WebInvoke(Method = "POST", UriTemplate = "SavePlaylist", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
@@ -812,5 +812,61 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("FillPlayedSanitiserLog")]
         List<ResPlayerLog> FillPlayedSanitiserLog(ReqPlayerLog data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "UpdateEnergyLevel", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("UpdateEnergyLevel")]
+        ResResponce UpdateEnergyLevel(ReqUpdateEnergyLevel data);
+
+
+        [WebInvoke(Method = "POST", UriTemplate = "GetInstantPlaySpecialPlaylistsTitles", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("GetInstantPlaySpecialPlaylistsTitles")]
+        List<ResponceSplSplaylistTitle> GetInstantPlaySpecialPlaylistsTitles(ReqGetInstantPlaySpecialPlaylistsTitles data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "InstantPlay", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("InstantPlay")]
+        ResponseTokenCrashLog InstantPlay(ReqInstantPlay data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "GetFolderContent", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("GetFolderContent")]
+        List<ResSongList> GetFolderContent(ReqGetFolderContent data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveTransferContent", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveTransferContent")]
+        ResResponce SaveTransferContent(ReqTransferContent data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "UpdateContent", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("UpdateContent")]
+        ResResponce UpdateContent(ReqUpdateContent data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "AppLogin", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("AppLogin")]
+        List<ResponceUserToen> AppLogin(ReqAppLogin data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveKeyboardAnnouncement", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveKeyboardAnnouncement")]
+        ResResponce SaveKeyboardAnnouncement(ReqKeyboardAnnouncement data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "GetKeyboardAnnouncement", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("GetKeyboardAnnouncement")]
+        List<ResGetKeyboardAnnouncement> GetKeyboardAnnouncement(DataCustomerTokenId data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteKeyboardAnnouncement", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteKeyboardAnnouncement")]
+        ResResponce DeleteKeyboardAnnouncement(ReqDeleteKeyboardAnnouncement data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "GetClientContenType", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("GetClientContenType")]
+        ResResponce GetClientContenType(ReqTokenInfo data);
     }
 }

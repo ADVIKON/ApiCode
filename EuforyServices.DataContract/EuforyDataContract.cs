@@ -136,6 +136,12 @@ namespace EuforyServices.DataContract
         public int TotalShot { get; set; }
         [DataMember]
         public string DispenserAlert { get; set; }
+        [DataMember]
+        public string DeviceType { get; set; }
+        [DataMember]
+        public string FireAlertId { get; set; }
+        [DataMember]
+        public string FireAlertUrl { get; set; }
     }
 
     [DataContract]
@@ -229,6 +235,10 @@ namespace EuforyServices.DataContract
         public string TitleUrl2 { get; set; }
         [DataMember]
         public string FileSize { get; set; }
+        [DataMember]
+        public int TimeInterval { get; set; }
+        [DataMember]
+        public bool IsLoop { get; set; }
     }
 
     [DataContract]
@@ -952,6 +962,9 @@ namespace EuforyServices.DataContract
         public List<ResTokenPrayer> lstPrayer { get; set; }
         [DataMember]
         public List<ResTokenData> lstTokenData { get; set; }
+        [DataMember]
+        public List<ResTokenPlaylistSch> APKPlaylist { get; set; }
+
 
     }
     [DataContract]
@@ -1177,6 +1190,9 @@ namespace EuforyServices.DataContract
         public string IsRf { get; set; }
         [DataMember]
         public string ContentType { get; set; }
+        [DataMember]
+        public Boolean chkUserAdmin { get; set; }
+
     }
     [DataContract]
     public class ReqResetToken
@@ -1253,6 +1269,8 @@ namespace EuforyServices.DataContract
         public string personName { get; set; }
         [DataMember]
         public string dbType { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "ContentType", Order = 1)]
+        public string ContentType { get; set; }
     }
     [DataContract]
     public class ResBestOf
@@ -1305,6 +1323,20 @@ namespace EuforyServices.DataContract
         public string FolderName { get; set; }
         [DataMember]
         public Boolean check { get; set; }
+        [DataMember]
+        public string EngeryLevel { get; set; }
+        [DataMember]
+        public string rDate { get; set; }
+        [DataMember]
+        public string BPM { get; set; }
+        [DataMember]
+        public string Language { get; set; }
+        [DataMember]
+        public string titleyear { get; set; }
+        [DataMember]
+        public string dfClientId { get; set; }
+
+
     }
     [DataContract]
     public class ResPlaylistSongList
@@ -1335,6 +1367,8 @@ namespace EuforyServices.DataContract
         public string GenreName { get; set; }
         [DataMember]
         public string Label { get; set; }
+        [DataMember]
+        public string sId { get; set; }
     }
 
     [DataContract]
@@ -1362,7 +1396,8 @@ namespace EuforyServices.DataContract
         public List<string> titleid { get; set; }
         [DataMember]
         public string AddSongFrom { get; set; }
-
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "DBType", Order = 1)]
+        public string DBType { get; set; }
     }
     [DataContract]
     public class ReqCommonSearch
@@ -1383,6 +1418,10 @@ namespace EuforyServices.DataContract
         public bool IsAdmin { get; set; }
         [DataMember]
         public string DBType { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "ContentType", Order = 1)]
+        public string ContentType { get; set; }
+        [DataMember]
+        public string PageNo { get; set; }
     }
     [DataContract]
     public class ReqDeletePlaylistSong
@@ -1440,6 +1479,8 @@ namespace EuforyServices.DataContract
         public Boolean IsMute { get; set; }
         [DataMember]
         public Boolean IsFixed { get; set; }
+        [DataMember]
+        public Boolean IsMixedContent { get; set; }
 
     }
     [DataContract]
@@ -1731,6 +1772,8 @@ namespace EuforyServices.DataContract
         public string IsVideoToken { get; set; }
         [DataMember]
         public string tid { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "PlayType", Order = 1)]
+        public string PlayType { get; set; }
     }
     [DataContract]
     public class ResNoti
@@ -1782,6 +1825,14 @@ namespace EuforyServices.DataContract
         public List<string> lstToken { get; set; }
         [DataMember]
         public Boolean chkDeleteSong { get; set; }
+        [DataMember]
+        public Boolean chkInstantApk { get; set; }
+        [DataMember]
+        public string cmbFormat { get; set; }
+        [DataMember]
+        public string cmbPlaylist { get; set; }
+        [DataMember]
+        public Boolean chkUserAdmin { get; set; }
     }
     [DataContract]
     public class ReqUserInfo
@@ -1867,6 +1918,8 @@ namespace EuforyServices.DataContract
         public Boolean chkMute { get; set; }
         [DataMember]
         public Boolean chkFixed { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "chkMixed", Order = 1)]
+        public Boolean chkMixed { get; set; }
     }
     [DataContract]
     public class ReqUpdatePlaylistSRNo
@@ -1883,6 +1936,8 @@ namespace EuforyServices.DataContract
         public string index { get; set; }
         [DataMember]
         public string titleid { get; set; }
+        [DataMember]
+        public string id { get; set; }
     }
     [DataContract]
     public class ReqSaveModifyLogs
@@ -1926,6 +1981,12 @@ namespace EuforyServices.DataContract
         public string DBType { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "IsAdmin", Order = 1)]
         public bool IsAdmin { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "ContentType", Order = 1)]
+        public string ContentType { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "FilterType", Order = 1)]
+        public string FilterType { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "FilterValue", Order = 1)]
+        public string FilterValue { get; set; }
 
     }
     [DataContract]
@@ -1948,7 +2009,8 @@ namespace EuforyServices.DataContract
         public string GenreId { get; set; }
         [DataMember]
         public string GenrePercentage { get; set; }
-
+        [DataMember]
+        public string MediaType { get; set; }
     }
     [DataContract]
     public class ReqNewSavePlaylist
@@ -1963,6 +2025,8 @@ namespace EuforyServices.DataContract
         public string MediaStyle { get; set; }
         [DataMember]
         public string formatid { get; set; }
+        [DataMember]
+        public string DBType { get; set; }
         [DataMember]
         public List<ReqGenrePer> lstGenrePer { get; set; }
     }
@@ -2293,6 +2357,13 @@ namespace EuforyServices.DataContract
         public string Artist { get; set; }
         [DataMember]
         public string Genre { get; set; }
+        [DataMember]
+        public string aType { get; set; }
+        [DataMember]
+        public int TimeInterval { get; set; }
+        [DataMember]
+        public bool IsLoop { get; set; }
+
     }
     [DataContract]
     public class ReqMachineLogs
@@ -2307,6 +2378,8 @@ namespace EuforyServices.DataContract
         public string command { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "titleId", Order = 1)]
         public string titleId { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "aType", Order = 1)]
+        public string aType { get; set; }
     }
     [DataContract]
     public class ResMachineLogs
@@ -2391,6 +2464,114 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string DeviceToken { get; set; }
         
+    }
+    [DataContract]
+    public class ReqUpdateEnergyLevel
+    {
+        [DataMember]
+        public string TitleId { get; set; }
+        [DataMember]
+        public string EnergyLevel { get; set; }
+    }
+    [DataContract]
+    public class ReqGetFolderContent
+    {
+        [DataMember]
+        public string FolderId { get; set; }
+        [DataMember]
+        public string ClientId { get; set; }
+        [DataMember]
+        public string DBType { get; set; }
+        
+    }
+    [DataContract]
+    public class ReqTransferContent
+    {
+        [DataMember]
+        public string FolderId { get; set; }
+        [DataMember]
+        public string[] TitleList { get; set; }
+        [DataMember]
+        public string dfClientId { get; set; }
+        [DataMember]
+        public string FromFolderId { get; set; }
+    }
+    [DataContract]
+    public class ReqUpdateContent
+    {
+        [DataMember]
+        public string TitleId { get; set; }
+        [DataMember]
+        public string titleName { get; set; }
+    }
+    [DataContract]
+    public class ReqInstantPlay
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string title { get; set; }
+        [DataMember]
+        public string artistid { get; set; }
+        [DataMember]
+        public string albumid { get; set; }
+        [DataMember]
+        public string artistname { get; set; }
+        [DataMember]
+        public Int32[] tid { get; set; }
+    }
+    [DataContract]
+    public class ReqGetInstantPlaySpecialPlaylistsTitles
+    {
+        [DataMember]
+        public Int32[] Tokenid { get; set; }
+    }
+    [DataContract]
+    public class ReqDeleteTitle
+    {
+        [DataMember]
+        public string playlistid { get; set; }
+        [DataMember]
+        public string[] titleid { get; set; }
+    }
+    [DataContract]
+    public class ReqAppLogin
+    {
+        [DataMember]
+        public string UserName { get; set; }
+        [DataMember]
+        public string TokenNo { get; set; }
+        [DataMember]
+        public string DeviceId { get; set; }
+        [DataMember]
+        public string PlayerType { get; set; }
+        [DataMember]
+        public string DBType { get; set; }
+    }
+    [DataContract]
+    public class ReqKeyboardAnnouncement
+    {
+        [DataMember]
+        public List<ReqTokenMachineAnnouncement> TokenId { get; set; }
+        [DataMember]
+        public string splPlaylistId { get; set; }
+
+    }
+    [DataContract]
+    public class ResGetKeyboardAnnouncement
+    {
+        [DataMember]
+        public string pName { get; set; }
+        [DataMember]
+        public string fName { get; set; }
+        [DataMember]
+        public string id { get; set; }
+    }
+    [DataContract]
+    public class ReqDeleteKeyboardAnnouncement
+    {
+        [DataMember]
+        public string id { get; set; }
     }
 }
 
