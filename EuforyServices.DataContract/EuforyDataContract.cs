@@ -1271,6 +1271,9 @@ namespace EuforyServices.DataContract
         public string dbType { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "ContentType", Order = 1)]
         public string ContentType { get; set; }
+        [DataMember]
+        public string ApiKey { get; set; }
+
     }
     [DataContract]
     public class ResBestOf
@@ -1422,6 +1425,9 @@ namespace EuforyServices.DataContract
         public string ContentType { get; set; }
         [DataMember]
         public string PageNo { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "LoginClientId", Order = 1)]
+        public string LoginClientId { get; set; }
+
     }
     [DataContract]
     public class ReqDeletePlaylistSong
@@ -1481,6 +1487,8 @@ namespace EuforyServices.DataContract
         public Boolean IsFixed { get; set; }
         [DataMember]
         public Boolean IsMixedContent { get; set; }
+        [DataMember]
+        public string[] tokenIds { get; set; }
 
     }
     [DataContract]
@@ -2063,7 +2071,15 @@ namespace EuforyServices.DataContract
         public string clientId { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "tokenid", Order = 1)]
         public string tokenid { get; set; }
+
     }
+    [DataContract]
+    public class ReqForceUpdate
+    {
+        [DataMember]
+        public string[] tokenid { get; set; }
+    }
+     
     [DataContract]
     public class ReqDeleteFormatId
     {
@@ -2570,6 +2586,74 @@ namespace EuforyServices.DataContract
     [DataContract]
     public class ReqDeleteKeyboardAnnouncement
     {
+        [DataMember]
+        public string id { get; set; }
+    }
+    [DataContract]
+    public class ReqSetFireAlert
+    {
+        [DataMember]
+        public List<ReqTokenMachineAnnouncement> tokenId { get; set; }
+        [DataMember]
+        public string titleid { get; set; }
+        [DataMember]
+        public string MediaType { get; set; }
+    }
+    [DataContract]
+    public class ReqGetTemplates
+    {
+        [DataMember]
+        public Int32 dfClientId { get; set; }
+    }
+    
+
+    [DataContract]
+    public class ResGetTemplates
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string name { get; set; }
+        [DataMember]
+        public string orientation { get; set; }
+        [DataMember]
+        public string url { get; set; }
+        [DataMember]
+        public string createdAt { get; set; }
+        [DataMember]
+        public string modifiedAt { get; set; }
+        [DataMember]
+        public string thumbnailUrl { get; set; }
+        [DataMember]
+        public string thumbnailCreatedAt { get; set; }
+        [DataMember]
+        public string videoUrl { get; set; }
+        [DataMember]
+        public string videoCreatedAt { get; set; }
+
+    }
+    [DataContract]
+    public class ReqDownloadTemplates
+    {
+        [DataMember]
+        public Int32 dfClientId { get; set; }
+        [DataMember]
+        public Int32 GenreId { get; set; }
+        [DataMember]
+        public Int32 FolderId { get; set; }
+        [DataMember]
+        public List<ReqTemplatesList> tList { get; set; }
+        [DataMember]
+        public string dbType { get; set; }
+
+    }
+    [DataContract]
+    public class ReqTemplatesList
+    {
+        [DataMember]
+        public string TemplateName { get; set; }
+        [DataMember]
+        public string Url { get; set; }
         [DataMember]
         public string id { get; set; }
     }

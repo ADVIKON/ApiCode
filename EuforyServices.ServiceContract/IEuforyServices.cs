@@ -636,7 +636,7 @@ namespace EuforyServices.ServiceContract
         [WebInvoke(Method = "POST", UriTemplate = "ForceUpdate", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
         [Description("ForceUpdate")]
-        ResResponce ForceUpdate(ReqFillAdPlaylist data);
+        ResResponce ForceUpdate(ReqForceUpdate data);
 
         [WebInvoke(Method = "POST", UriTemplate = "FillTokenInfo_formatANDplaylist", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
@@ -868,5 +868,32 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("GetClientContenType")]
         ResResponce GetClientContenType(ReqTokenInfo data);
+
+
+        [WebInvoke(Method = "POST", UriTemplate = "SetFireAlert", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SetFireAlert")]
+        ResResponce SetFireAlert(ReqSetFireAlert data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "GetFireAlert", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("GetFireAlert")]
+        List<ResGetMachineAnnouncement> GetFireAlert(DataCustomerTokenId data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteFireAlert", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteFireAlert")]
+        ResResponce DeleteFireAlert(ReqDeleteMachineTitle data);
+
+
+        [WebInvoke(Method = "POST", UriTemplate = "GetTemplates", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("GetTemplates")]
+        Task<List<ResGetTemplates>> GetTemplates(ReqGetTemplates data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DownloadTemplates", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DownloadTemplates")]
+        Task<ResResponce> DownloadTemplates(ReqDownloadTemplates data);
     }
 }
