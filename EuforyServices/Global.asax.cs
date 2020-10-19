@@ -42,11 +42,26 @@ namespace EuforyServices
             //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "https://customer.myclaud.com");
             //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
 
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin",  Request.UrlReferrer.GetLeftPart(UriPartial.Authority));
-                   // string k = Request.UrlReferrer.GetLeftPart(UriPartial.Authority);
-                  
+                //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin",  Request.UrlReferrer.GetLeftPart(UriPartial.Authority));
+                //string k = Request.UrlReferrer.GetLeftPart(UriPartial.Authority);
+
+                Uri requestUrl;
+                requestUrl = new Uri(Request.Url.ToString());
+                //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", requestUrl.GetLeftPart(UriPartial.Authority));
+
+                if (Request.UrlReferrer!= null)
+                {
+                    var h = Request.UrlReferrer.GetLeftPart(UriPartial.Authority);
+                    HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", Request.UrlReferrer.GetLeftPart(UriPartial.Authority));
+                }
+
 
                 HttpContext.Current.Response.AddHeader("Access-Control-Allow-Credentials", "true");
+
+
+                 
+
+
                 if (HttpContext.Current.Request.HttpMethod == "OPTIONS")
                 {
                     HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods", "GET,POST, PUT, DELETE");

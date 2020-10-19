@@ -34,6 +34,9 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="RestSharp, Version=104.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.104.0\lib\net4\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Stripe.net, Version=34.24.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Stripe.net.34.24.0\lib\net45\Stripe.net.dll</HintPath>
       <Private>True</Private>

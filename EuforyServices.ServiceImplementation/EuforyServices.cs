@@ -31,6 +31,7 @@ using Newtonsoft.Json;
 using Stripe;
 using System.Net.Mail;
 using System.Data.OleDb;
+using RestSharp;
 
 namespace EuforyServices.ServiceImplementation
 {
@@ -434,13 +435,13 @@ namespace EuforyServices.ServiceImplementation
                     }
                     if (Convert.ToBoolean(ds.Tables[0].Rows[i]["isShowDefault"]) == true)
                     {
-                         isSepration_old = 1;
-                         
+                        isSepration_old = 1;
+
                     }
                     else
                     {
                         isSepration_old = 0;
-                         
+
                     }
                     result.Add(new ResponceSplSplaylist()
                     {
@@ -520,7 +521,7 @@ namespace EuforyServices.ServiceImplementation
                         TitleUrl = url,
                         TitleUrl2 = url,
                         FileSize = ds.Tables[0].Rows[i]["filesize"].ToString(),
-                        TimeInterval = 10,
+                        TimeInterval = Convert.ToInt32(ds.Tables[0].Rows[i]["imgInterval"]),
                         IsLoop = false,
                     });
                 }
@@ -1635,6 +1636,8 @@ namespace EuforyServices.ServiceImplementation
                         TitleUrl = url,
                         TitleUrl2 = url,
                         FileSize = ds.Tables[0].Rows[i]["filesize"].ToString(),
+                        TimeInterval = Convert.ToInt32(ds.Tables[0].Rows[i]["imgInterval"]),
+                        IsLoop = false,
                     });
                 }
                 con.Close();
@@ -2527,12 +2530,12 @@ namespace EuforyServices.ServiceImplementation
                     }
                     if (Convert.ToBoolean(ds.Tables[0].Rows[i]["isShowDefault"]) == true)
                     {
-                         
+
                         isSepration_old = 0;
                     }
                     else
                     {
-                         
+
                         isSepration_old = 1;
                     }
                     /* var e_time="" ;
@@ -2968,7 +2971,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         Id = ds.Tables[0].Rows[i]["id"].ToString(),
                         DisplayName = ds.Tables[0].Rows[i]["DisplayName"].ToString(),
-                        check=false,
+                        check = false,
                     });
                 }
                 con.Close();
@@ -3092,6 +3095,8 @@ namespace EuforyServices.ServiceImplementation
                         CityId = ds.Rows[i]["CityId"].ToString(),
                         SpaceStatus = FinalStatus,
                         SpacePer = perSpace,
+                        MediaType = ds.Rows[i]["nMediaType"].ToString(),
+
                     });
                 }
                 con.Close();
@@ -3277,7 +3282,7 @@ namespace EuforyServices.ServiceImplementation
                 sQr = "select sp.splPlaylistId, sp.splPlaylistName as pName,sp.Formatid, sf.FormatName from tbInstantPlayPlaylist ip";
                 sQr = sQr + " inner join tbSpecialPlaylists sp on sp.splPlaylistId = ip.splPlaylistId ";
                 sQr = sQr + " inner join tbSpecialFormat sf on sf.FormatId = sp.Formatid ";
-                sQr = sQr + " where ip.TokenId = "+data.tokenId+" ";
+                sQr = sQr + " where ip.TokenId = " + data.tokenId + " ";
                 cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 ad = new SqlDataAdapter(cmd);
@@ -3945,7 +3950,7 @@ namespace EuforyServices.ServiceImplementation
                 {
                     int delTotalToken = OldToken - TotalTokenGenrate;
                     string sQr = "";
-                    sQr = "delete TOP(" + delTotalToken + ") from AMPlayerTokens where code is null and ClientID= " + SaveDfClientId;
+                    sQr = "delete from AMPlayerTokens where tokenid in (select top (" + delTotalToken + ") TokenID  from AMPlayerTokens where code is null and ClientID=" + SaveDfClientId + " ORDER BY  tokenid desc)";
                     SqlCommand cmdDelete = new SqlCommand(sQr, con);
                     cmdDelete.CommandType = CommandType.Text;
                     if (con.State == ConnectionState.Closed)
@@ -4153,7 +4158,7 @@ namespace EuforyServices.ServiceImplementation
                 if (data.IsBestOffPlaylist == "Yes")
                 {
                     sQr = "SELECT  Titles.TitleID, rtrim(ltrim(Titles.Title)) as Title, Titles.Time,rtrim(ltrim(Albums.Name)) AS AlbumName ,";
-                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName,'' as Category  ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, '0' as srno , isnull(tbGenre.genre,'') as genre, isnull(Titles.label,'') as label FROM ((( TitlesInPlaylists  ";
+                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName,'' as Category  ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, '0' as srno , isnull(tbGenre.genre,'') as genre, isnull(Titles.label,'') as label, '5' as ImgTimeInterval FROM ((( TitlesInPlaylists  ";
                     sQr = sQr + " INNER JOIN Titles ON TitlesInPlaylists.TitleID = Titles.TitleID )  ";
                     sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID ) ";
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID ) ";
@@ -4163,7 +4168,8 @@ namespace EuforyServices.ServiceImplementation
                 else
                 {
                     sQr = "SELECT  Titles.TitleID, rtrim(ltrim(Titles.Title)) as Title, Titles.Time,rtrim(ltrim(Albums.Name)) AS AlbumName ,";
-                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName , isnull(tbGenre.genre,'') as genre, isnull(Titles.tempo,'') as Tempo  , isnull(acategory,'') as Category ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, tbSpecialPlaylists_Titles.srno, isnull(Titles.label,'') as label, tbSpecialPlaylists_Titles.id FROM   tbSpecialPlaylists_Titles  ";
+                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName , isnull(tbGenre.genre,'') as genre, isnull(Titles.tempo,'') as Tempo  , isnull(acategory,'') as Category ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, tbSpecialPlaylists_Titles.srno, isnull(Titles.label,'') as label, tbSpecialPlaylists_Titles.id ,";
+                    sQr = sQr + " iif(tbSpecialPlaylists_Titles.ImgTimeInterval = 0, 5, isnull(tbSpecialPlaylists_Titles.ImgTimeInterval, 5)) as ImgTimeInterval FROM   tbSpecialPlaylists_Titles  ";
                     sQr = sQr + " INNER JOIN Titles ON tbSpecialPlaylists_Titles.TitleID = Titles.TitleID   ";
                     sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID  ";
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID  ";
@@ -4180,6 +4186,7 @@ namespace EuforyServices.ServiceImplementation
                 DataTable ds = new DataTable();
                 ad.Fill(ds);
                 string url = "", mtypeFormat = "";
+                string btnImgAll = "";
                 for (int i = 0; i < ds.Rows.Count; i++)
                 {
                     if (ds.Rows[i]["MediaType"].ToString().Trim() == "Audio")
@@ -4193,6 +4200,14 @@ namespace EuforyServices.ServiceImplementation
                     if (ds.Rows[i]["MediaType"].ToString().Trim() == "Image")
                     {
                         mtypeFormat = ".jpg";
+                        if (btnImgAll == "")
+                        {
+                            btnImgAll = "All";
+                        }
+                        else if (btnImgAll == "All")
+                        {
+                            btnImgAll = "Hide";
+                        }
                     }
 
                     url = "http://134.119.178.26/mp3files/" + ds.Rows[i]["titleId"].ToString() + mtypeFormat;
@@ -4213,6 +4228,8 @@ namespace EuforyServices.ServiceImplementation
                         GenreName = ds.Rows[i]["genre"].ToString(),
                         Label = ds.Rows[i]["label"].ToString(),
                         sId = ds.Rows[i]["id"].ToString(),
+                        ImageTimeInterval = ds.Rows[i]["ImgTimeInterval"].ToString(),
+                        ImgAllBtn= btnImgAll,
                     });
                 }
                 con.Close();
@@ -4355,7 +4372,7 @@ namespace EuforyServices.ServiceImplementation
                     dt.Columns.Add("srNo", typeof(int));
                     foreach (string iTitle in data.titleid)
                     {
-                        if (data.DBType == "Advikon")
+                        if (data.IsDuplicate == false)
                         {
                             string sQr = "select * from tbSpecialPlaylists_Titles where splPlaylistId=" + pid + " and TitleID=" + iTitle;
                             SqlCommand cmd = new SqlCommand(sQr, con);
@@ -4372,7 +4389,7 @@ namespace EuforyServices.ServiceImplementation
                                 dt.Rows.Add(nr);
                             }
                         }
-                        if (data.DBType == "Nusign")
+                        if (data.IsDuplicate == true)
                         {
                             int sr = 0;
                             sr++;
@@ -4432,7 +4449,7 @@ namespace EuforyServices.ServiceImplementation
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
             try
             {
-                string[] genreid = {"325","324","297","303"};
+                string[] genreid = { "325", "324", "297", "303" };
 
                 string sQr = "";
                 sQr = " select  top 500 TitleID, ltrim(Title) as Title,Time, ltrim(ArtistName) as ArtistName, ltrim(AlbumName) as AlbumName , isnull(genre,'') as genre, Tempo ,titleyear,Category,AlbumID, ArtistID, mediatype , label,fname ,EngeryLevel, bpm, rdate, lang  , dfclientid from( ";
@@ -4463,7 +4480,7 @@ namespace EuforyServices.ServiceImplementation
                     }
 
 
-                  sQr = sQr + " ) as d  order by title     ";
+                    sQr = sQr + " ) as d  order by title     ";
                 }
                 else if (data.searchType == "artist")
                 {
@@ -4489,9 +4506,9 @@ namespace EuforyServices.ServiceImplementation
                 }
                 else if (data.searchType == "album")
                 {
-                   
+
                     sQr = "spSearch_Album_spl " + data.searchText + " ,'" + data.mediaType + "', " + data.IsRf + "," + Convert.ToByte(data.IsExplicit) + ",'" + data.DBType + "'";
- sQr = "";
+                    sQr = "";
                     sQr = sQr + " where Titles.AlbumID =''" + data.searchText + "''  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
                     sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
@@ -4516,7 +4533,7 @@ namespace EuforyServices.ServiceImplementation
                     if (data.mediaType != "Image")
                     {
                         sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
-                        
+
                     }
                     sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
 
@@ -4570,7 +4587,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                     sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
 
-                   sQr = sQr + " ) as d  order by cast(BPM as int) ";
+                    sQr = sQr + " ) as d  order by cast(BPM as int) ";
                 }
                 else if (data.searchType == "ReleaseDate")
                 {
@@ -4613,7 +4630,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                     sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
 
-                      sQr = sQr + " ) as d  order by EngeryLevel desc   ";
+                    sQr = sQr + " ) as d  order by EngeryLevel desc   ";
                 }
                 else if (data.searchType == "NewVibe")
                 {
@@ -4641,7 +4658,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         sQr = sQr + " and Titles.genreid not in(325,324)";
                     }
-                   sQr = sQr + " ) as d  order by TitleID desc    ";
+                    sQr = sQr + " ) as d  order by TitleID desc    ";
                 }
                 else if (data.searchType == "Label")
                 {
@@ -4674,7 +4691,7 @@ namespace EuforyServices.ServiceImplementation
                         sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
                     }
 
-                 //   sQr = sQr + " ) as d  order by isnull(genre,'')     ";
+                    //   sQr = sQr + " ) as d  order by isnull(genre,'')     ";
                 }
                 else if (data.searchType == "Language")
                 {
@@ -4776,7 +4793,7 @@ namespace EuforyServices.ServiceImplementation
                         sQr = "SELECT TOP (500) Titles.TitleID, Titles.Title, Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, isnull(Titles.tempo,'') as Tempo,isnull(tbGenre.genre,'') as genre , Titles.titleyear ,isnull(acategory,'') as Category, Titles.AlbumID, Titles.ArtistID, Titles.mediatype,  isnull(Titles.label ,'') as label ,isnuLL(tbFolder.folderName,'') as fName , isnull(Titles.EngeryLevel,0) as EngeryLevel, isnull(Titles.BPM,'') as bpm, isnull(Titles.ReleaseDate,'') as rdate, isnull(Titles.language,'') as lang, titles.titleyear, isnull(Titles.dfclientid,0) as dfclientid FROM Titles INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  LEFT OUTER JOIN tbFolder ON Titles.folderId = tbFolder.folderId  ";
                         sQr = "";
 
-                        sQr= sQr + " where   Titles.mediaType=''" + data.mediaType + "'' and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit) + " ";
+                        sQr = sQr + " where   Titles.mediaType=''" + data.mediaType + "'' and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit) + " ";
                         sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
 
                         if (data.IsAdmin == false)
@@ -4891,12 +4908,12 @@ namespace EuforyServices.ServiceImplementation
                     }
                     else
                     {
-                        tid = tid+","+ item;
+                        tid = tid + "," + item;
                     }
                 }
-                 
-                    strDel = "delete from tbSpecialPlaylists_Titles where TitleID in(" + tid + ") and splPlaylistId= " + data.playlistid;
-                 
+
+                strDel = "delete from tbSpecialPlaylists_Titles where TitleID in(" + tid + ") and splPlaylistId= " + data.playlistid;
+
                 SqlCommand cmd = new SqlCommand(strDel, con);
                 cmd.CommandType = CommandType.Text;
                 con.Open();
@@ -5040,7 +5057,7 @@ namespace EuforyServices.ServiceImplementation
                     var weekNo = (int)DateTime.Now.DayOfWeek;
                     sQr = "GetSpecialTempPlaylistSchedule " + weekNo + ", " + data.Id + " ," + data.ClientId + ", '" + string.Format("{0:dd-MMM-yyyy}", DateTime.Now) + "'";
                 }
-
+                
                 SqlCommand cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 con.Open();
@@ -5072,8 +5089,8 @@ namespace EuforyServices.ServiceImplementation
                             IsMute = Convert.ToBoolean(Convert.ToByte(ds.Rows[i]["IsMute"])),
                             IsFixed = Convert.ToBoolean(Convert.ToByte(ds.Rows[i]["isShowDefault"])),
                             IsMixedContent = Convert.ToBoolean(Convert.ToByte(ds.Rows[i]["IsMixedContent"])),
-                            tokenIds= ds.Rows[i]["tokenid"].ToString().Split(new Char[]{','})
-
+                            tokenIds = ds.Rows[i]["tokenid"].ToString().Split(new Char[] { ',' }),
+                            IsDuplicate = Convert.ToBoolean(Convert.ToByte(ds.Rows[i]["IsDuplicate"])),
                         });
                     }
                 }
@@ -7146,7 +7163,7 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 con.Open();
-                string sQr = "select isnull(NotificationDeviceId,'') as FcmId, isVedioActive,lType from AMPlayerTokens where tokenid=  " + data.Tokenid;
+                string sQr = "select isnull(NotificationDeviceId,'') as FcmId, isVedioActive,lType, isnull(mediatype,'') as mtype ,isnull(ptype,'') as ptype from AMPlayerTokens where tokenid=  " + data.Tokenid;
                 SqlCommand cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
@@ -7164,6 +7181,8 @@ namespace EuforyServices.ServiceImplementation
                         Result.FcmId = ds.Rows[0]["FcmId"].ToString();
                     }
                     Result.IsVideoToken = ds.Rows[0]["isVedioActive"].ToString();
+                    Result.MediaType = ds.Rows[0]["mtype"].ToString();
+                    Result.PlayerType = ds.Rows[0]["ptype"].ToString();
                 }
                 else
                 {
@@ -7194,7 +7213,7 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 con.Open();
-                string sQr = "select id, Username from tbUserLogin_web where dfClientid= " + data.clientId + " order by username";
+                string sQr = "select id, Username, Password from tbUserLogin_web where dfClientid= " + data.clientId + " order by username";
                 cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
 
@@ -7208,6 +7227,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         id = ds.Rows[i]["id"].ToString(),
                         UserName1 = ds.Rows[i]["username"].ToString(),
+                        Password1 = ds.Rows[i]["Password"].ToString(),
                     });
                 }
                 con.Close();
@@ -7255,6 +7275,9 @@ namespace EuforyServices.ServiceImplementation
                     Result.cmbFormat = ds.Rows[0]["fId"].ToString();
                     Result.cmbPlaylist = ds.Rows[0]["splld"].ToString();
                     Result.chkUserAdmin = Convert.ToBoolean(ds.Rows[0]["chkUserAdmin"]);
+                    Result.chkUpload = Convert.ToBoolean(ds.Rows[0]["chkUpload"]);
+                    Result.chkStreaming = Convert.ToBoolean(ds.Rows[0]["chkStreaming"]);
+                    Result.chkCopyData = Convert.ToBoolean(ds.Rows[0]["chkCopyData"]);
 
                     sQr = "select distinct tokenid from tbUserTokens_web where userid = " + data.UserId + "";
                     cmd = new SqlCommand(sQr, con);
@@ -7386,13 +7409,20 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters.Add(new SqlParameter("@chkInstantPlay", SqlDbType.Int));
                 cmd.Parameters["@chkInstantPlay"].Value = Convert.ToByte(data.chkInstantPlay);
                 cmd.Parameters.Add(new SqlParameter("@dfClientid", SqlDbType.Int));
-                cmd.Parameters["@dfClientid"].Value = data.dfClientid; 
+                cmd.Parameters["@dfClientid"].Value = data.dfClientid;
                 cmd.Parameters.Add(new SqlParameter("@chkDeleteSong", SqlDbType.Int));
                 cmd.Parameters["@chkDeleteSong"].Value = Convert.ToByte(data.chkDeleteSong);
                 cmd.Parameters.Add(new SqlParameter("@chkInstantApk", SqlDbType.Int));
                 cmd.Parameters["@chkInstantApk"].Value = Convert.ToByte(data.chkInstantApk);
                 cmd.Parameters.Add(new SqlParameter("@chkUserAdmin", SqlDbType.Int));
                 cmd.Parameters["@chkUserAdmin"].Value = Convert.ToByte(data.chkUserAdmin);
+                cmd.Parameters.Add(new SqlParameter("@chkUpload", SqlDbType.Int));
+                cmd.Parameters["@chkUpload"].Value = Convert.ToByte(data.chkUpload);
+                cmd.Parameters.Add(new SqlParameter("@chkCopyData", SqlDbType.Int));
+                cmd.Parameters["@chkCopyData"].Value = Convert.ToByte(data.chkCopyData);
+                cmd.Parameters.Add(new SqlParameter("@chkStreaming", SqlDbType.Int));
+                cmd.Parameters["@chkStreaming"].Value = Convert.ToByte(data.chkStreaming);
+
                 Int32 ReturnId = Convert.ToInt32(cmd.ExecuteScalar());
                 foreach (var iToken in data.lstToken)
                 {
@@ -7418,7 +7448,7 @@ namespace EuforyServices.ServiceImplementation
                         }
                         else
                         {
-                            tid = tid+","+ iToken;
+                            tid = tid + "," + iToken;
                         }
                     }
                 }
@@ -7441,7 +7471,7 @@ namespace EuforyServices.ServiceImplementation
 
                 if (dtInsertAPK.Rows.Count > 0)
                 {
-                     
+
 
                     using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
                     {
@@ -7506,6 +7536,9 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkInstantPlay = false;
                     Result.chkUserAdmin = false;
                     Result.ContentType = "Both";
+                    Result.chkUpload = false;
+                    Result.chkStreaming = false;
+                    Result.chkCopyData = false;
                     con.Close();
                     return Result;
                 }
@@ -7548,6 +7581,9 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkInstantPlay = Convert.ToBoolean(dsUser.Rows[0]["chkInstantPlay"]);
                     Result.chkUserAdmin = Convert.ToBoolean(dsUser.Rows[0]["chkUserAdmin"]);
                     Result.ContentType = dsUser.Rows[0]["ContentType"].ToString();
+                    Result.chkUpload = Convert.ToBoolean(dsUser.Rows[0]["chkUpload"]);
+                    Result.chkStreaming = Convert.ToBoolean(dsUser.Rows[0]["chkStreaming"]);
+                    Result.chkCopyData = Convert.ToBoolean(dsUser.Rows[0]["chkCopyData"]);
                 }
                 else if (dsCustomer.Rows.Count > 0)
                 {
@@ -7569,6 +7605,9 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkAdvertisement = true;
                     Result.chkInstantPlay = true;
                     Result.chkUserAdmin = true;
+                    Result.chkUpload = true;
+                    Result.chkStreaming = true;
+                    Result.chkCopyData = true;
                     Result.ContentType = dsCustomer.Rows[0]["ContentType"].ToString();
                 }
                 else
@@ -7977,6 +8016,9 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters.Add(new SqlParameter("@dbtype", SqlDbType.VarChar));
                 cmd.Parameters["@dbtype"].Value = data.DBType;
 
+                cmd.Parameters.Add(new SqlParameter("@MediaType", SqlDbType.NVarChar));
+                cmd.Parameters["@MediaType"].Value = data.MediaType;
+
                 con.Open();
                 clsResult.Responce = cmd.ExecuteScalar().ToString();
 
@@ -8174,22 +8216,9 @@ namespace EuforyServices.ServiceImplementation
 
                     }
                 }
-                SqlCommand cmd = new SqlCommand("InsertArtistsAlbumsTitles_AlenkaMedia", con);
+                SqlCommand cmd = new SqlCommand("InsertContent", con);
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                //int gid = 0;
-                //if (Category.Trim() == "Landscape Images")
-                //{
-                //    gid = 325;
-                //}
-                //if (Category.Trim() == "Logo Images")
-                //{
-                //    gid = 326;
-                //}
-                //if (Category.Trim() == "Portrait Images")
-                //{
-                //    gid = 324;
-                //}
                 cmd.Parameters.Add(new SqlParameter("@TiTleTiTle", SqlDbType.VarChar));
                 cmd.Parameters["@TiTleTiTle"].Value = Title;
 
@@ -8258,6 +8287,13 @@ namespace EuforyServices.ServiceImplementation
 
                 //string fName = Title_Id.ToString() + Path.GetExtension(postedFile.FileName);
 
+                if (Title_Id == 0)
+                {
+                    Result.Responce = "2";
+                    con.Close();
+                    return Result;
+
+                }
                 string fName = "";
                 if (MediaType.Trim() == "Image")
                 {
@@ -8293,7 +8329,10 @@ namespace EuforyServices.ServiceImplementation
                 DataTable dtDetail = new DataTable();
                 var h = data.chkMixed;
 
-                strDel = "update  tbSpecialPlaylists set IsMixedContent=" + Convert.ToByte(data.chkMixed) + " , isVideoMute =" + Convert.ToByte(data.chkMute) + ", isshowdefault=" + Convert.ToByte(data.chkFixed) + " where splplaylistid = " + data.playlistid;
+                strDel = "update  tbSpecialPlaylists set IsMixedContent=" + Convert.ToByte(data.chkMixed) + " , "+ 
+                    " isVideoMute =" + Convert.ToByte(data.chkMute) + ", isshowdefault=" + Convert.ToByte(data.chkFixed) + " "+
+                    " , chkDuplicateContent =" + Convert.ToByte(data.chkDuplicate) + " " +
+                    " where splplaylistid = " + data.playlistid;
                 SqlCommand cmd = new SqlCommand(strDel, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 con.Open();
@@ -8458,44 +8497,44 @@ namespace EuforyServices.ServiceImplementation
                 else
                 {
 
-                
 
 
 
-                if (data.FilterType == "NewVibe")
-                {
-                    qry = qry + " and tit.titleyear between " + DateTime.Now.AddYears(-1).Year + " and " + DateTime.Now.Year + "";
-                }
-                if (data.FilterType == "Language")
-                {
-                    qry = qry + " and  tit.Language= '" + data.FilterValue + "' ";
-                }
-                if (data.FilterType == "Year")
-                {
-                    qry = qry + " and  tit.titleyear= " + data.FilterValue + " ";
-                }
-                if (data.FilterType == "BPM")
-                {
-                    var MT = data.FilterValue.Split('-');
-                    qry = qry + " and cast(tit.BPM as int) between " + MT[0] + " and " + MT[1] + " ";
-                }
-                if (data.FilterType == "ReleaseDate")
-                {
-                    var MT = data.FilterValue.Split('-');
-                    qry = qry + " and month(tit.ReleaseDate)=" + MT[0] + " ";
-                }
-                if (data.FilterType == "EngeryLevel")
-                {
-                    qry = qry + " and tit.EngeryLevel= " + data.FilterValue + "";
-                }
-                if (string.IsNullOrEmpty(data.ContentType) == false)
-                {
-                    if (data.ContentType == "Signage")
+
+                    if (data.FilterType == "NewVibe")
                     {
-                        qry = qry + " and tbGenre.GenreId in(303,297, 325,324) ";
+                        qry = qry + " and tit.titleyear between " + DateTime.Now.AddYears(-1).Year + " and " + DateTime.Now.Year + "";
+                    }
+                    if (data.FilterType == "Language")
+                    {
+                        qry = qry + " and  tit.Language= '" + data.FilterValue + "' ";
+                    }
+                    if (data.FilterType == "Year")
+                    {
+                        qry = qry + " and  tit.titleyear= " + data.FilterValue + " ";
+                    }
+                    if (data.FilterType == "BPM")
+                    {
+                        var MT = data.FilterValue.Split('-');
+                        qry = qry + " and cast(tit.BPM as int) between " + MT[0] + " and " + MT[1] + " ";
+                    }
+                    if (data.FilterType == "ReleaseDate")
+                    {
+                        var MT = data.FilterValue.Split('-');
+                        qry = qry + " and month(tit.ReleaseDate)=" + MT[0] + " ";
+                    }
+                    if (data.FilterType == "EngeryLevel")
+                    {
+                        qry = qry + " and tit.EngeryLevel= " + data.FilterValue + "";
+                    }
+                    if (string.IsNullOrEmpty(data.ContentType) == false)
+                    {
+                        if (data.ContentType == "Signage")
+                        {
+                            qry = qry + " and tbGenre.GenreId in(303,297, 325,324) ";
+                        }
                     }
                 }
-            }
                 qry = qry + " group by tbGenre.GenreId,genre ";
                 qry = qry + " order by genre ";
 
@@ -8943,20 +8982,20 @@ namespace EuforyServices.ServiceImplementation
                     }
                     else
                     {
-                        tokenid = tokenid+","+ item.ToString();
+                        tokenid = tokenid + "," + item.ToString();
                     }
                 }
-                 
-                strDel = "update AMPlayerTokens set isPublishUpdate =1  where token='used' and tokenid in(  " + tokenid+ ")";
-                 
+
+                strDel = "update AMPlayerTokens set isPublishUpdate =1  where token='used' and tokenid in(  " + tokenid + ")";
+
                 SqlCommand cmd = new SqlCommand(strDel, con);
                 cmd.CommandType = CommandType.Text;
-              cmd.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();
                 cmd.Dispose();
 
 
                 strDel = "";
-                strDel = "select isnull(NotificationDeviceId,'') as FcmId ,isVedioActive from AMPlayerTokens " + 
+                strDel = "select isnull(NotificationDeviceId,'') as FcmId ,isVedioActive from AMPlayerTokens " +
                     " where tokenid in  (" + tokenid + ") and isnull(NotificationDeviceId,'') !=''";
 
                 cmd = new SqlCommand(strDel, con);
@@ -9022,7 +9061,7 @@ namespace EuforyServices.ServiceImplementation
                             FcmResult = streamReader.ReadToEnd();
                         }
                         var objs = JsonConvert.DeserializeObject<ResNoti>(FcmResult);
-                         
+
                     }
                 }
 
@@ -9257,7 +9296,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         string str = "";
 
-                        str = "update AMPlayerTokens set IsStore=1, token='used', code='" + dtM.Rows[i]["Serial-MAC"] + "'";
+                        str = "update AMPlayerTokens set DateTokenUsed=getdate(), IsStore=1, token='used', code='" + dtM.Rows[i]["Serial-MAC"] + "'";
                         str = str + ", ptype='Copyright', personname = '' ";
                         str = str + ", Location = '" + dtM.Rows[i]["Location"] + "' ";
                         if ((dtM.Rows[i]["IsAndroidPlayer"].ToString() == "1") || (dtM.Rows[i]["IsAndroidPlayer"].ToString().ToLower() == "yes"))
@@ -10780,9 +10819,9 @@ namespace EuforyServices.ServiceImplementation
                 string str = "";
                 str = "select distinct  TitleID, ltrim(Title) as Title,Titles.GenreId FROM Titles ";
                 str = str + "  where Titles.GenreId= 326  ";
-                 
-                    str = str + " and dfclientid= " + data.CustomerId;
-                 
+
+                str = str + " and dfclientid= " + data.CustomerId;
+
                 if (data.FolderId != "777")
                 {
                     str = str + " and isnull(folderId,0)= " + data.FolderId;
@@ -10980,7 +11019,7 @@ namespace EuforyServices.ServiceImplementation
                         title = ds.Tables[0].Rows[i]["title"].ToString(),
                         Genre = ds.Tables[0].Rows[i]["genre"].ToString(),
                         aType = ds.Tables[0].Rows[i]["aType"].ToString(),
-                        TimeInterval = 10,
+                        TimeInterval = Convert.ToInt32(ds.Tables[0].Rows[i]["ImgInterval"]),
                         IsLoop = true,
                     });
                 }
@@ -11059,7 +11098,7 @@ namespace EuforyServices.ServiceImplementation
                 dtInsert.Columns.Add("command", typeof(string));
                 dtInsert.Columns.Add("titleid", typeof(string));
                 dtInsert.Columns.Add("aType", typeof(string));
-                
+
                 foreach (var Player in data)
                 {
 
@@ -11111,7 +11150,7 @@ namespace EuforyServices.ServiceImplementation
                         SqlBulkCopyColumnMapping command =
                            new SqlBulkCopyColumnMapping("command", "command");
                         bulkCopy.ColumnMappings.Add(command);
-                        
+
                         bulkCopy.DestinationTableName = "dbo.tbTokenMachineLogs";
                         if (conMain.State == ConnectionState.Closed)
                         {
@@ -11382,13 +11421,17 @@ namespace EuforyServices.ServiceImplementation
                 }
 
                 string sQr = "delete from tbMachineAnnouncement where tokenid in(" + tokenid + ")";
+
                 SqlCommand cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 if (con.State == ConnectionState.Closed)
                 {
                     con.Open();
                 }
-                cmd.ExecuteNonQuery();
+                if (data.chkWithPrevious == false)
+                {
+                    cmd.ExecuteNonQuery();
+                }
                 cmd.Dispose();
                 foreach (var tId in data.TokenId)
                 {
@@ -11752,8 +11795,8 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 string str = "";
-                    str = "GetInstantPlaySpecialPlaylistsTitles " + data.Tokenid[0] ;
-                 
+                str = "GetInstantPlaySpecialPlaylistsTitles " + data.Tokenid[0];
+
                 SqlCommand cmd = new SqlCommand(str, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 if (con.State == ConnectionState.Closed) { con.Open(); }
@@ -12049,7 +12092,7 @@ namespace EuforyServices.ServiceImplementation
                 if (tId != "")
                 {
                     str = "";
-                    
+
                     str = "update titles set dfclientid= " + data.dfClientId + ", folderid= " + data.FolderId + " where titleid in (" + tId + ")";
                     cmd = new SqlCommand(str, con);
                     cmd.CommandText = str;
@@ -12108,8 +12151,8 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 string lType = "";
-                 
-                    lType = data.PlayerType;
+
+                lType = data.PlayerType;
 
                 SqlCommand cmd = new SqlCommand("spAppLogin '" + data.UserName + "', '" + data.TokenNo + "' , '" + data.DeviceId + "','" + lType + "','" + data.DBType + "'", con);
                 cmd.CommandType = System.Data.CommandType.Text;
@@ -12198,7 +12241,7 @@ namespace EuforyServices.ServiceImplementation
                         SqlBulkCopyColumnMapping mapMumber =
                             new SqlBulkCopyColumnMapping("splplaylistid", "splplaylistid");
                         bulkCopy.ColumnMappings.Add(mapMumber);
-                         
+
 
                         bulkCopy.DestinationTableName = "dbo.tbKeyboardAnnouncement";
 
@@ -12238,7 +12281,7 @@ namespace EuforyServices.ServiceImplementation
                 ad.Fill(ds);
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
-                     
+
 
                     result.Add(new ResGetKeyboardAnnouncement()
                     {
@@ -12264,7 +12307,7 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 string strDel = "";
-                strDel = "delete from tbKeyboardAnnouncement where id =" + data.id ;
+                strDel = "delete from tbKeyboardAnnouncement where id =" + data.id;
                 SqlCommand cmd = new SqlCommand(strDel, con);
                 cmd.CommandType = CommandType.Text;
                 con.Open();
@@ -12388,7 +12431,7 @@ namespace EuforyServices.ServiceImplementation
                         title = ds.Tables[0].Rows[i]["title"].ToString(),
                         Genre = ds.Tables[0].Rows[i]["genre"].ToString(),
                         aType = ds.Tables[0].Rows[i]["aType"].ToString(),
-                        TimeInterval = 10,
+                        TimeInterval = 10000,
                         IsLoop = true,
                     });
                 }
@@ -12438,7 +12481,7 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 string aKey = "";
-                string str = "select isnull(apikey,'') as aKey from DFClients where DFClientID ="+ data.dfClientId;
+                string str = "select isnull(apikey,'') as aKey from DFClients where DFClientID =" + data.dfClientId;
                 SqlCommand cmd = new SqlCommand(str, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 if (con.State == ConnectionState.Closed) { con.Open(); }
@@ -12459,8 +12502,36 @@ namespace EuforyServices.ServiceImplementation
                     return lstResult;
                 }
                 //d94fd3f48769dce494014f60901e62b0
+                string orientation = "";
 
-                var url = "https://app.digitalsignage-templates.com/api/my-templates?key="+aKey.Trim();
+                var url = "";
+                    url = "https://content.nusign.eu/api/my-templates?key=" + aKey.Trim();
+                if (data.GenreId== 297)
+                {
+                    orientation = "landscape";
+                }
+                if (data.GenreId == 303)
+                {
+                    orientation = "portrait";
+                }
+                DateTime dt = new DateTime();
+
+
+                dt = Convert.ToDateTime(string.Format("{0:yyyy-mm-dd hh:mm tt}", data.cDate));
+                
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var unixDateTime = (dt.ToUniversalTime() - epoch).TotalSeconds;
+
+                
+                if (data.search != "")
+                {
+                    url = url + "&search=" + data.search;
+                }
+                else
+                {
+                    url = url + "&orientation=" + orientation + "&createdAfter=" + unixDateTime;
+                }
+                // https://content.nusign.eu/api/my-templates?key=d94fd3f48769dce494014f60901e62b0&orientation=portrait
                 using (var client = new HttpClient())
                 {
                     ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
@@ -12470,7 +12541,7 @@ namespace EuforyServices.ServiceImplementation
                         {
                             var fileJsonString = await response.Content.ReadAsStringAsync();
                             lstResult = JsonConvert.DeserializeObject<List<ResGetTemplates>>(fileJsonString);
-                            
+
                         }
                     }
                 }
@@ -12584,7 +12655,7 @@ namespace EuforyServices.ServiceImplementation
 
 
                     string strDel = "";
-                    strDel = "update titles set filesize='"+ fsize + "' where titleid =" + Title_Id.ToString();
+                    strDel = "update titles set filesize='" + fsize + "' where titleid =" + Title_Id.ToString();
                     cmd = new SqlCommand(strDel, con);
                     cmd.CommandType = CommandType.Text;
                     cmd.ExecuteNonQuery();
@@ -12612,6 +12683,373 @@ namespace EuforyServices.ServiceImplementation
             }
         }
 
+
+        public ResResponce SaveImageTimeInterval(List<ReqSaveImageTimeInterval> lstData)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string strDel = "";
+                con.Open();
+                foreach (var data in lstData)
+                {
+                    strDel = "";
+                    strDel = "update tbSpecialPlaylists_Titles set ImgTimeInterval=" + data.ImgInterval + " where TitleID =" + data.titleid + " and splPlaylistId = " + data.splId;
+                    SqlCommand cmd = new SqlCommand(strDel, con);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                }
+                con.Close();
+                result.Responce = "1";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
+        public ResResponce DeleteFolder(ReqDeleteFolder data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string strDel = "";
+                con.Open();
+                strDel = "";
+                strDel = "delete from tbFolder where folderId = " + data.id;
+                SqlCommand cmd = new SqlCommand(strDel, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
+                strDel = "";
+                strDel = "update Titles set folderid=0 where folderid = " + data.id;
+                cmd = new SqlCommand(strDel, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
+
+                con.Close();
+                result.Responce = "1";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
+        public ResResponce UpdateTokenGroups(ReqUpdateTokenGroups Data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string strDel = "";
+                con.Open();
+                
+                foreach (var data in Data.tokenIds)
+                {
+                    strDel = "";
+                    strDel = "update AMPlayerTokens set GroupId=" + Data.GroupId + " where tokenid =" + data;
+                    SqlCommand cmd = new SqlCommand(strDel, con);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                }
+                con.Close();
+                result.Responce = "1";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+        public ResResponce DeleteGroup(ReqDeleteFolder data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string strDel = "";
+                con.Open();
+                strDel = "";
+                strDel = "delete from tbGroup where GroupId = " + data.id;
+                SqlCommand cmd = new SqlCommand(strDel, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
+                strDel = "";
+                strDel = "update AMPlayerTokens set GroupId=0 where GroupId = " + data.id;
+                cmd = new SqlCommand(strDel, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
+
+                con.Close();
+                result.Responce = "1";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
+
+
+        public  async Task<string> ClientTemplateRegsiter(ReqTokenInfo data)
+        {
+            ResResponce Result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+
+            try
+            {
+                DataTable dtDetail = new DataTable();
+                string strResend = "";
+                strResend = "  select DFClients.*, tbDealerLogin.LoginPassword,tbDealerLogin.ExpiryDate, tbdealerlogin.DamTotalToken,tbdealerlogin.CopyrightTotalToken,tbdealerlogin.SanjivaniTotalToken ";
+                strResend = strResend + "  from DFClients inner join tbDealerLogin on DFClients.DFClientID= tbDealerLogin.DFClientID ";
+                strResend = strResend + " where   DFClients.DFClientID = " + data.clientId;
+                SqlCommand cmd = new SqlCommand(strResend, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                ad.Fill(dtDetail);
+                if (dtDetail.Rows.Count > 0)
+                {
+                    for (int i = 0; i <= dtDetail.Rows.Count - 1; i++)
+                    {
+                        //ClientEmail = dtDetail.Rows[i]["Email"].ToString();
+                        //ExpiryDate = string.Format("{0:dd/MMM/yyyy}", dtDetail.Rows[i]["ExpiryDate"]);
+                        //ClientName = dtDetail.Rows[i]["ClientName"].ToString();
+                        //LoginName = dtDetail.Rows[i]["Email"].ToString();
+                        //LoginPassword = dtDetail.Rows[i]["LoginPassword"].ToString();
+                    }
+                }
+
+                //var formVars = new Dictionary<string, string>();
+                //formVars.Add("companyName", "CPT1234");
+                //formVars.Add("firstName", "APIFirst" );
+                //formVars.Add("lastName", "API LAst");
+                //formVars.Add("middleName", "");
+                //formVars.Add( "email", "talwinder@advikon.eu");
+                //formVars.Add( "password", "QWA@123456");
+                //var content = new FormUrlEncodedContent(formVars);
+
+                //var client = new HttpClient();
+                //var result = client.PostAsync("http://rasxps/AspNetWebApi/albums/rpc/ReturnString",
+                //                             content).Result;
+                var client = new RestClient("https://content.nusign.eu/api/register");
+                client.Timeout = -1;
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.AddParameter("companyName", "CMST12349696");
+                request.AddParameter("firstName", "Salt");
+                request.AddParameter("email", "talwinder@advikon.eu");
+                request.AddParameter("password", "abc!@#1234567");
+                request.AddParameter("lastName", "Jams7");
+                request.AddParameter("middleName", "");
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                IRestResponse response = client.Execute(request);
+                Console.WriteLine(response.Content);
+
+                return "1";
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                
+                return "0";
+            }
+        }
+
+ 
+        public ResResponce SaveOpeningHours(ReqOpeningHours data)
+        {
+            ResResponce result = new ResResponce();
+               SqlConnection conMain = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
+            try
+            {
+                DateTimeFormatInfo fi = new DateTimeFormatInfo();
+                fi.AMDesignator = "AM";
+                fi.PMDesignator = "PM";
+
+                DataTable dtInsert = new DataTable();
+                dtInsert.Columns.Add("tokenId", typeof(int));
+                dtInsert.Columns.Add("wid", typeof(int));
+                dtInsert.Columns.Add("starttime", typeof(DateTime));
+                dtInsert.Columns.Add("endtime", typeof(DateTime));
+               string wid = "";
+                foreach (var TokenId in data.TokenList)
+                {
+                    if (TokenId != "0")
+                    {
+                        DataRow nr = dtInsert.NewRow();
+                        var k = string.Format(fi, "{0:HH:mm:ss}", Convert.ToDateTime(data.startTime));
+                        var k2 = string.Format(fi, "{0:HH:mm:ss}", Convert.ToDateTime(data.EndTime));
+                        nr["tokenId"] = TokenId;
+                        nr["wid"] = "1";
+                        nr["starttime"] = "01-01-1900 " + k;
+                        nr["endtime"] = "01-01-1900 " + k2;
+                        dtInsert.Rows.Add(nr);
+                        //foreach (var item in data.wList)
+                        //{
+                        //    DataRow nr = dtInsert.NewRow();
+                        //    var k = string.Format(fi, "{0:HH:mm:ss}", Convert.ToDateTime(data.startTime));
+                        //    var k2 = string.Format(fi, "{0:HH:mm:ss}", Convert.ToDateTime(data.EndTime));
+                        //    nr["tokenId"] = TokenId;
+                        //    nr["wid"] = item.id;
+                        //    nr["starttime"] = "01-01-1900 " + k;
+                        //    nr["endtime"] = "01-01-1900 " + k2;
+                        //    dtInsert.Rows.Add(nr);
+                        //    if (wid == "")
+                        //    {
+                        //        wid = item.id;
+                        //    }
+                        //    else
+                        //    {
+                        //        wid = wid+ ","+ item.id;
+                        //    }
+                        //}
+
+                        string strDel = "";
+                        if (conMain.State == ConnectionState.Closed)
+                        {
+                            conMain.Open();
+                        }
+                        strDel = "";
+                        strDel = "delete from tbTokenOpeningHours where tokenId = " + TokenId ;
+                        SqlCommand cmd = new SqlCommand(strDel, conMain);
+                        cmd.CommandType = CommandType.Text;
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
+                    }
+
+                }
+                if (dtInsert.Rows.Count > 0)
+                {
+
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(conMain))
+                    {
+
+                        SqlBulkCopyColumnMapping TokenId =
+                           new SqlBulkCopyColumnMapping("tokenId", "tokenId");
+                        bulkCopy.ColumnMappings.Add(TokenId);
+                        SqlBulkCopyColumnMapping weekId =
+                           new SqlBulkCopyColumnMapping("wid", "wid");
+                        bulkCopy.ColumnMappings.Add(weekId);
+                        SqlBulkCopyColumnMapping starttime =
+                           new SqlBulkCopyColumnMapping("starttime", "starttime");
+                        bulkCopy.ColumnMappings.Add(starttime);
+                        SqlBulkCopyColumnMapping endtime =
+                           new SqlBulkCopyColumnMapping("endtime", "endtime");
+                        bulkCopy.ColumnMappings.Add(endtime);
+                        bulkCopy.DestinationTableName = "dbo.tbTokenOpeningHours";
+                        if (conMain.State == ConnectionState.Closed)
+                        {
+                            conMain.Open();
+                        }
+                        bulkCopy.WriteToServer(dtInsert);
+
+                    }
+                    result.Responce = "1";
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                result.Responce = "0";
+                conMain.Close();
+                return result;
+            }
+        }
+
+        public List<ResTokenInfo> FillTokenOpeningHours(ReqTokenInfo data)
+        {
+            List<ResTokenInfo> lstResult = new List<ResTokenInfo>();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+
+            try
+            {
+                DateTimeFormatInfo fi = new DateTimeFormatInfo();
+                fi.AMDesignator = "AM";
+                fi.PMDesignator = "PM";
+
+                string str = "";
+                if (string.IsNullOrEmpty(data.UserId) == true)
+                {
+                    str = "GetTokenOpeningHours " + data.clientId + ",0 ";
+                }
+                else
+                {
+                    str = "GetTokenOpeningHours " + data.clientId + " , " + data.UserId + "";
+                }
+                SqlCommand cmd = new SqlCommand(str, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                if (con.State == ConnectionState.Closed) { con.Open(); }
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(ds);
+                for (int i = 0; i < ds.Rows.Count; i++)
+                {
+                    var t1 = string.Format(fi, "{0:HH:mm}", ds.Rows[i]["StartTime"]);
+                    var t2 = string.Format(fi, "{0:HH:mm}", ds.Rows[i]["EndTime"]);
+                    
+                    if ((string.Format(fi, "{0:HH:mm}", ds.Rows[i]["StartTime"]) == "00:00") 
+                        && (string.Format(fi, "{0:HH:mm}", ds.Rows[i]["EndTime"]) == "00:00"))
+                    {
+                        t1 = "";
+                        t2 = "";
+                    }
+                   
+                    lstResult.Add(new ResTokenInfo()
+                    {
+                        tokenid = ds.Rows[i]["tokenid"].ToString(),
+                        tokenCode = ds.Rows[i]["tNo"].ToString(),
+                        location = ds.Rows[i]["Location"].ToString(),
+                        city = ds.Rows[i]["CityName"].ToString(),
+                        countryName = ds.Rows[i]["CountryName"].ToString(),
+                        StartTime = t1,
+                        EndTime = t2,
+                        WeekName = ds.Rows[i]["wName"].ToString(),
+                    });
+                }
+                con.Close();
+                return lstResult;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return lstResult;
+            }
+        }
 
     }
 }

@@ -944,6 +944,16 @@ namespace EuforyServices.DataContract
         public int SpaceStatus { get; set; }
         [DataMember]
         public int SpacePer { get; set; }
+        [DataMember]
+        public string MediaType { get; set; }
+        [DataMember]
+        public string StartTime { get; set; }
+        [DataMember]
+        public string EndTime { get; set; }
+        [DataMember]
+        public string WeekName { get; set; }
+
+
     }
     [DataContract]
     public class ReqToken
@@ -1192,6 +1202,16 @@ namespace EuforyServices.DataContract
         public string ContentType { get; set; }
         [DataMember]
         public Boolean chkUserAdmin { get; set; }
+        [DataMember]
+        public string MediaType { get; set; }
+        [DataMember]
+        public string PlayerType { get; set; }
+        [DataMember]
+        public Boolean chkUpload { get; set; }
+        [DataMember]
+        public Boolean chkCopyData { get; set; }
+        [DataMember]
+        public Boolean chkStreaming { get; set; }
 
     }
     [DataContract]
@@ -1372,6 +1392,10 @@ namespace EuforyServices.DataContract
         public string Label { get; set; }
         [DataMember]
         public string sId { get; set; }
+        [DataMember]
+        public string ImageTimeInterval { get; set; }
+        [DataMember]
+        public string ImgAllBtn { get; set; }
     }
 
     [DataContract]
@@ -1399,8 +1423,8 @@ namespace EuforyServices.DataContract
         public List<string> titleid { get; set; }
         [DataMember]
         public string AddSongFrom { get; set; }
-        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "DBType", Order = 1)]
-        public string DBType { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "IsDuplicate", Order = 1)]
+        public Boolean IsDuplicate { get; set; }
     }
     [DataContract]
     public class ReqCommonSearch
@@ -1487,8 +1511,11 @@ namespace EuforyServices.DataContract
         public Boolean IsFixed { get; set; }
         [DataMember]
         public Boolean IsMixedContent { get; set; }
+
         [DataMember]
         public string[] tokenIds { get; set; }
+        [DataMember]
+        public Boolean IsDuplicate { get; set; }
 
     }
     [DataContract]
@@ -1841,6 +1868,12 @@ namespace EuforyServices.DataContract
         public string cmbPlaylist { get; set; }
         [DataMember]
         public Boolean chkUserAdmin { get; set; }
+        [DataMember]
+        public Boolean chkUpload { get; set; }
+        [DataMember]
+        public Boolean chkCopyData { get; set; }
+        [DataMember]
+        public Boolean chkStreaming { get; set; }
     }
     [DataContract]
     public class ReqUserInfo
@@ -1889,7 +1922,8 @@ namespace EuforyServices.DataContract
         public string dfclientId { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "DBType", Order = 1)]
         public string DBType { get; set; }
-
+        [DataMember]
+        public string MediaType { get; set; }
     }
 
     [DataContract]
@@ -1928,6 +1962,8 @@ namespace EuforyServices.DataContract
         public Boolean chkFixed { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "chkMixed", Order = 1)]
         public Boolean chkMixed { get; set; }
+        [DataMember]
+        public Boolean chkDuplicate { get; set; }
     }
     [DataContract]
     public class ReqUpdatePlaylistSRNo
@@ -2442,6 +2478,9 @@ namespace EuforyServices.DataContract
         public List<ReqTokenMachineAnnouncement> TokenId { get; set; }
         [DataMember]
         public List<string> titleid { get; set; }
+        [DataMember]
+        public Boolean chkWithPrevious { get; set; }
+
 
     }
     [DataContract]
@@ -2604,6 +2643,12 @@ namespace EuforyServices.DataContract
     {
         [DataMember]
         public Int32 dfClientId { get; set; }
+        [DataMember]
+        public Int32 GenreId { get; set; }
+        [DataMember]
+        public string cDate { get; set; }
+        [DataMember]
+        public string search { get; set; }
     }
     
 
@@ -2656,6 +2701,39 @@ namespace EuforyServices.DataContract
         public string Url { get; set; }
         [DataMember]
         public string id { get; set; }
+    }
+    [DataContract]
+    public class ReqSaveImageTimeInterval
+    {
+        [DataMember]
+        public string splId { get; set; }
+        [DataMember]
+        public string titleid { get; set; }
+        [DataMember]
+        public string ImgInterval { get; set; }
+    }
+    public class ReqDeleteFolder
+    {
+        [DataMember]
+        public string id { get; set; }
+    }
+    public class ReqUpdateTokenGroups
+    {
+        [DataMember]
+        public string[] tokenIds { get; set; }
+        [DataMember]
+        public string GroupId { get; set; }
+    }
+    public class ReqOpeningHours
+    {
+        [DataMember]
+        public string startTime { get; set; }
+        [DataMember]
+        public string EndTime { get; set; }
+        [DataMember]
+        public List<ReqSFWeek> wList { get; set; }
+        [DataMember]
+        public List<string> TokenList { get; set; }
     }
 }
 

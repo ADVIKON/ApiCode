@@ -895,5 +895,43 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("DownloadTemplates")]
         Task<ResResponce> DownloadTemplates(ReqDownloadTemplates data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveImageTimeInterval", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveImageTimeInterval")]
+        ResResponce SaveImageTimeInterval(List<ReqSaveImageTimeInterval> lstData);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteFolder", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteFolder")]
+        ResResponce DeleteFolder(ReqDeleteFolder lstData);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteGroup", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteGroup")]
+        ResResponce DeleteGroup(ReqDeleteFolder lstData);
+
+        [WebInvoke(Method = "POST", UriTemplate = "UpdateTokenGroups", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("UpdateTokenGroups")]
+        ResResponce UpdateTokenGroups(ReqUpdateTokenGroups Data);
+
+
+        [WebInvoke(Method = "POST", UriTemplate = "ClientTemplateRegsiter", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("ClientTemplateRegsiter")]
+        Task<string> ClientTemplateRegsiter(ReqTokenInfo data);
+
+       
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveOpeningHours", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveOpeningHours")]
+        ResResponce SaveOpeningHours(ReqOpeningHours data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "FillTokenOpeningHours", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("FillTokenOpeningHours")]
+        List<ResTokenInfo> FillTokenOpeningHours(ReqTokenInfo data);
     }
 }
