@@ -920,7 +920,7 @@ namespace EuforyServices.ServiceContract
         [WebInvoke(Method = "POST", UriTemplate = "ClientTemplateRegsiter", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]
         [Description("ClientTemplateRegsiter")]
-        Task<string> ClientTemplateRegsiter(ReqTokenInfo data);
+        ResResponce ClientTemplateRegsiter(ReqTokenInfo data);
 
        
 
@@ -933,5 +933,10 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("FillTokenOpeningHours")]
         List<ResTokenInfo> FillTokenOpeningHours(ReqTokenInfo data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "UpdateTokenInfo", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("UpdateTokenInfo")]
+        ResResponce UpdateTokenInfo(List<ReqUpdateTokenInfo> data);
     }
 }

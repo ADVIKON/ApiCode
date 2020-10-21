@@ -952,6 +952,10 @@ namespace EuforyServices.DataContract
         public string EndTime { get; set; }
         [DataMember]
         public string WeekName { get; set; }
+        [DataMember]
+        public string State { get; set; }
+        [DataMember]
+        public string Street { get; set; }
 
 
     }
@@ -1184,7 +1188,7 @@ namespace EuforyServices.DataContract
         public Boolean chkPlaylistLibrary { get; set; }
         [DataMember]
         public Boolean chkScheduling { get; set; }
-        [DataMember] 
+        [DataMember]
         public Boolean chkAdvertisement { get; set; }
 
         [DataMember]
@@ -1849,7 +1853,7 @@ namespace EuforyServices.DataContract
         public Boolean chkInstantPlay { get; set; }
         [DataMember]
         public string dfClientid { get; set; }
-         
+
         [DataMember]
         public string Responce { get; set; }
 
@@ -1939,7 +1943,7 @@ namespace EuforyServices.DataContract
         public string StartTime { get; set; }
         [DataMember]
         public string EndTime { get; set; }
-        
+
     }
     [DataContract]
     public class ReqCopySchedule
@@ -2010,7 +2014,7 @@ namespace EuforyServices.DataContract
         public string clientname { get; set; }
         [DataMember]
         public string modifydata { get; set; }
-         
+
     }
     [DataContract]
     public class ReqGenreList
@@ -2115,7 +2119,7 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string[] tokenid { get; set; }
     }
-     
+
     [DataContract]
     public class ReqDeleteFormatId
     {
@@ -2329,7 +2333,7 @@ namespace EuforyServices.DataContract
     {
         [DataMember]
         public string sId { get; set; }
-        
+
     }
     [DataContract]
     public class ReqAssignStream
@@ -2518,7 +2522,7 @@ namespace EuforyServices.DataContract
         public string DispenserAlert { get; set; }
         [DataMember]
         public string DeviceToken { get; set; }
-        
+
     }
     [DataContract]
     public class ReqUpdateEnergyLevel
@@ -2537,7 +2541,7 @@ namespace EuforyServices.DataContract
         public string ClientId { get; set; }
         [DataMember]
         public string DBType { get; set; }
-        
+
     }
     [DataContract]
     public class ReqTransferContent
@@ -2650,7 +2654,7 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string search { get; set; }
     }
-    
+
 
     [DataContract]
     public class ResGetTemplates
@@ -2735,6 +2739,33 @@ namespace EuforyServices.DataContract
         [DataMember]
         public List<string> TokenList { get; set; }
     }
+    public class ReqUpdateTokenInfo
+    {
+        [DataMember]
+        public string tokenid { get; set; }
+        [DataMember]
+        public string CountryId { get; set; }
+        [DataMember]
+        public string State { get; set; }
+        [DataMember]
+        public string city { get; set; }
+        [DataMember]
+        public string location { get; set; }
+        [DataMember]
+        public string Street { get; set; }
+        [DataMember]
+        public string LicenceType { get; set; }
+        [DataMember]
+        public string MediaType { get; set; }
+        [DataMember]
+        public string playerType { get; set; }
+    }
+    public class ResClientTemplateRegsiter
+    {
+        [DataMember]
+        public string status { get; set; }
+        [DataMember]
+        public string key { get; set; }
+    }
 }
 
-     

@@ -3096,6 +3096,8 @@ namespace EuforyServices.ServiceImplementation
                         SpaceStatus = FinalStatus,
                         SpacePer = perSpace,
                         MediaType = ds.Rows[i]["nMediaType"].ToString(),
+                        State = ds.Rows[i]["StateName"].ToString(),
+                        Street = ds.Rows[i]["street"].ToString(),
 
                     });
                 }
@@ -12822,68 +12824,78 @@ namespace EuforyServices.ServiceImplementation
 
 
 
-        public  async Task<string> ClientTemplateRegsiter(ReqTokenInfo data)
+        public  ResResponce ClientTemplateRegsiter(ReqTokenInfo data)
         {
-            ResResponce Result = new ResResponce();
+            ResClientTemplateRegsiter resAPI = new ResClientTemplateRegsiter();
+            ResResponce result = new ResResponce();
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
-
+            string str = "";
+            SqlCommand cmd = new SqlCommand();
             try
             {
                 DataTable dtDetail = new DataTable();
-                string strResend = "";
-                strResend = "  select DFClients.*, tbDealerLogin.LoginPassword,tbDealerLogin.ExpiryDate, tbdealerlogin.DamTotalToken,tbdealerlogin.CopyrightTotalToken,tbdealerlogin.SanjivaniTotalToken ";
-                strResend = strResend + "  from DFClients inner join tbDealerLogin on DFClients.DFClientID= tbDealerLogin.DFClientID ";
-                strResend = strResend + " where   DFClients.DFClientID = " + data.clientId;
-                SqlCommand cmd = new SqlCommand(strResend, con);
+                
+                string ClientEmail = "", ClientName = "", LoginPassword = "", firstName = "", lastName = "";
+
+                str = "  select DFClients.*, tbDealerLogin.LoginPassword,tbDealerLogin.ExpiryDate, tbdealerlogin.DamTotalToken,tbdealerlogin.CopyrightTotalToken,tbdealerlogin.SanjivaniTotalToken ";
+                str = str + "  from DFClients inner join tbDealerLogin on DFClients.DFClientID= tbDealerLogin.DFClientID ";
+                str = str + " where   DFClients.DFClientID = " + data.clientId;
+                cmd = new SqlCommand(str, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
                 ad.Fill(dtDetail);
+                cmd.Dispose();
+                ad.Dispose();
                 if (dtDetail.Rows.Count > 0)
                 {
-                    for (int i = 0; i <= dtDetail.Rows.Count - 1; i++)
-                    {
-                        //ClientEmail = dtDetail.Rows[i]["Email"].ToString();
-                        //ExpiryDate = string.Format("{0:dd/MMM/yyyy}", dtDetail.Rows[i]["ExpiryDate"]);
-                        //ClientName = dtDetail.Rows[i]["ClientName"].ToString();
-                        //LoginName = dtDetail.Rows[i]["Email"].ToString();
-                        //LoginPassword = dtDetail.Rows[i]["LoginPassword"].ToString();
-                    }
+                    ClientEmail = dtDetail.Rows[0]["Email"].ToString();
+                    ClientName = dtDetail.Rows[0]["ClientName"].ToString();
+                    LoginPassword = dtDetail.Rows[0]["LoginPassword"].ToString();
                 }
+                var obj = ClientName.Split('-');
+                firstName = obj[0];
+                lastName = obj[1];
 
-                //var formVars = new Dictionary<string, string>();
-                //formVars.Add("companyName", "CPT1234");
-                //formVars.Add("firstName", "APIFirst" );
-                //formVars.Add("lastName", "API LAst");
-                //formVars.Add("middleName", "");
-                //formVars.Add( "email", "talwinder@advikon.eu");
-                //formVars.Add( "password", "QWA@123456");
-                //var content = new FormUrlEncodedContent(formVars);
-
-                //var client = new HttpClient();
-                //var result = client.PostAsync("http://rasxps/AspNetWebApi/albums/rpc/ReturnString",
-                //                             content).Result;
                 var client = new RestClient("https://content.nusign.eu/api/register");
                 client.Timeout = -1;
                 var request = new RestRequest(Method.POST);
                 request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.AddParameter("companyName", "CMST12349696");
-                request.AddParameter("firstName", "Salt");
-                request.AddParameter("email", "talwinder@advikon.eu");
-                request.AddParameter("password", "abc!@#1234567");
-                request.AddParameter("lastName", "Jams7");
+                request.AddParameter("companyName", ClientName);
+                request.AddParameter("firstName", firstName);
                 request.AddParameter("middleName", "");
+                request.AddParameter("lastName", lastName); 
+                request.AddParameter("email", ClientEmail);
+                request.AddParameter("password", LoginPassword);
+                
+                
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                 IRestResponse response = client.Execute(request);
-                Console.WriteLine(response.Content);
 
-                return "1";
+                resAPI = JsonConvert.DeserializeObject<ResClientTemplateRegsiter>(response.Content);
+                if (resAPI.status == "success")
+                {
 
+                    if (con.State == ConnectionState.Closed){con.Open();}
+                    str = "";
+                    str = "update DFClients set apikey='" + resAPI.key + "' where DFClientID = " + data.clientId;
+                    cmd = new SqlCommand(str, con);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                    con.Close();
+                    result.Responce = "1";
+                }
+                else
+                {
+                    result.Responce = "0";
+                }
+
+                return result;
             }
             catch (Exception ex)
             {
                 con.Close();
-                
-                return "0";
+                return result;
             }
         }
 
@@ -13051,6 +13063,100 @@ namespace EuforyServices.ServiceImplementation
             }
         }
 
+        public ResResponce UpdateTokenInfo(List<ReqUpdateTokenInfo> data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string str = "";
+                con.Open();
+                str = "";
+                string StateId = "0";
+                string CityId = "0";
+                DataTable dt = new DataTable();
+                SqlCommand cmd = new SqlCommand();
+                foreach (var item in data)
+                {
+                    str = "select stateid from tbState where StateName='" + item.State + "' and CountryId=" + item.CountryId;
+                    cmd = new SqlCommand(str, con);
+                    cmd.CommandType = CommandType.Text;
+                    SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                    dt = new DataTable();
+                    ad.Fill(dt);
+                    ad.Dispose();
+                    cmd.Dispose();
+                    if (dt.Rows.Count == 0)
+                    {
+                        cmd = new SqlCommand("SaveState", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add(new SqlParameter("@CountryId", SqlDbType.BigInt));
+                        cmd.Parameters["@CountryId"].Value = item.CountryId;
+                        cmd.Parameters.Add(new SqlParameter("@StateName", SqlDbType.VarChar));
+                        cmd.Parameters["@StateName"].Value = item.State;
+                        cmd.Parameters.Add(new SqlParameter("@Stateid", SqlDbType.BigInt));
+                        cmd.Parameters["@Stateid"].Value = 0;
+                        if (con.State == ConnectionState.Closed) con.Open();
+                        StateId = cmd.ExecuteScalar().ToString();
+                    }
+                    else
+                    {
+                        StateId = dt.Rows[0][0].ToString();
+                    }
+                    str = "";
+                    str = "select CityId from tbCity where CityName='" + item.city + "' and StateId=" + StateId + " and CountryId=" + item.CountryId;
+                    cmd = new SqlCommand(str, con);
+                    cmd.CommandType = CommandType.Text;
+                    ad = new SqlDataAdapter(cmd);
+                    dt = new DataTable();
+                    ad.Fill(dt);
+                    ad.Dispose();
+                    cmd.Dispose();
+                    if (dt.Rows.Count == 0)
+                    {
+                        cmd = new SqlCommand("SaveCity", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.Add(new SqlParameter("@CountryId", SqlDbType.BigInt));
+                        cmd.Parameters["@CountryId"].Value = item.CountryId;
+                        cmd.Parameters.Add(new SqlParameter("@StateId", SqlDbType.BigInt));
+                        cmd.Parameters["@StateId"].Value = StateId;
+                        cmd.Parameters.Add(new SqlParameter("@CityName", SqlDbType.VarChar));
+                        cmd.Parameters["@CityName"].Value = item.city;
+                        cmd.Parameters.Add(new SqlParameter("@CityId", SqlDbType.BigInt));
+                        cmd.Parameters["@CityId"].Value = 0;
+
+                        if (con.State == ConnectionState.Closed) con.Open();
+                        CityId = cmd.ExecuteScalar().ToString();
+                    }
+                    else
+                    {
+                        CityId = dt.Rows[0][0].ToString();
+                    }
+
+
+                    str = "";
+                    str = "update AMPlayerTokens set CountryId= " + item.CountryId + ",stateid =" + StateId + ",cityid=" + CityId + "," +
+                        " location = '" + item.location.Trim() + "', streetname='" + item.Street.Trim() + "', MediaType='" + item.MediaType + "', " +
+                        " ltype= '" + item.playerType + "',ptype='" + item.LicenceType + "' where tokenid = " + item.tokenid;
+                    cmd = new SqlCommand(str, con);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                }
+                con.Close();
+                result.Responce = "1";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
     }
 }
 //spGetAdvtAdmin_NativeOnly_New
