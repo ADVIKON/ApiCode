@@ -1253,6 +1253,8 @@ namespace EuforyServices.DataContract
         public string totalToken { get; set; }
         [DataMember]
         public string expiryDate { get; set; }
+        [DataMember]
+        public string Key { get; set; }
 
     }
     [DataContract]

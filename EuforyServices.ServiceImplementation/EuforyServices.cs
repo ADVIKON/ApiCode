@@ -3545,7 +3545,7 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 string str = "select DFClients.DFClientID,CountryCodes.CountryName, DFClients.ClientName,isnull(DFClients.Email,'') as email,DFClients.orderno , DFClients.DealerNoTotalToken ,DFClients.DealerCode, tbdealerlogin.Expirydate";
-                str = str + " from DFClients inner join CountryCodes on DFClients.CountryCode= CountryCodes.CountryCode ";
+                str = str + " , isnull(DFClients.apikey,'') as apikey from DFClients inner join CountryCodes on DFClients.CountryCode= CountryCodes.CountryCode ";
                 str = str + " inner join tbdealerlogin on DFClients.DFClientID= tbdealerlogin.DFClientID  ";
                 str = str + " where DFClients.IsDealer=1 and  (DFClients.dbtype='" + data.DBType + "' or DFClients.dbtype='Both') order by DFClientID desc";
 
@@ -3566,7 +3566,7 @@ namespace EuforyServices.ServiceImplementation
                         customerEmail = ds.Rows[i]["email"].ToString(),
                         totalToken = ds.Rows[i]["DealerNoTotalToken"].ToString(),
                         expiryDate = string.Format("{0:dd/MMM/yyyy}", ds.Rows[i]["Expirydate"]),
-
+                        Key = ds.Rows[i]["apikey"].ToString(),
                     });
                 }
                 con.Close();
