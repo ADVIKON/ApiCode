@@ -3544,7 +3544,7 @@ namespace EuforyServices.ServiceImplementation
 
             try
             {
-                string str = "select DFClients.DFClientID,CountryCodes.CountryName, DFClients.ClientName,isnull(DFClients.Email,'') as email,DFClients.orderno , DFClients.DealerNoTotalToken ,DFClients.DealerCode, tbdealerlogin.Expirydate";
+                string str = "select distinct DFClients.DFClientID,CountryCodes.CountryName, DFClients.ClientName,isnull(DFClients.Email,'') as email,DFClients.orderno , DFClients.DealerNoTotalToken ,DFClients.DealerCode, tbdealerlogin.Expirydate";
                 str = str + " , isnull(DFClients.apikey,'') as apikey from DFClients inner join CountryCodes on DFClients.CountryCode= CountryCodes.CountryCode ";
                 str = str + " inner join tbdealerlogin on DFClients.DFClientID= tbdealerlogin.DFClientID  ";
                 str = str + " where DFClients.IsDealer=1 and  (DFClients.dbtype='" + data.DBType + "' or DFClients.dbtype='Both') order by DFClientID desc";
