@@ -938,5 +938,10 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("UpdateTokenInfo")]
         ResResponce UpdateTokenInfo(List<ReqUpdateTokenInfo> data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveSF_New", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveSF_New")]
+        ResResponce SaveSF_New(ReqSF_New data);
     }
 }

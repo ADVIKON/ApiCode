@@ -4188,7 +4188,7 @@ namespace EuforyServices.ServiceImplementation
                 DataTable ds = new DataTable();
                 ad.Fill(ds);
                 string url = "", mtypeFormat = "";
-                string btnImgAll = "";
+                string btnImgAll = "", isImgFind="No";
                 for (int i = 0; i < ds.Rows.Count; i++)
                 {
                     if (ds.Rows[i]["MediaType"].ToString().Trim() == "Audio")
@@ -4201,6 +4201,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                     if (ds.Rows[i]["MediaType"].ToString().Trim() == "Image")
                     {
+                        isImgFind = "Yes";
                         mtypeFormat = ".jpg";
                         if (btnImgAll == "")
                         {
@@ -4232,6 +4233,7 @@ namespace EuforyServices.ServiceImplementation
                         sId = ds.Rows[i]["id"].ToString(),
                         ImageTimeInterval = ds.Rows[i]["ImgTimeInterval"].ToString(),
                         ImgAllBtn= btnImgAll,
+                        isImgFind= isImgFind ,
                     });
                 }
                 con.Close();
@@ -13157,6 +13159,161 @@ namespace EuforyServices.ServiceImplementation
                 return result;
             }
         }
+
+
+        public ResResponce SaveSF_New(ReqSF_New data)
+        {
+            ResResponce clsResult = new ResResponce();
+            DateTimeFormatInfo fi = new DateTimeFormatInfo();
+            fi.AMDesignator = "AM";
+            fi.PMDesignator = "PM";
+            SqlCommand cmd = new SqlCommand();
+            SqlDataAdapter ad = new SqlDataAdapter();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+
+                con.Open();
+                foreach (var iToken in data.TokenList)
+                {
+                    foreach (var item_PL in data.lstPlaylist)
+                    {
+                        var h = item_PL.eTime.Split(':');
+
+                        if (h[0] == "00")
+                        {
+                            item_PL.eTime = "23:59";
+                        }
+                        var wList = item_PL.wId.Split(',');
+
+                        if (iToken.schType == "Normal")
+                        {
+                            foreach (var lstWeek in wList)
+                            {
+                                string strTit = "CheckTokenSchedule 0," + iToken.tokenId + "," + lstWeek + "," +
+                                        " '" + string.Format(fi, "{0:hh:mm tt}", Convert.ToDateTime(item_PL.sTime).AddMinutes(1)) + "'," +
+                                        " '" + string.Format(fi, "{0:hh:mm tt}", Convert.ToDateTime(item_PL.eTime).AddMinutes(-1)) + "'";
+                                cmd = new SqlCommand(strTit, con);
+                                cmd.CommandType = System.Data.CommandType.Text;
+                                ad = new SqlDataAdapter(cmd);
+                                DataTable ds = new DataTable();
+                                ad.Fill(ds);
+                                if (ds.Rows.Count > 0)
+                                {
+                                    for (int iTit = 0; iTit <= ds.Rows.Count - 1; iTit++)
+                                    {
+                                        cmd = new SqlCommand();
+                                        cmd.Connection = con;
+                                        strTit = "";
+                                        strTit = "delete from tbSpecialPlaylistSchedule_Token where ";
+                                        strTit = strTit + " pSchId = " + ds.Rows[iTit]["pSchId"] + " ";
+                                        strTit = strTit + " and tokenid=" + iToken.tokenId + " ";
+                                        cmd.CommandText = strTit;
+
+                                        cmd.ExecuteNonQuery();
+
+                                    }
+                                }
+                            }
+                        }
+                        //=========================== Save Main Data
+                        cmd = new SqlCommand("spSaveSpecialPlaylistSchedule", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.Add(new SqlParameter("@pSchId", SqlDbType.BigInt));
+                        cmd.Parameters["@pSchId"].Value = 0;
+
+                        cmd.Parameters.Add(new SqlParameter("@pVersion", SqlDbType.VarChar));
+                        cmd.Parameters["@pVersion"].Value = "c";
+
+                        cmd.Parameters.Add(new SqlParameter("@dfClientId", SqlDbType.BigInt));
+                        cmd.Parameters["@dfClientId"].Value = data.CustomerId;
+
+                        cmd.Parameters.Add(new SqlParameter("@splPlaylistId", SqlDbType.BigInt));
+                        cmd.Parameters["@splPlaylistId"].Value = item_PL.splId;
+
+                        cmd.Parameters.Add(new SqlParameter("@StartTime", SqlDbType.DateTime));
+                        cmd.Parameters["@StartTime"].Value = string.Format(fi, "{0:hh:mm tt}", Convert.ToDateTime(item_PL.sTime));
+
+                        cmd.Parameters.Add(new SqlParameter("@EndTime", SqlDbType.DateTime));
+                        cmd.Parameters["@EndTime"].Value = string.Format(fi, "{0:hh:mm tt}", Convert.ToDateTime(item_PL.eTime));
+
+                        cmd.Parameters.Add(new SqlParameter("@FormatId", SqlDbType.BigInt));
+                        cmd.Parameters["@FormatId"].Value = data.FormatId;
+
+                        Int32 rtPschId = Convert.ToInt32(cmd.ExecuteScalar());
+                        //==========================================
+                        cmd = new SqlCommand();
+                        cmd.Connection = con;
+                        cmd.CommandText = "delete from tbSpecialPlaylistSchedule_Weekday where pSchId=" + rtPschId;
+                        cmd.ExecuteNonQuery();
+
+                        //=============================== Save Week
+                        foreach (var lstWeek in wList)
+                        {
+                            cmd = new SqlCommand("spSaveSpecialPlaylistSchedule_Week", con);
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.Add(new SqlParameter("@pSchId", SqlDbType.BigInt));
+                            cmd.Parameters["@pSchId"].Value = rtPschId;
+
+                            cmd.Parameters.Add(new SqlParameter("@wId", SqlDbType.Int));
+                            cmd.Parameters["@wId"].Value = lstWeek;
+
+                            cmd.Parameters.Add(new SqlParameter("@IsAllWeek", SqlDbType.Int));
+                            cmd.Parameters["@IsAllWeek"].Value = 0;
+
+                            cmd.Parameters.Add(new SqlParameter("@FormatId", SqlDbType.BigInt));
+                            cmd.Parameters["@FormatId"].Value = data.FormatId;
+                            cmd.ExecuteNonQuery();
+                        }
+                        //=========================================
+                        cmd = new SqlCommand();
+                        cmd.Connection = con;
+                        cmd.CommandText = "delete from tbSpecialPlaylistSchedule_Token where tokenid=" + iToken.tokenId + " and pSchId= " + rtPschId + " ";
+                        cmd.ExecuteNonQuery();
+
+                        //====================== Save Token Detail
+                        cmd = new SqlCommand("spSaveSpecialPlaylistSchedule_Token", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.Add(new SqlParameter("@pSchId", SqlDbType.BigInt));
+                        cmd.Parameters["@pSchId"].Value = rtPschId;
+
+                        cmd.Parameters.Add(new SqlParameter("@tokenId", SqlDbType.BigInt));
+                        cmd.Parameters["@tokenId"].Value = iToken.tokenId;
+
+                        cmd.Parameters.Add(new SqlParameter("@IsAllToken", SqlDbType.Int));
+                        cmd.Parameters["@IsAllToken"].Value = 0;
+
+                        cmd.Parameters.Add(new SqlParameter("@FormatId", SqlDbType.BigInt));
+                        cmd.Parameters["@FormatId"].Value = data.FormatId;
+
+                        cmd.Parameters.Add(new SqlParameter("@DfClientid", SqlDbType.BigInt));
+                        cmd.Parameters["@DfClientid"].Value = data.CustomerId;
+
+                        cmd.Parameters.Add(new SqlParameter("@splPlaylistId", SqlDbType.BigInt));
+                        cmd.Parameters["@splPlaylistId"].Value = item_PL.splId;
+                        cmd.ExecuteNonQuery();
+                        //========================================
+
+                    }
+                }
+                con.Close();
+                clsResult.Responce = "1";
+                return clsResult;
+            }
+            catch (Exception ex)
+            {
+                clsResult.Responce = "0";
+                con.Close();
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return clsResult;
+            }
+        }
+
+
     }
 }
 //spGetAdvtAdmin_NativeOnly_New

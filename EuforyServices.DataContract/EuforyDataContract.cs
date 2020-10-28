@@ -1402,6 +1402,8 @@ namespace EuforyServices.DataContract
         public string ImageTimeInterval { get; set; }
         [DataMember]
         public string ImgAllBtn { get; set; }
+        [DataMember]
+        public string isImgFind { get; set; }
     }
 
     [DataContract]
@@ -2768,6 +2770,44 @@ namespace EuforyServices.DataContract
         public string status { get; set; }
         [DataMember]
         public string key { get; set; }
+    }
+    public class ReqSF_New
+    {
+        [DataMember]
+        public string CustomerId { get; set; }
+        [DataMember]
+        public string FormatId { get; set; }
+        [DataMember]
+        public string PlaylistId1 { get; set; }
+        [DataMember]
+        public string startTime1 { get; set; }
+        [DataMember]
+        public string EndTime1 { get; set; }
+        [DataMember]
+        public List<ReqSFWeek> wList1 { get; set; }
+        [DataMember]
+        public List<ReqSFToken> TokenList { get; set; }
+        [DataMember]
+        public List<ReqSF_Playlist_New> lstPlaylist { get; set; }
+        
+    }
+    public class ReqSF_Playlist_New
+    {
+        [DataMember]
+        public string Id { get; set; }
+        [DataMember]
+        public string eTime { get; set; }
+        [DataMember]
+        public string pName { get; set; }
+        [DataMember]
+        public string sTime { get; set; }
+        [DataMember]
+        public string splId { get; set; }
+        [DataMember]
+        public string wId { get; set; }
+        [DataMember]
+        public string wName { get; set; }
+
     }
 }
 
