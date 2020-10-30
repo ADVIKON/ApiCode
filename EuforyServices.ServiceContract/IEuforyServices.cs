@@ -933,11 +933,12 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("FillTokenOpeningHours")]
         List<ResTokenInfo> FillTokenOpeningHours(ReqTokenInfo data);
-
-        [WebInvoke(Method = "POST", UriTemplate = "UpdateTokenInfo", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+         
+        [WebInvoke(Method = "POST", UriTemplate = "UpdateTokenInfo", ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
         [FaultContract(typeof(FaultException))]
         [Description("UpdateTokenInfo")]
-        ResResponce UpdateTokenInfo(List<ReqUpdateTokenInfo> data);
+        ResResponce UpdateTokenInfo();
 
         [WebInvoke(Method = "POST", UriTemplate = "SaveSF_New", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
         [FaultContract(typeof(FaultException))]

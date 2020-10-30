@@ -3098,6 +3098,10 @@ namespace EuforyServices.ServiceImplementation
                         MediaType = ds.Rows[i]["nMediaType"].ToString(),
                         State = ds.Rows[i]["StateName"].ToString(),
                         Street = ds.Rows[i]["street"].ToString(),
+                        DeviceType = ds.Rows[i]["DeviceType"].ToString(),
+                        TokenNoBkp = ds.Rows[i]["tnobkp"].ToString(),
+                        CountryFullName = ds.Rows[i]["couName"].ToString(),
+                        AlertEmail = ds.Rows[i]["AlertEmail"].ToString(),
 
                     });
                 }
@@ -4188,7 +4192,7 @@ namespace EuforyServices.ServiceImplementation
                 DataTable ds = new DataTable();
                 ad.Fill(ds);
                 string url = "", mtypeFormat = "";
-                string btnImgAll = "", isImgFind="No";
+                string btnImgAll = "", isImgFind = "No";
                 for (int i = 0; i < ds.Rows.Count; i++)
                 {
                     if (ds.Rows[i]["MediaType"].ToString().Trim() == "Audio")
@@ -4232,8 +4236,8 @@ namespace EuforyServices.ServiceImplementation
                         Label = ds.Rows[i]["label"].ToString(),
                         sId = ds.Rows[i]["id"].ToString(),
                         ImageTimeInterval = ds.Rows[i]["ImgTimeInterval"].ToString(),
-                        ImgAllBtn= btnImgAll,
-                        isImgFind= isImgFind ,
+                        ImgAllBtn = btnImgAll,
+                        isImgFind = isImgFind,
                     });
                 }
                 con.Close();
@@ -5061,7 +5065,7 @@ namespace EuforyServices.ServiceImplementation
                     var weekNo = (int)DateTime.Now.DayOfWeek;
                     sQr = "GetSpecialTempPlaylistSchedule " + weekNo + ", " + data.Id + " ," + data.ClientId + ", '" + string.Format("{0:dd-MMM-yyyy}", DateTime.Now) + "'";
                 }
-                
+
                 SqlCommand cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 con.Open();
@@ -8333,8 +8337,8 @@ namespace EuforyServices.ServiceImplementation
                 DataTable dtDetail = new DataTable();
                 var h = data.chkMixed;
 
-                strDel = "update  tbSpecialPlaylists set IsMixedContent=" + Convert.ToByte(data.chkMixed) + " , "+ 
-                    " isVideoMute =" + Convert.ToByte(data.chkMute) + ", isshowdefault=" + Convert.ToByte(data.chkFixed) + " "+
+                strDel = "update  tbSpecialPlaylists set IsMixedContent=" + Convert.ToByte(data.chkMixed) + " , " +
+                    " isVideoMute =" + Convert.ToByte(data.chkMute) + ", isshowdefault=" + Convert.ToByte(data.chkFixed) + " " +
                     " , chkDuplicateContent =" + Convert.ToByte(data.chkDuplicate) + " " +
                     " where splplaylistid = " + data.playlistid;
                 SqlCommand cmd = new SqlCommand(strDel, con);
@@ -12509,8 +12513,8 @@ namespace EuforyServices.ServiceImplementation
                 string orientation = "";
 
                 var url = "";
-                    url = "https://content.nusign.eu/api/my-templates?key=" + aKey.Trim();
-                if (data.GenreId== 297)
+                url = "https://content.nusign.eu/api/my-templates?key=" + aKey.Trim();
+                if (data.GenreId == 297)
                 {
                     orientation = "landscape";
                 }
@@ -12522,11 +12526,11 @@ namespace EuforyServices.ServiceImplementation
 
 
                 dt = Convert.ToDateTime(string.Format("{0:yyyy-mm-dd hh:mm tt}", data.cDate));
-                
+
                 var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 var unixDateTime = (dt.ToUniversalTime() - epoch).TotalSeconds;
 
-                
+
                 if (data.search != "")
                 {
                     url = url + "&search=" + data.search;
@@ -12764,7 +12768,7 @@ namespace EuforyServices.ServiceImplementation
             {
                 string strDel = "";
                 con.Open();
-                
+
                 foreach (var data in Data.tokenIds)
                 {
                     strDel = "";
@@ -12826,7 +12830,7 @@ namespace EuforyServices.ServiceImplementation
 
 
 
-        public  ResResponce ClientTemplateRegsiter(ReqTokenInfo data)
+        public ResResponce ClientTemplateRegsiter(ReqTokenInfo data)
         {
             ResClientTemplateRegsiter resAPI = new ResClientTemplateRegsiter();
             ResResponce result = new ResResponce();
@@ -12836,7 +12840,7 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 DataTable dtDetail = new DataTable();
-                
+
                 string ClientEmail = "", ClientName = "", LoginPassword = "", firstName = "", lastName = "";
 
                 str = "  select DFClients.*, tbDealerLogin.LoginPassword,tbDealerLogin.ExpiryDate, tbdealerlogin.DamTotalToken,tbdealerlogin.CopyrightTotalToken,tbdealerlogin.SanjivaniTotalToken ";
@@ -12865,11 +12869,11 @@ namespace EuforyServices.ServiceImplementation
                 request.AddParameter("companyName", ClientName);
                 request.AddParameter("firstName", firstName);
                 request.AddParameter("middleName", "");
-                request.AddParameter("lastName", lastName); 
+                request.AddParameter("lastName", lastName);
                 request.AddParameter("email", ClientEmail);
                 request.AddParameter("password", LoginPassword);
-                
-                
+
+
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                 IRestResponse response = client.Execute(request);
 
@@ -12877,7 +12881,7 @@ namespace EuforyServices.ServiceImplementation
                 if (resAPI.status == "success")
                 {
 
-                    if (con.State == ConnectionState.Closed){con.Open();}
+                    if (con.State == ConnectionState.Closed) { con.Open(); }
                     str = "";
                     str = "update DFClients set apikey='" + resAPI.key + "' where DFClientID = " + data.clientId;
                     cmd = new SqlCommand(str, con);
@@ -12901,11 +12905,11 @@ namespace EuforyServices.ServiceImplementation
             }
         }
 
- 
+
         public ResResponce SaveOpeningHours(ReqOpeningHours data)
         {
             ResResponce result = new ResResponce();
-               SqlConnection conMain = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
+            SqlConnection conMain = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
             try
             {
                 DateTimeFormatInfo fi = new DateTimeFormatInfo();
@@ -12917,7 +12921,7 @@ namespace EuforyServices.ServiceImplementation
                 dtInsert.Columns.Add("wid", typeof(int));
                 dtInsert.Columns.Add("starttime", typeof(DateTime));
                 dtInsert.Columns.Add("endtime", typeof(DateTime));
-               string wid = "";
+                string wid = "";
                 foreach (var TokenId in data.TokenList)
                 {
                     if (TokenId != "0")
@@ -12956,7 +12960,7 @@ namespace EuforyServices.ServiceImplementation
                             conMain.Open();
                         }
                         strDel = "";
-                        strDel = "delete from tbTokenOpeningHours where tokenId = " + TokenId ;
+                        strDel = "delete from tbTokenOpeningHours where tokenId = " + TokenId;
                         SqlCommand cmd = new SqlCommand(strDel, conMain);
                         cmd.CommandType = CommandType.Text;
                         cmd.ExecuteNonQuery();
@@ -13034,14 +13038,14 @@ namespace EuforyServices.ServiceImplementation
                 {
                     var t1 = string.Format(fi, "{0:HH:mm}", ds.Rows[i]["StartTime"]);
                     var t2 = string.Format(fi, "{0:HH:mm}", ds.Rows[i]["EndTime"]);
-                    
-                    if ((string.Format(fi, "{0:HH:mm}", ds.Rows[i]["StartTime"]) == "00:00") 
+
+                    if ((string.Format(fi, "{0:HH:mm}", ds.Rows[i]["StartTime"]) == "00:00")
                         && (string.Format(fi, "{0:HH:mm}", ds.Rows[i]["EndTime"]) == "00:00"))
                     {
                         t1 = "";
                         t2 = "";
                     }
-                   
+
                     lstResult.Add(new ResTokenInfo()
                     {
                         tokenid = ds.Rows[i]["tokenid"].ToString(),
@@ -13065,98 +13069,360 @@ namespace EuforyServices.ServiceImplementation
             }
         }
 
-        public ResResponce UpdateTokenInfo(List<ReqUpdateTokenInfo> data)
+        public ResResponce UpdateTokenInfo()
         {
-            ResResponce result = new ResResponce();
-            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            ResResponce Result = new ResResponce();
+            SqlConnection conSql = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
             try
             {
+                conSql.Open();
+
+                HttpPostedFile postedFile = HttpContext.Current.Request.Files[0];
+                string fName = DateTime.Now.Year.ToString() + "_" + DateTime.Now.Day.ToString() + "_" + DateTime.Now.Millisecond.ToString() + Path.GetExtension(postedFile.FileName);
+
+                var filePath = HttpContext.Current.Server.MapPath("~/sheet/" + fName);
+                postedFile.SaveAs(filePath);
+                string extension = Path.GetExtension(filePath);
+                string header = "YES";
+                string conStr, sheetName;
+                conStr = string.Empty;
+                string Excel03ConString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0};Extended Properties='Excel 8.0;HDR={1}'";
+                string Excel07ConString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties='Excel 8.0;HDR={1}'";
+
+                switch (extension)
+                {
+                    case ".xls": //Excel 97-03
+                        conStr = string.Format(Excel03ConString, filePath, header);
+                        break;
+
+                    case ".xlsx": //Excel 07
+                        conStr = string.Format(Excel07ConString, filePath, header);
+                        break;
+                }
+                using (OleDbConnection con = new OleDbConnection(conStr))
+                {
+                    using (OleDbCommand cmd = new OleDbCommand())
+                    {
+                        cmd.Connection = con;
+                        con.Open();
+                        DataTable dtExcelSchema = con.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                        sheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
+                        con.Close();
+                    }
+                }
+                DataTable dtM = new DataTable();
+                using (OleDbConnection con = new OleDbConnection(conStr))
+                {
+                    using (OleDbCommand cmd = new OleDbCommand())
+                    {
+                        using (OleDbDataAdapter oda = new OleDbDataAdapter())
+                        {
+                            cmd.CommandText = "SELECT * From [" + sheetName + "]";
+                            cmd.Connection = con;
+                            con.Open();
+                            oda.SelectCommand = cmd;
+                            oda.Fill(dtM);
+                            con.Close();
+                        }
+                    }
+                }
+                if (dtM.Columns.Count != 17)
+                {
+                    Result.Responce = "0";
+                    Result.message = "Selected excel file is not a correct file. Columns are not match";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[0].ToString().ToLower() != "tokenid")
+                {
+                    Result.Responce = "0";
+                    Result.message = "TokenId column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[1].ToString().ToLower() != "tokencode")
+                {
+                    Result.Responce = "0";
+                    Result.message = "Token code column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[2].ToString().ToLower() != "country")
+                {
+                    Result.Responce = "0";
+                    Result.message = "Country column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[3].ToString().ToLower() != "state")
+                {
+                    Result.Responce = "0";
+                    Result.message = "State column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[4].ToString().ToLower() != "city")
+                {
+                    Result.Responce = "0";
+                    Result.message = "City column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[5].ToString().ToLower() != "street")
+                {
+                    Result.Responce = "0";
+                    Result.message = "Street column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+
+                if (dtM.Columns[6].ToString().ToLower() != "location")
+                {
+                    Result.Responce = "0";
+                    Result.message = "Location column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[7].ToString().ToLower() != "isandroidplayer")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsAndroidPlayer column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[8].ToString().ToLower() != "iswindowsplayer")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsWindowPlayer column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[9].ToString().ToLower() != "isaudioplayer")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsAudioPlayer column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[10].ToString().ToLower() != "isvideoplayer")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsVideoPlayer column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[11].ToString().ToLower() != "issignageplayer")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsSignagePlayer column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+
+                if (dtM.Columns[12].ToString().ToLower() != "iscopyright")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsCopyright column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[13].ToString().ToLower() != "isdirectlicence")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsDirectLicence column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[14].ToString().ToLower() != "isscreen")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsScreen column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[15].ToString().ToLower() != "issanitizer")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsSanitizer column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                if (dtM.Columns[16].ToString().ToLower() != "dispenseralertemail")
+                {
+                    Result.Responce = "0";
+                    Result.message = "DispenserAlertEmail column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                var k = "";
+                var h = "";
+
                 string str = "";
-                con.Open();
                 str = "";
+                string CountryId = "0";
                 string StateId = "0";
                 string CityId = "0";
                 DataTable dt = new DataTable();
-                SqlCommand cmd = new SqlCommand();
-                foreach (var item in data)
+                SqlCommand SqlCmd = new SqlCommand();
+                for (int i = 0; i < dtM.Rows.Count; i++)
                 {
-                    str = "select stateid from tbState where StateName='" + item.State + "' and CountryId=" + item.CountryId;
-                    cmd = new SqlCommand(str, con);
-                    cmd.CommandType = CommandType.Text;
-                    SqlDataAdapter ad = new SqlDataAdapter(cmd);
-                    dt = new DataTable();
-                    ad.Fill(dt);
-                    ad.Dispose();
-                    cmd.Dispose();
-                    if (dt.Rows.Count == 0)
+                    if ((dtM.Rows[i]["TokenId"].ToString() != "") && (dtM.Rows[i]["tokencode"].ToString() != ""))
                     {
-                        cmd = new SqlCommand("SaveState", con);
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add(new SqlParameter("@CountryId", SqlDbType.BigInt));
-                        cmd.Parameters["@CountryId"].Value = item.CountryId;
-                        cmd.Parameters.Add(new SqlParameter("@StateName", SqlDbType.VarChar));
-                        cmd.Parameters["@StateName"].Value = item.State;
-                        cmd.Parameters.Add(new SqlParameter("@Stateid", SqlDbType.BigInt));
-                        cmd.Parameters["@Stateid"].Value = 0;
-                        if (con.State == ConnectionState.Closed) con.Open();
-                        StateId = cmd.ExecuteScalar().ToString();
-                    }
-                    else
-                    {
-                        StateId = dt.Rows[0][0].ToString();
-                    }
-                    str = "";
-                    str = "select CityId from tbCity where CityName='" + item.city + "' and StateId=" + StateId + " and CountryId=" + item.CountryId;
-                    cmd = new SqlCommand(str, con);
-                    cmd.CommandType = CommandType.Text;
-                    ad = new SqlDataAdapter(cmd);
-                    dt = new DataTable();
-                    ad.Fill(dt);
-                    ad.Dispose();
-                    cmd.Dispose();
-                    if (dt.Rows.Count == 0)
-                    {
-                        cmd = new SqlCommand("SaveCity", con);
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add(new SqlParameter("@CountryId", SqlDbType.BigInt));
-                        cmd.Parameters["@CountryId"].Value = item.CountryId;
-                        cmd.Parameters.Add(new SqlParameter("@StateId", SqlDbType.BigInt));
-                        cmd.Parameters["@StateId"].Value = StateId;
-                        cmd.Parameters.Add(new SqlParameter("@CityName", SqlDbType.VarChar));
-                        cmd.Parameters["@CityName"].Value = item.city;
-                        cmd.Parameters.Add(new SqlParameter("@CityId", SqlDbType.BigInt));
-                        cmd.Parameters["@CityId"].Value = 0;
+                        if ((dtM.Rows[i]["Country"].ToString() != "") && (dtM.Rows[i]["State"].ToString() != "")
+                            && (dtM.Rows[i]["City"].ToString() != ""))
+                        {
+                            k = dtM.Rows[i]["Country"].ToString().Substring(0, 2).Trim();
+                            str = "";
+                            str = "select CountryCode from CountryCodes where CountryName='" + dtM.Rows[i]["Country"].ToString().Trim() + "' ";
+                            SqlCmd = new SqlCommand(str, conSql);
+                            SqlCmd.CommandType = CommandType.Text;
+                            SqlDataAdapter ad = new SqlDataAdapter(SqlCmd);
+                            dt = new DataTable();
+                            ad.Fill(dt);
+                            ad.Dispose();
+                            SqlCmd.Dispose();
+                            if (dt.Rows.Count == 0)
+                            {
+                                SqlCmd = new SqlCommand("SaveCountry", conSql);
+                                SqlCmd.CommandType = CommandType.StoredProcedure;
+                                SqlCmd.Parameters.Add(new SqlParameter("@CountryName", SqlDbType.BigInt));
+                                SqlCmd.Parameters["@CountryName"].Value = dtM.Rows[i]["Country"].ToString().Trim();
+                                SqlCmd.Parameters.Add(new SqlParameter("@CountryNameShort", SqlDbType.VarChar));
+                                SqlCmd.Parameters["@CountryNameShort"].Value = dtM.Rows[i]["Country"].ToString().Substring(0, 2).Trim();
+                                if (conSql.State == ConnectionState.Closed) conSql.Open();
+                                CountryId = SqlCmd.ExecuteScalar().ToString();
+                            }
+                            else
+                            {
+                                CountryId = dt.Rows[0][0].ToString();
+                            }
 
-                        if (con.State == ConnectionState.Closed) con.Open();
-                        CityId = cmd.ExecuteScalar().ToString();
-                    }
-                    else
-                    {
-                        CityId = dt.Rows[0][0].ToString();
-                    }
+                            str = "";
+                            str = "select stateid from tbState where StateName='" + dtM.Rows[i]["State"].ToString().Trim() + "' and CountryId=" + CountryId;
+                            SqlCmd = new SqlCommand(str, conSql);
+                            SqlCmd.CommandType = CommandType.Text;
+                            ad = new SqlDataAdapter(SqlCmd);
+                            dt = new DataTable();
+                            ad.Fill(dt);
+                            ad.Dispose();
+                            SqlCmd.Dispose();
+                            if (dt.Rows.Count == 0)
+                            {
+                                SqlCmd = new SqlCommand("SaveState", conSql);
+                                SqlCmd.CommandType = CommandType.StoredProcedure;
+                                SqlCmd.Parameters.Add(new SqlParameter("@CountryId", SqlDbType.BigInt));
+                                SqlCmd.Parameters["@CountryId"].Value = CountryId;
+                                SqlCmd.Parameters.Add(new SqlParameter("@StateName", SqlDbType.VarChar));
+                                SqlCmd.Parameters["@StateName"].Value = dtM.Rows[i]["State"].ToString().Trim();
+                                SqlCmd.Parameters.Add(new SqlParameter("@Stateid", SqlDbType.BigInt));
+                                SqlCmd.Parameters["@Stateid"].Value = 0;
+                                if (conSql.State == ConnectionState.Closed) conSql.Open();
+                                StateId = SqlCmd.ExecuteScalar().ToString();
+                            }
+                            else
+                            {
+                                StateId = dt.Rows[0][0].ToString();
+                            }
+
+                            str = "";
+                            str = "select CityId from tbCity where CityName='" + dtM.Rows[i]["City"].ToString().Trim() + "' and StateId=" + StateId;
+                            SqlCmd = new SqlCommand(str, conSql);
+                            SqlCmd.CommandType = CommandType.Text;
+                            ad = new SqlDataAdapter(SqlCmd);
+                            dt = new DataTable();
+                            ad.Fill(dt);
+                            ad.Dispose();
+                            SqlCmd.Dispose();
+                            if (dt.Rows.Count == 0)
+                            {
+                                SqlCmd = new SqlCommand("SaveCity", conSql);
+                                SqlCmd.CommandType = CommandType.StoredProcedure;
+                                SqlCmd.Parameters.Add(new SqlParameter("@CountryId", SqlDbType.BigInt));
+                                SqlCmd.Parameters["@CountryId"].Value = CountryId;
+                                SqlCmd.Parameters.Add(new SqlParameter("@StateId", SqlDbType.BigInt));
+                                SqlCmd.Parameters["@StateId"].Value = StateId;
+                                SqlCmd.Parameters.Add(new SqlParameter("@CityName", SqlDbType.VarChar));
+                                SqlCmd.Parameters["@CityName"].Value = dtM.Rows[i]["City"].ToString().Trim();
+                                SqlCmd.Parameters.Add(new SqlParameter("@CityId", SqlDbType.BigInt));
+                                SqlCmd.Parameters["@CityId"].Value = 0;
+                                if (conSql.State == ConnectionState.Closed) conSql.Open();
+                                CityId = SqlCmd.ExecuteScalar().ToString();
+                            }
+                            else
+                            {
+                                CityId = dt.Rows[0][0].ToString();
+                            }
+                        }
 
 
-                    str = "";
-                    str = "update AMPlayerTokens set CountryId= " + item.CountryId + ",stateid =" + StateId + ",cityid=" + CityId + "," +
-                        " location = '" + item.location.Trim() + "', streetname='" + item.Street.Trim() + "', MediaType='" + item.MediaType + "', " +
-                        " ltype= '" + item.playerType + "',ptype='" + item.LicenceType + "' where tokenid = " + item.tokenid;
-                    cmd = new SqlCommand(str, con);
-                    cmd.CommandType = CommandType.Text;
-                    cmd.ExecuteNonQuery();
-                    cmd.Dispose();
+
+                        str = "update AMPlayerTokens set CountryId= " + CountryId + ",stateid =" + StateId + ",cityid=" + CityId + ",";
+                        str = str + ", Location = '" + dtM.Rows[i]["Location"].ToString().Trim() + "' , streetname='" + dtM.Rows[i]["Street"].ToString().Trim() + "' ";
+                        if ((dtM.Rows[i]["IsAndroidPlayer"].ToString() == "1") || (dtM.Rows[i]["IsAndroidPlayer"].ToString().ToLower() == "yes"))
+                        {
+                            str = str + ", lType = 'Android' ";
+                        }
+                        if ((dtM.Rows[i]["IsWindowsPlayer"].ToString() == "1") || (dtM.Rows[i]["IsWindowsPlayer"].ToString().ToLower() == "yes"))
+                        {
+                            str = str + ", lType = 'Desktop' ";
+                        }
+                        if ((dtM.Rows[i]["isaudioplayer"].ToString() == "1") || (dtM.Rows[i]["isaudioplayer"].ToString().ToLower() == "yes"))
+                        {
+                            str = str + ", IsVedioActive = 0 , mediatype='Audio'";
+                        }
+                        if ((dtM.Rows[i]["IsVideoPlayer"].ToString() == "1") || (dtM.Rows[i]["IsVideoPlayer"].ToString().ToLower() == "yes"))
+                        {
+                            str = str + ", IsVedioActive = 1 , mediatype='Video'";
+                        }
+                        if ((dtM.Rows[i]["IsSignagePlayer"].ToString() == "1") || (dtM.Rows[i]["IsSignagePlayer"].ToString().ToLower() == "yes"))
+                        {
+                            str = str + ", IsVedioActive = 1, mediatype='Signage' ";
+                        }
+
+                        if ((dtM.Rows[i]["IsDirectLicence"].ToString() == "1") || (dtM.Rows[i]["IsDirectLicence"].ToString().ToLower() == "yes"))
+                        {
+                            str = str + ", ptype ='DirectLicence' ";
+                        }
+
+                        if ((dtM.Rows[i]["IsCopyright"].ToString() == "1") || (dtM.Rows[i]["IsCopyright"].ToString().ToLower() == "yes"))
+                        {
+                            str = str + ", ptype ='Copyright' ";
+                        }
+
+
+                        if ((dtM.Rows[i]["IsScreen"].ToString() == "1") || (dtM.Rows[i]["IsScreen"].ToString().ToLower() == "yes"))
+                        {
+                            str = str + ", DeviceType ='Screen' ";
+                        }
+
+                        if ((dtM.Rows[i]["IsSanitizer"].ToString() == "1") || (dtM.Rows[i]["IsSanitizer"].ToString().ToLower() == "yes"))
+                        {
+                            str = str + ",DeviceType ='Sanitizer',CommunicationType='TTL',  TotalShot=5000, DispenserAlert='80,90,100'  ";
+                        }
+
+                        str = str + " , AlertEmail='" + dtM.Rows[i]["DispenserAlertEmail"].ToString().Trim() + "' ";
+
+
+                        str = str + " Where tokenid = " + dtM.Rows[i]["TokenId"] + " ";
+                        SqlCmd = new SqlCommand(str, conSql);
+                        SqlCmd.CommandType = CommandType.Text;
+                        SqlCmd.ExecuteNonQuery();
+                        SqlCmd.Dispose();
+                    }
                 }
-                con.Close();
-                result.Responce = "1";
-                return result;
+
+
+
+                conSql.Close();
+                Result.Responce = "1";
+                return Result;
 
             }
             catch (Exception ex)
             {
-                con.Close();
-
+                conSql.Close();
                 var g = ex.Message;
-                HttpContext.Current.Response.StatusCode = 1;
-                return result;
+                return Result;
             }
         }
 

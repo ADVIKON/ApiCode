@@ -956,6 +956,14 @@ namespace EuforyServices.DataContract
         public string State { get; set; }
         [DataMember]
         public string Street { get; set; }
+        [DataMember]
+        public string DeviceType { get; set; }
+        [DataMember]
+        public string TokenNoBkp { get; set; }
+        [DataMember]
+        public string CountryFullName { get; set; }
+        [DataMember]
+        public string AlertEmail { get; set; }
 
 
     }
