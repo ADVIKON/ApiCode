@@ -944,5 +944,10 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("SaveSF_New")]
         ResResponce SaveSF_New(ReqSF_New data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteTitleOwn", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteTitleOwn")]
+        ResResponce DeleteTitleOwn(ReqDeleteTitleOwn data);
     }
 }

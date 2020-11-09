@@ -32,6 +32,7 @@ using Stripe;
 using System.Net.Mail;
 using System.Data.OleDb;
 using RestSharp;
+using System.Collections;
 
 namespace EuforyServices.ServiceImplementation
 {
@@ -12854,6 +12855,7 @@ namespace EuforyServices.ServiceImplementation
                 ad.Dispose();
                 if (dtDetail.Rows.Count > 0)
                 {
+
                     ClientEmail = dtDetail.Rows[0]["Email"].ToString();
                     ClientName = dtDetail.Rows[0]["ClientName"].ToString();
                     LoginPassword = dtDetail.Rows[0]["LoginPassword"].ToString();
@@ -12890,6 +12892,116 @@ namespace EuforyServices.ServiceImplementation
                     cmd.Dispose();
                     con.Close();
                     result.Responce = "1";
+
+
+                    if (data.DBType == "Advikon")
+                    {
+                        var fromAddress = new MailAddress("advikonservice@gmail.com", "Advikon Service");
+                        var toAddress = new MailAddress(ClientEmail);
+
+                        const string fromPassword = "Gilles23789@";
+                        string subject = "Notification";
+                        string body = "Dear Customer, \n";
+                        body += "\n";
+                        body += "Thank you for registering with Advikon template services.";
+                        body += "\n";
+                        body += "\n";
+                        body += "Customer Name: " + ClientName + "\n";
+
+                        body += "\n";
+                        body += "You can create your own templates through web panel. \n";
+                        body += "Website: https://content.nusign.eu/ \n";
+                        body += "Login Name: " + ClientEmail + " \n";
+                        body += "Password: " + LoginPassword + " \n";
+                        body += "\n";
+                        body += "Best Regards \n";
+                        body += "Your Support Team";
+                        body += "\n";
+                        body += "\n";
+                        var smtp = new SmtpClient
+                        {
+                            Host = "smtp.gmail.com",
+                            Port = 587,
+                            EnableSsl = true,
+                            DeliveryMethod = SmtpDeliveryMethod.Network,
+                            UseDefaultCredentials = false,
+                            Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+                        };
+                        MailMessage message = new MailMessage();
+                        message.Subject = subject;
+                        message.Body = body;
+                        message.To.Add(toAddress);
+                        message.To.Add("talwinder@advikon.eu");
+                        message.From = fromAddress;
+                        smtp.Send(message);
+                        con.Close();
+                    }
+                    if (data.DBType == "Nusign")
+                    {
+                        var fromAddress = new MailAddress("support@nusign.eu", "Nusign services");
+                        var toAddress = new MailAddress(ClientEmail);
+
+                        const string fromPassword = "Talwinder23789@";
+                        string subject = "Notification";
+                        string body = "Dear Customer, \n";
+                        body += "\n";
+                        body += "Thank you for registering with Nusign template services.";
+                        body += "\n";
+                        body += "\n";
+                        body += "Customer Name: " + ClientName + "\n";
+
+                        body += "\n";
+                        body += "You can create your own templates through web panel. \n";
+                        body += "Your Login details are: \n";
+                        body += "Website: https://content.nusign.eu/ \n";
+                        body += "Login Name: " + ClientEmail + " \n";
+                        body += "Password: " + LoginPassword + " \n";
+                        body += "\n";
+                        body += "\n";
+                        body += "Best Regards \n";
+                        body += "Your Support Team";
+                        body += "\n";
+                        body += "\n";
+                        var smtp = new SmtpClient
+                        {
+                            Host = "smtp-auth.mailprotect.be",
+                            Port = 2525,
+                            //EnableSsl = true,
+                            DeliveryMethod = SmtpDeliveryMethod.Network,
+                            UseDefaultCredentials = false,
+                            Credentials = new NetworkCredential(fromAddress.Address, fromPassword),
+
+                        };
+                        MailMessage message = new MailMessage();
+                        message.Subject = subject;
+                        message.Body = body;
+                        message.To.Add(toAddress);
+                        message.To.Add("talwinder@advikon.eu");
+                        message.From = fromAddress;
+                        smtp.Send(message);
+                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 }
                 else
                 {
@@ -13183,20 +13295,21 @@ namespace EuforyServices.ServiceImplementation
                     conSql.Close();
                     return Result;
                 }
-                if (dtM.Columns[7].ToString().ToLower() != "isandroidplayer")
-                {
-                    Result.Responce = "0";
-                    Result.message = "IsAndroidPlayer column is not match with sequence";
-                    conSql.Close();
-                    return Result;
-                }
-                if (dtM.Columns[8].ToString().ToLower() != "iswindowsplayer")
+                if (dtM.Columns[7].ToString().ToLower() != "iswindowsplayer")
                 {
                     Result.Responce = "0";
                     Result.message = "IsWindowPlayer column is not match with sequence";
                     conSql.Close();
                     return Result;
                 }
+                if (dtM.Columns[8].ToString().ToLower() != "isandroidplayer")
+                {
+                    Result.Responce = "0";
+                    Result.message = "IsAndroidPlayer column is not match with sequence";
+                    conSql.Close();
+                    return Result;
+                }
+                
                 if (dtM.Columns[9].ToString().ToLower() != "isaudioplayer")
                 {
                     Result.Responce = "0";
@@ -13271,7 +13384,7 @@ namespace EuforyServices.ServiceImplementation
                         if ((dtM.Rows[i]["Country"].ToString() != "") && (dtM.Rows[i]["State"].ToString() != "")
                             && (dtM.Rows[i]["City"].ToString() != ""))
                         {
-                            k = dtM.Rows[i]["Country"].ToString().Substring(0, 2).Trim();
+                            k = dtM.Rows[i]["Country"].ToString().Substring(0, 2).Trim().ToUpper();
                             str = "";
                             str = "select CountryCode from CountryCodes where CountryName='" + dtM.Rows[i]["Country"].ToString().Trim() + "' ";
                             SqlCmd = new SqlCommand(str, conSql);
@@ -13288,7 +13401,7 @@ namespace EuforyServices.ServiceImplementation
                                 SqlCmd.Parameters.Add(new SqlParameter("@CountryName", SqlDbType.BigInt));
                                 SqlCmd.Parameters["@CountryName"].Value = dtM.Rows[i]["Country"].ToString().Trim();
                                 SqlCmd.Parameters.Add(new SqlParameter("@CountryNameShort", SqlDbType.VarChar));
-                                SqlCmd.Parameters["@CountryNameShort"].Value = dtM.Rows[i]["Country"].ToString().Substring(0, 2).Trim();
+                                SqlCmd.Parameters["@CountryNameShort"].Value = dtM.Rows[i]["Country"].ToString().Substring(0, 2).Trim().ToUpper();
                                 if (conSql.State == ConnectionState.Closed) conSql.Open();
                                 CountryId = SqlCmd.ExecuteScalar().ToString();
                             }
@@ -13356,7 +13469,7 @@ namespace EuforyServices.ServiceImplementation
 
 
 
-                        str = "update AMPlayerTokens set CountryId= " + CountryId + ",stateid =" + StateId + ",cityid=" + CityId + ",";
+                        str = "update AMPlayerTokens set CountryId= " + CountryId + ",stateid =" + StateId + ",cityid=" + CityId + " ";
                         str = str + ", Location = '" + dtM.Rows[i]["Location"].ToString().Trim() + "' , streetname='" + dtM.Rows[i]["Street"].ToString().Trim() + "' ";
                         if ((dtM.Rows[i]["IsAndroidPlayer"].ToString() == "1") || (dtM.Rows[i]["IsAndroidPlayer"].ToString().ToLower() == "yes"))
                         {
@@ -13415,6 +13528,7 @@ namespace EuforyServices.ServiceImplementation
 
                 conSql.Close();
                 Result.Responce = "1";
+                Result.message = "Saved";
                 return Result;
 
             }
@@ -13576,6 +13690,73 @@ namespace EuforyServices.ServiceImplementation
                 var g = ex.Message;
                 HttpContext.Current.Response.StatusCode = 1;
                 return clsResult;
+            }
+        }
+
+        public ResResponce DeleteTitleOwn(ReqDeleteTitleOwn data)
+        {
+            ResResponce result = new ResResponce();
+            List<string> TokenArray = new List<string>();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                SqlCommand cmd = new SqlCommand();
+                string strDel = "";
+                string tid = data.tid;
+                var TitlePlaylists = new ArrayList();
+                strDel = "";
+                if (data.ForceType == "No")
+                {
+                    strDel = "select distinct splPlaylistName from tbSpecialPlaylists where splplaylistid in (select distinct splplaylistid from tbSpecialPlaylists_Titles where titleid in(" + tid + ") )";
+                    cmd = new SqlCommand(strDel, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                    DataTable ds = new DataTable();
+                    ad.Fill(ds);
+                    ad.Dispose();
+                    cmd.Dispose();
+                    con.Close();
+                    if (ds.Rows.Count > 0)
+                    {
+                        for (int iTit = 0; iTit <= ds.Rows.Count - 1; iTit++)
+                        {
+                            TokenArray.Add(ds.Rows[iTit]["splPlaylistName"].ToString());
+                        }
+                        result.Responce = "2";
+                        result.TitlePlaylists = TokenArray;
+                        return result;
+                    }
+                }
+                
+
+
+                strDel = "";
+                strDel = "delete from Titles where TitleID in(" + tid + ") ";
+                cmd = new SqlCommand(strDel, con);
+                cmd.CommandType = CommandType.Text;
+                con.Open();
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
+
+                strDel = "";
+                strDel = "delete from tbSpecialPlaylists_Titles where TitleID in(" + tid + ") ";
+                cmd = new SqlCommand(strDel, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
+                con.Close();
+
+                result.Responce = "1";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
             }
         }
 

@@ -1225,6 +1225,8 @@ namespace EuforyServices.DataContract
         [DataMember]
         public Boolean chkStreaming { get; set; }
 
+        [DataMember]
+        public List<string> TitlePlaylists { get; set; }
     }
     [DataContract]
     public class ReqResetToken
@@ -2817,5 +2819,13 @@ namespace EuforyServices.DataContract
         public string wName { get; set; }
 
     }
+    public class ReqDeleteTitleOwn
+    {
+        [DataMember]
+        public string ForceType { get; set; }
+        [DataMember]
+        public string tid { get; set; }
+    }
+
 }
 
