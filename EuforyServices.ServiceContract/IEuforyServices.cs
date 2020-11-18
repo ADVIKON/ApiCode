@@ -949,5 +949,10 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("DeleteTitleOwn")]
         ResResponce DeleteTitleOwn(ReqDeleteTitleOwn data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "FillCustomerWithKey", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("FillCustomerWithKey")]
+        List<ResCustomerWithKey> FillCustomerWithKey(ReqComboQuery data);
     }
 }

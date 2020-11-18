@@ -368,10 +368,9 @@ namespace EuforyServices.ServiceImplementation
                     {
                         mtypeFormat = ".jpg";
                     }
-
+                
 
                     url = "http://134.119.178.26/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
-
                     result.Add(new ResponceSplSplaylistTitle()
                     {
                         splPlaylistId = Convert.ToInt32(ds.Tables[0].Rows[i]["splPlaylistId"]),
@@ -13760,6 +13759,39 @@ namespace EuforyServices.ServiceImplementation
             }
         }
 
+        public List<ResCustomerWithKey> FillCustomerWithKey(ReqComboQuery data)
+        {
+            List<ResCustomerWithKey> lstResult = new List<ResCustomerWithKey>();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+
+            try
+            {
+                SqlCommand cmd = new SqlCommand(data.Query, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                if (con.State == ConnectionState.Closed) { con.Open(); }
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataSet ds = new DataSet();
+                ad.Fill(ds);
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    lstResult.Add(new ResCustomerWithKey()
+                    {
+                        Id = ds.Tables[0].Rows[i]["id"].ToString(),
+                        DisplayName = ds.Tables[0].Rows[i]["DisplayName"].ToString(),
+                        apikey = ds.Tables[0].Rows[i]["apikey"].ToString(),
+                        check = false,
+                    });
+                }
+                con.Close();
+                return lstResult;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return lstResult;
+            }
+        }
 
     }
 }

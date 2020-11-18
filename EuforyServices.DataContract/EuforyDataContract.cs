@@ -2826,6 +2826,17 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string tid { get; set; }
     }
+    public class ResCustomerWithKey
+    {
+        [DataMember]
+        public string Id { get; set; }
+        [DataMember]
+        public string DisplayName { get; set; }
+        [DataMember]
+        public Boolean check { get; set; }
+        [DataMember]
+        public string apikey { get; set; }
+    }
 
 }
 
