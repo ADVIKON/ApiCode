@@ -964,6 +964,8 @@ namespace EuforyServices.DataContract
         public string CountryFullName { get; set; }
         [DataMember]
         public string AlertEmail { get; set; }
+        [DataMember]
+        public string gName { get; set; }
 
 
     }
@@ -1227,6 +1229,8 @@ namespace EuforyServices.DataContract
 
         [DataMember]
         public List<string> TitlePlaylists { get; set; }
+        [DataMember]
+        public string TitleId { get; set; }
     }
     [DataContract]
     public class ReqResetToken
@@ -1469,6 +1473,8 @@ namespace EuforyServices.DataContract
         public string PageNo { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "LoginClientId", Order = 1)]
         public string LoginClientId { get; set; }
+        [DataMember]
+        public string IsAnnouncement { get; set; }
 
     }
     [DataContract]

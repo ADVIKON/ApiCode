@@ -38,9 +38,9 @@ namespace EuforyServices
             try
             {
 
-            
-            //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "https://customer.myclaud.com");
-            //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+
+                //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "https://customer.myclaud.com");
+                //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", "http://localhost:4200");
 
                 //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin",  Request.UrlReferrer.GetLeftPart(UriPartial.Authority));
                 //string k = Request.UrlReferrer.GetLeftPart(UriPartial.Authority);
@@ -49,7 +49,7 @@ namespace EuforyServices
                 requestUrl = new Uri(Request.Url.ToString());
                 //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", requestUrl.GetLeftPart(UriPartial.Authority));
 
-                if (Request.UrlReferrer!= null)
+                if (Request.UrlReferrer != null)
                 {
                     var h = Request.UrlReferrer.GetLeftPart(UriPartial.Authority);
                     HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin", Request.UrlReferrer.GetLeftPart(UriPartial.Authority));
@@ -59,7 +59,7 @@ namespace EuforyServices
                 HttpContext.Current.Response.AddHeader("Access-Control-Allow-Credentials", "true");
 
 
-                 
+
 
 
                 if (HttpContext.Current.Request.HttpMethod == "OPTIONS")
@@ -70,7 +70,7 @@ namespace EuforyServices
                     HttpContext.Current.Response.AddHeader("Access-Control-Max-Age", "1728000");
                     HttpContext.Current.Response.End();
                 }
-                 
+
             }
             catch (Exception ex)
             {

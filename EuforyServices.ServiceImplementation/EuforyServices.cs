@@ -3102,7 +3102,7 @@ namespace EuforyServices.ServiceImplementation
                         TokenNoBkp = ds.Rows[i]["tnobkp"].ToString(),
                         CountryFullName = ds.Rows[i]["couName"].ToString(),
                         AlertEmail = ds.Rows[i]["AlertEmail"].ToString(),
-
+                        gName = ds.Rows[i]["gname"].ToString(),
                     });
                 }
                 con.Close();
@@ -4470,7 +4470,7 @@ namespace EuforyServices.ServiceImplementation
                 if (data.searchType == "title")
                 {
                     //sQr = "spSearch_Title_Comman '" + data.searchText + "','" + data.mediaType + "', " + data.IsRf + "," + Convert.ToByte(data.IsExplicit) + ",'" + data.DBType + "'";
-                    sQr = sQr + " where Titles.title like ''%" + data.searchText + "%''  and Titles.mediatype=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and  Titles.title like ''%" + data.searchText + "%''  and Titles.mediatype=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
                     sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
                     if (data.mediaType != "Image")
@@ -4493,7 +4493,7 @@ namespace EuforyServices.ServiceImplementation
                 else if (data.searchType == "artist")
                 {
                     //sQr = "spSearch_Artist_Comman '" + data.searchText + "','" + data.mediaType + "', " + data.IsRf + "," + Convert.ToByte(data.IsExplicit) + ",'" + data.DBType + "'";
-                    sQr = sQr + " where Artists.Name like ''%" + data.searchText + "%''  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Artists.Name like ''%" + data.searchText + "%''  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
                     sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
                     if (data.mediaType != "Image")
@@ -4517,7 +4517,7 @@ namespace EuforyServices.ServiceImplementation
 
                     sQr = "spSearch_Album_spl " + data.searchText + " ,'" + data.mediaType + "', " + data.IsRf + "," + Convert.ToByte(data.IsExplicit) + ",'" + data.DBType + "'";
                     sQr = "";
-                    sQr = sQr + " where Titles.AlbumID =''" + data.searchText + "''  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.AlbumID =''" + data.searchText + "''  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
                     sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
                     if (data.mediaType != "Image")
@@ -4537,7 +4537,7 @@ namespace EuforyServices.ServiceImplementation
                 }
                 else if (data.searchType == "Genre")
                 {
-                    sQr = sQr + " where Titles.GenreId= " + data.searchText + " and Titles.mediaType=''" + data.mediaType + "''  ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.GenreId= " + data.searchText + " and Titles.mediaType=''" + data.mediaType + "''  ";
                     if (data.mediaType != "Image")
                     {
                         sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
@@ -4578,7 +4578,7 @@ namespace EuforyServices.ServiceImplementation
                 else if (data.searchType == "BPM")
                 {
                     var MT = data.searchText.Split('-');
-                    sQr = sQr + " where cast(Titles.BPM as int) between " + MT[0] + " and " + MT[1] + "  and Titles.mediaType=''" + data.mediaType + "''  ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and cast(Titles.BPM as int) between " + MT[0] + " and " + MT[1] + "  and Titles.mediaType=''" + data.mediaType + "''  ";
                     if (data.mediaType != "Image")
                     {
                         sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
@@ -4600,7 +4600,7 @@ namespace EuforyServices.ServiceImplementation
                 else if (data.searchType == "ReleaseDate")
                 {
                     var MT = data.searchText.Split('-');
-                    sQr = sQr + " where month(Titles.ReleaseDate)=" + MT[0] + " and year(Titles.ReleaseDate)=" + MT[1] + " and Titles.mediaType=''" + data.mediaType + "''  ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and month(Titles.ReleaseDate)=" + MT[0] + " and year(Titles.ReleaseDate)=" + MT[1] + " and Titles.mediaType=''" + data.mediaType + "''  ";
                     if (data.mediaType != "Image")
                     {
                         sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
@@ -4621,7 +4621,7 @@ namespace EuforyServices.ServiceImplementation
                 }
                 else if (data.searchType == "EngeryLevel")
                 {
-                    sQr = sQr + " where Titles.EngeryLevel= " + data.searchText + " and Titles.mediaType=''" + data.mediaType + "''  ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.EngeryLevel= " + data.searchText + " and Titles.mediaType=''" + data.mediaType + "''  ";
                     if (data.mediaType != "Image")
                     {
                         sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
@@ -4642,7 +4642,7 @@ namespace EuforyServices.ServiceImplementation
                 }
                 else if (data.searchType == "NewVibe")
                 {
-                    sQr = sQr + " where Titles.TitleYear between " + DateTime.Now.AddYears(-1).Year + " and  " + DateTime.Now.Year + " and Titles.mediaType=''" + data.mediaType + "''  ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.TitleYear between " + DateTime.Now.AddYears(-1).Year + " and  " + DateTime.Now.Year + " and Titles.mediaType=''" + data.mediaType + "''  ";
                     if (data.mediaType != "Image")
                     {
                         sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
@@ -4670,7 +4670,7 @@ namespace EuforyServices.ServiceImplementation
                 }
                 else if (data.searchType == "Label")
                 {
-                    sQr = sQr + " where Titles.label= ''" + data.searchText + "'' and Titles.mediaType=''" + data.mediaType + "'' ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.label= ''" + data.searchText + "'' and Titles.mediaType=''" + data.mediaType + "'' ";
                     if (data.mediaType != "Image")
                     {
                         sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
@@ -4691,7 +4691,7 @@ namespace EuforyServices.ServiceImplementation
                 }
                 else if (data.searchType == "Category")
                 {
-                    sQr = sQr + " where Titles.acategory= ''" + data.searchText + "''  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.acategory= ''" + data.searchText + "''  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
                     sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
                     if (data.mediaType != "Image")
@@ -4703,7 +4703,7 @@ namespace EuforyServices.ServiceImplementation
                 }
                 else if (data.searchType == "Language")
                 {
-                    sQr = sQr + " where Titles.Language= ''" + data.searchText + "''  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.Language= ''" + data.searchText + "''  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
                     sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
                     if (data.mediaType != "Image")
@@ -4725,7 +4725,7 @@ namespace EuforyServices.ServiceImplementation
                 }
                 else if (data.searchType == "Year")
                 {
-                    sQr = sQr + " where Titles.TitleYear= " + data.searchText + "  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.TitleYear= " + data.searchText + "  and Titles.mediaType=''" + data.mediaType + "'' and IsRoyaltyFree= " + data.IsRf + " ";
                     sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
                     sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
                     if (data.mediaType != "Image")
@@ -4759,7 +4759,7 @@ namespace EuforyServices.ServiceImplementation
                 }
                 else if (data.searchType == "Folder")
                 {
-                    sQr = sQr + " where Titles.folderId= " + data.searchText + " and Titles.mediaType=''" + data.mediaType + "'' ";
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.folderId= " + data.searchText + " and Titles.mediaType=''" + data.mediaType + "'' ";
                     if (data.mediaType != "Image")
                     {
                         sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
@@ -4801,7 +4801,7 @@ namespace EuforyServices.ServiceImplementation
                         sQr = "SELECT TOP (500) Titles.TitleID, Titles.Title, Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, isnull(Titles.tempo,'') as Tempo,isnull(tbGenre.genre,'') as genre , Titles.titleyear ,isnull(acategory,'') as Category, Titles.AlbumID, Titles.ArtistID, Titles.mediatype,  isnull(Titles.label ,'') as label ,isnuLL(tbFolder.folderName,'') as fName , isnull(Titles.EngeryLevel,0) as EngeryLevel, isnull(Titles.BPM,'') as bpm, isnull(Titles.ReleaseDate,'') as rdate, isnull(Titles.language,'') as lang, titles.titleyear, isnull(Titles.dfclientid,0) as dfclientid FROM Titles INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  LEFT OUTER JOIN tbFolder ON Titles.folderId = tbFolder.folderId  ";
                         sQr = "";
 
-                        sQr = sQr + " where   Titles.mediaType=''" + data.mediaType + "'' and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit) + " ";
+                        sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and   Titles.mediaType=''" + data.mediaType + "'' and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit) + " ";
                         sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
 
                         if (data.IsAdmin == false)
@@ -5126,7 +5126,7 @@ namespace EuforyServices.ServiceImplementation
 
                 sQr = "SELECT TOP (500) Titles.TitleID, Titles.Title, Titles.Time, Artists.Name as ArtistName, Albums.Name AS AlbumName, isnull(Titles.tempo,'') as Tempo,isnull(tbGenre.genre,'') as genre , Titles.titleyear ,isnull(acategory,'') as Category, Titles.AlbumID, Titles.ArtistID, Titles.mediatype,  isnull(Titles.label ,'') as label ,isnuLL(tbFolder.folderName,'') as fName , isnull(Titles.EngeryLevel,0) as EngeryLevel, isnull(Titles.BPM,'') as bpm, isnull(Titles.ReleaseDate,'') as rdate, isnull(Titles.language,'') as lang, titles.titleyear, isnull(Titles.dfclientid,0) as dfclientid FROM Titles INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  LEFT OUTER JOIN tbFolder ON Titles.folderId = tbFolder.folderId   ";
                 sQr = "";
-                sQr = sQr + " where   Titles.mediaType=''" + data.mediaType + "'' and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit) + " ";
+                sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and  Titles.mediaType=''" + data.mediaType + "'' and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit) + " ";
                 sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
 
                 if (data.IsAdmin == false)
@@ -8190,6 +8190,7 @@ namespace EuforyServices.ServiceImplementation
                 var MediaType = HttpContext.Current.Request.Form[3];
                 var folderId = HttpContext.Current.Request.Form[4];
                 var dbType = HttpContext.Current.Request.Form[5];
+                var IsAnnouncement = HttpContext.Current.Request.Form[6];
                 var k = postedFile.ContentLength;
                 var Artist = "";
                 var Title = "";
@@ -8289,6 +8290,9 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters.Add(new SqlParameter("@dbType", SqlDbType.VarChar));
                 cmd.Parameters["@dbType"].Value = dbType.Trim();
 
+                cmd.Parameters.Add(new SqlParameter("@IsAnnouncement", SqlDbType.Int));
+                cmd.Parameters["@IsAnnouncement"].Value = IsAnnouncement;
+
                 Int32 Title_Id = Convert.ToInt32(cmd.ExecuteScalar());
 
 
@@ -8316,6 +8320,7 @@ namespace EuforyServices.ServiceImplementation
 
 
                 Result.Responce = "1";
+                Result.TitleId = Title_Id.ToString();
                 con.Close();
                 return Result;
             }
@@ -8440,7 +8445,7 @@ namespace EuforyServices.ServiceImplementation
             {
                 var str = "";
                 str = "";
-                str = "select tbModifyLogs.Ipaddress, modifydata,ModifyDateTime,iif(EfftectToken=0,'',EfftectToken) as effect, dfclients.clientname from tbModifyLogs " +
+                str = "select top 300 tbModifyLogs.Ipaddress, modifydata,ModifyDateTime,iif(EfftectToken=0,'',EfftectToken) as effect, dfclients.clientname from tbModifyLogs " +
                  " inner join dfclients on dfclients.dfclientid=tbModifyLogs.dfclientid " +
                  " where dfclients.dfclientid=" + data.clientId + " order by ModifyDateTime desc";
 
@@ -8615,7 +8620,7 @@ namespace EuforyServices.ServiceImplementation
                         str = "";
                         str = "select top " + PerGenreSongs.ToString() + "  titles.titleid from Titles ";
                         str = str + " inner join tbgenre on Titles.genreid= tbgenre.genreid ";
-                        str = str + " where ((Titles.dbType='" + itemMain.DBType + "' ) or (Titles.dbType='Both')) and Titles.mediatype='" + item.MediaType + "' and Titles.genreid=" + item.GenreId;
+                        str = str + " where isnull(titles.IsAnnouncement,0)=0 and ((Titles.dbType='" + itemMain.DBType + "' ) or (Titles.dbType='Both')) and Titles.mediatype='" + item.MediaType + "' and Titles.genreid=" + item.GenreId;
                         //if (itemMain.MediaStyle == "Copyright")
                         //{
                         //    str = str + " and isRoyaltyFree=0 ";
@@ -12660,7 +12665,7 @@ namespace EuforyServices.ServiceImplementation
                             await stream.CopyToAsync(fileStream);
                         }
                     }
-
+                    
 
                     string strDel = "";
                     strDel = "update titles set filesize='" + fsize + "' where titleid =" + Title_Id.ToString();
@@ -13533,8 +13538,10 @@ namespace EuforyServices.ServiceImplementation
             }
             catch (Exception ex)
             {
-                conSql.Close();
                 var g = ex.Message;
+                conSql.Close();
+                Result.Responce = "0";
+                Result.message = g;
                 return Result;
             }
         }
