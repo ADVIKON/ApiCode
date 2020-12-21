@@ -670,6 +670,9 @@ namespace EuforyServices.DataContract
         public string FreeSpace { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "TotalSpace", Order = 2)]
         public string TotalSpace { get; set; }
+
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "TimeZone", Order = 2)]
+        public string TimeZone { get; set; }
     }
 
 
@@ -966,7 +969,8 @@ namespace EuforyServices.DataContract
         public string AlertEmail { get; set; }
         [DataMember]
         public string gName { get; set; }
-
+        [DataMember]
+        public string tZone { get; set; }
 
     }
     [DataContract]

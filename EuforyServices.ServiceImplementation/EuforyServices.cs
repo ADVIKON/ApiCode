@@ -2158,6 +2158,7 @@ namespace EuforyServices.ServiceImplementation
                 string TotalSong = "";
                 string free = "";
                 string TotalSpace = "";
+                string Timezone = "";
                 if (string.IsNullOrEmpty(data.FreeSpace) == true)
                 {
                     free = "0";
@@ -2175,7 +2176,15 @@ namespace EuforyServices.ServiceImplementation
                 {
                     TotalSpace = data.TotalSpace;
                 }
-                string lType = "SaveDownloadsongStatus " + data.TokenId + ", " + TotalSong + ",'" + data.verNo + "', " + free + "," + TotalSpace;
+                if (string.IsNullOrEmpty(data.TimeZone) == true)
+                {
+                    Timezone = "";
+                }
+                else
+                {
+                    Timezone = data.TimeZone;
+                }
+                string lType = "SaveDownloadsongStatus " + data.TokenId + ", " + TotalSong + ",'" + data.verNo + "', " + free + "," + TotalSpace + ",'" + Timezone + "'";
                 SqlCommand cmd = new SqlCommand(lType, con);
                 cmd.CommandType = System.Data.CommandType.Text;
                 if (con.State == ConnectionState.Closed) { con.Open(); }
@@ -3103,6 +3112,7 @@ namespace EuforyServices.ServiceImplementation
                         CountryFullName = ds.Rows[i]["couName"].ToString(),
                         AlertEmail = ds.Rows[i]["AlertEmail"].ToString(),
                         gName = ds.Rows[i]["gname"].ToString(),
+                        tZone = ds.Rows[i]["tZone"].ToString(),
                     });
                 }
                 con.Close();
@@ -3548,10 +3558,12 @@ namespace EuforyServices.ServiceImplementation
 
             try
             {
-                string str = "select distinct DFClients.DFClientID,CountryCodes.CountryName, DFClients.ClientName,isnull(DFClients.Email,'') as email,DFClients.orderno , DFClients.DealerNoTotalToken ,DFClients.DealerCode, tbdealerlogin.Expirydate";
+                string str = "select distinct DFClients.DFClientID,CountryCodes.CountryName, DFClients.ClientName,isnull(DFClients.Email,'') as email,DFClients.orderno , DFClients.DealerNoTotalToken ,DFClients.DealerCode, max(tbdealerlogin.Expirydate) as Expirydate";
                 str = str + " , isnull(DFClients.apikey,'') as apikey from DFClients inner join CountryCodes on DFClients.CountryCode= CountryCodes.CountryCode ";
                 str = str + " inner join tbdealerlogin on DFClients.DFClientID= tbdealerlogin.DFClientID  ";
-                str = str + " where DFClients.IsDealer=1 and  (DFClients.dbtype='" + data.DBType + "' or DFClients.dbtype='Both') order by DFClientID desc";
+                str = str + " where DFClients.IsDealer=1 and  (DFClients.dbtype='" + data.DBType + "' or DFClients.dbtype='Both') ";
+                str = str + " group by DFClients.DFClientID,CountryCodes.CountryName, DFClients.ClientName,DFClients.Email, DFClients.orderno , DFClients.DealerNoTotalToken ,DFClients.DealerCode , DFClients.apikey ";
+                str = str + " order by DFClientID desc ";
 
                 SqlCommand cmd = new SqlCommand(str, con);
                 cmd.CommandType = System.Data.CommandType.Text;
@@ -12528,14 +12540,21 @@ namespace EuforyServices.ServiceImplementation
                     orientation = "portrait";
                 }
                 DateTime dt = new DateTime();
+                DateTime dt2 = new DateTime();
 
+                string h="";
 
-                dt = Convert.ToDateTime(string.Format("{0:yyyy-mm-dd hh:mm tt}", data.cDate));
+                dt2 = Convert.ToDateTime(string.Format("{0:yyyy-mm-dd}", data.cDate));
+                h = dt2.Date.ToString("yyyy-MM-dd");
+                dt = Convert.ToDateTime(string.Format("{0:yyyy-MM-dd}", h));
+                if (dt.Date == DateTime.Now.Date)
+                {
+                    dt = dt.AddDays(-1);
+                }
 
                 var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 var unixDateTime = (dt.ToUniversalTime() - epoch).TotalSeconds;
-
-
+               
                 if (data.search != "")
                 {
                     url = url + "&search=" + data.search;
@@ -12558,6 +12577,7 @@ namespace EuforyServices.ServiceImplementation
                         }
                     }
                 }
+               
                 return lstResult;
 
             }
@@ -12846,7 +12866,7 @@ namespace EuforyServices.ServiceImplementation
             {
                 DataTable dtDetail = new DataTable();
 
-                string ClientEmail = "", ClientName = "", LoginPassword = "", firstName = "", lastName = "";
+                string ClientEmail = "", ClientEmail_Templates = "", ClientName = "", LoginPassword = "", firstName = "", lastName = "";
 
                 str = "  select DFClients.*, tbDealerLogin.LoginPassword,tbDealerLogin.ExpiryDate, tbdealerlogin.DamTotalToken,tbdealerlogin.CopyrightTotalToken,tbdealerlogin.SanjivaniTotalToken ";
                 str = str + "  from DFClients inner join tbDealerLogin on DFClients.DFClientID= tbDealerLogin.DFClientID ";
@@ -12864,9 +12884,14 @@ namespace EuforyServices.ServiceImplementation
                     ClientName = dtDetail.Rows[0]["ClientName"].ToString();
                     LoginPassword = dtDetail.Rows[0]["LoginPassword"].ToString();
                 }
+                var obj2 = ClientEmail.Split('@');
+                ClientEmail_Templates = "";
+                ClientEmail_Templates = obj2[0].ToString() + "_" + dtDetail.Rows[0]["DFClientID"].ToString() + "@" + obj2[1].ToString();
+
                 var obj = ClientName.Split('-');
                 firstName = obj[0];
                 lastName = obj[1];
+                
 
                 var client = new RestClient("https://content.nusign.eu/api/register");
                 client.Timeout = -1;
@@ -12876,7 +12901,7 @@ namespace EuforyServices.ServiceImplementation
                 request.AddParameter("firstName", firstName);
                 request.AddParameter("middleName", "");
                 request.AddParameter("lastName", lastName);
-                request.AddParameter("email", ClientEmail);
+                request.AddParameter("email", ClientEmail_Templates);
                 request.AddParameter("password", LoginPassword);
 
 
@@ -12897,7 +12922,6 @@ namespace EuforyServices.ServiceImplementation
                     con.Close();
                     result.Responce = "1";
 
-
                     if (data.DBType == "Advikon")
                     {
                         var fromAddress = new MailAddress("advikonservice@gmail.com", "Advikon Service");
@@ -12915,7 +12939,7 @@ namespace EuforyServices.ServiceImplementation
                         body += "\n";
                         body += "You can create your own templates through web panel. \n";
                         body += "Website: https://content.nusign.eu/ \n";
-                        body += "Login Name: " + ClientEmail + " \n";
+                        body += "Login Name: " + ClientEmail_Templates + " \n";
                         body += "Password: " + LoginPassword + " \n";
                         body += "\n";
                         body += "Best Regards \n";
@@ -12958,7 +12982,7 @@ namespace EuforyServices.ServiceImplementation
                         body += "You can create your own templates through web panel. \n";
                         body += "Your Login details are: \n";
                         body += "Website: https://content.nusign.eu/ \n";
-                        body += "Login Name: " + ClientEmail + " \n";
+                        body += "Login Name: " + ClientEmail_Templates + " \n";
                         body += "Password: " + LoginPassword + " \n";
                         body += "\n";
                         body += "\n";
