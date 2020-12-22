@@ -954,5 +954,10 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("FillCustomerWithKey")]
         List<ResCustomerWithKey> FillCustomerWithKey(ReqComboQuery data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveCopyContent", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveCopyContent")]
+        ResResponce SaveCopyContent(ReqTransferContent data);
     }
 }

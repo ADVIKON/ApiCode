@@ -8073,9 +8073,88 @@ namespace EuforyServices.ServiceImplementation
                     cmd = new SqlCommand(str, con);
                     cmd.CommandText = str;
                     cmd.ExecuteNonQuery();
+                    cmd.Dispose();
                 }
                 foreach (var schList in data.SchList)
                 {
+                    str = "";
+                    str = "select FormatName, dbtype, DfClientId, isnull(mediatype,'') as mtype from tbSpecialFormat where formatid= " + schList.formatid;
+                    cmd = new SqlCommand(str, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    DataTable dt = new DataTable();
+                    SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                    ad.Fill(dt);
+                    cmd.Dispose();
+                    ad.Dispose();
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        if (data.dfClientId.ToString() != dt.Rows[i]["DfClientId"].ToString())
+                        {
+                            cmd = new SqlCommand("spCloneFormat", con);
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.Add(new SqlParameter("@FormatId", SqlDbType.BigInt));
+                            cmd.Parameters["@FormatId"].Value = "0";
+
+                            cmd.Parameters.Add(new SqlParameter("@FormatName", SqlDbType.VarChar));
+                            cmd.Parameters["@FormatName"].Value = dt.Rows[i]["FormatName"].ToString();
+
+                            cmd.Parameters.Add(new SqlParameter("@R", SqlDbType.Int));
+                            cmd.Parameters["@R"].Value = 255;
+
+                            cmd.Parameters.Add(new SqlParameter("@G", SqlDbType.Int));
+                            cmd.Parameters["@G"].Value = 255;
+
+                            cmd.Parameters.Add(new SqlParameter("@B", SqlDbType.Int));
+                            cmd.Parameters["@B"].Value = 255;
+
+                            cmd.Parameters.Add(new SqlParameter("@DfClientId", SqlDbType.BigInt));
+                            cmd.Parameters["@DfClientId"].Value = data.dfClientId;
+
+                            cmd.Parameters.Add(new SqlParameter("@pVersion", SqlDbType.VarChar));
+                            cmd.Parameters["@pVersion"].Value = "c";
+
+                            cmd.Parameters.Add(new SqlParameter("@sTime", SqlDbType.DateTime));
+                            cmd.Parameters["@sTime"].Value = string.Format("{0:hh:mm tt}", DateTime.Now);
+
+                            cmd.Parameters.Add(new SqlParameter("@eTime", SqlDbType.DateTime));
+                            cmd.Parameters["@eTime"].Value = string.Format("{0:hh:mm tt}", DateTime.Now);
+
+                            cmd.Parameters.Add(new SqlParameter("@TotalHour", SqlDbType.Int));
+                            cmd.Parameters["@TotalHour"].Value = "24";
+
+                            cmd.Parameters.Add(new SqlParameter("@Is24Hour", SqlDbType.Bit));
+                            cmd.Parameters["@Is24Hour"].Value = 1;
+
+                            cmd.Parameters.Add(new SqlParameter("@dbtype", SqlDbType.VarChar));
+                            cmd.Parameters["@dbtype"].Value = dt.Rows[i]["dbtype"].ToString();
+
+                            cmd.Parameters.Add(new SqlParameter("@MediaType", SqlDbType.NVarChar));
+                            cmd.Parameters["@MediaType"].Value = dt.Rows[i]["mtype"].ToString();
+
+                             string formatId_new = cmd.ExecuteScalar().ToString();
+                            cmd.Dispose();
+                            
+                            cmd = new SqlCommand("ClonePlaylist", con);
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.Add(new SqlParameter("@splId", SqlDbType.Int));
+                            cmd.Parameters["@splId"].Value = schList.splPlaylistId;
+                            cmd.Parameters.Add(new SqlParameter("@Formatid", SqlDbType.Int));
+                            cmd.Parameters["@Formatid"].Value = formatId_new;
+                            string splId_new = cmd.ExecuteScalar().ToString();
+                            cmd.Dispose();
+
+                            schList.formatid = formatId_new;
+                            schList.splPlaylistId = splId_new;
+                        }
+                    }
+                }
+                foreach (var schList in data.SchList)
+                {
+
+
+
                     cmd = new SqlCommand("spSaveSpecialPlaylistSchedule", con);
                     cmd.CommandType = CommandType.StoredProcedure;
 
@@ -12006,8 +12085,8 @@ namespace EuforyServices.ServiceImplementation
                 sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID  ";
                 sQr = sQr + " LEFT OUTER JOIN tbGenre ON Titles.GenreId = tbGenre.GenreId  ";
                 sQr = sQr + " LEFT OUTER JOIN tbFolder ON Titles.folderId = tbFolder.folderId  ";
-                sQr = sQr + " where Titles.folderId= " + data.FolderId + " ";
-                sQr = sQr + " and (Titles.dbtype='" + data.DBType + "' or Titles.dbtype='Both') ";
+                sQr = sQr + " where Titles.folderId= " + data.FolderId + " and isnull(Titles.IsAnnouncement,0)=0 ";
+                sQr = sQr + " and Titles.GenreId !=326 and (Titles.dbtype='" + data.DBType + "' or Titles.dbtype='Both') ";
                 sQr = sQr + " and Titles.dfclientid=" + data.ClientId + " ";
                 sQr = sQr + " ) as d  order by isnull(genre,'')    ";
 
@@ -12601,8 +12680,7 @@ namespace EuforyServices.ServiceImplementation
                 foreach (var item in data.tList)
                 {
 
-
-                    SqlCommand cmd = new SqlCommand("InsertArtistsAlbumsTitles_AlenkaMedia", con);
+                    SqlCommand cmd = new SqlCommand("InsertContent", con);
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add(new SqlParameter("@TiTleTiTle", SqlDbType.VarChar));
@@ -12665,7 +12743,10 @@ namespace EuforyServices.ServiceImplementation
                     cmd.Parameters["@folderid"].Value = data.FolderId;
 
                     cmd.Parameters.Add(new SqlParameter("@dbType", SqlDbType.VarChar));
-                    cmd.Parameters["@dbType"].Value = data.dbType;
+                    cmd.Parameters["@dbType"].Value = data.dbType.Trim();
+
+                    cmd.Parameters.Add(new SqlParameter("@IsAnnouncement", SqlDbType.Int));
+                    cmd.Parameters["@IsAnnouncement"].Value = "0";
 
                     Int32 Title_Id = Convert.ToInt32(cmd.ExecuteScalar());
                     //Int32 Title_Id = DateTime.Now.Millisecond;
@@ -13823,6 +13904,171 @@ namespace EuforyServices.ServiceImplementation
                 return lstResult;
             }
         }
+
+
+        public ResResponce SaveCopyContent(ReqTransferContent data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand();
+                string str = "";
+                string tId = "";
+
+                if (data.FolderId == "0")
+                {
+                    str = "";
+                    str = "update tbFolder set dfclientId  = " + data.dfClientId + " where folderId =" + data.FromFolderId;
+                    cmd = new SqlCommand(str, con);
+                    cmd.CommandText = str;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                    data.FolderId = data.FromFolderId;
+
+                }
+                foreach (var tlist in data.TitleList)
+                {
+                    if (tId == "")
+                    {
+                        tId = tlist;
+                    }
+                    else
+                    {
+                        tId = tId + ',' + tlist;
+                    }
+                }
+                if (tId != "")
+                {
+
+                    
+                    str = "";
+                    str = "select Titles.*, Artists.Name as aName , Albums.Name as alName from Titles  inner join Artists on Artists.ArtistID= Titles.ArtistID inner join Albums on Albums.AlbumID= Titles.AlbumID " +
+                        " where titleid in (" + tId + ")";
+                    cmd = new SqlCommand(str, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    DataTable dt = new DataTable();
+                    SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                    ad.Fill(dt);
+                    cmd.Dispose();
+                    ad.Dispose();
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        if (data.dfClientId.ToString() == dt.Rows[i]["dfclientid"].ToString())
+                        {
+                            str = "";
+                            str = "update Titles set folderId=" + data.FolderId + " where TitleID = " + dt.Rows[i]["Titleid"];
+                            cmd = new SqlCommand(str, con);
+                            cmd.CommandText = str;
+                            cmd.ExecuteNonQuery();
+                            cmd.Dispose();
+                        }
+
+                        else
+                        {
+                            cmd = new SqlCommand("InsertContent", con);
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            cmd.Parameters.Add(new SqlParameter("@TiTleTiTle", SqlDbType.VarChar));
+                            cmd.Parameters["@TiTleTiTle"].Value = dt.Rows[i]["Title"];
+
+                            cmd.Parameters.Add(new SqlParameter("@TitleArtistName", SqlDbType.VarChar));
+                            cmd.Parameters["@TitleArtistName"].Value = dt.Rows[i]["aName"];
+
+                            cmd.Parameters.Add(new SqlParameter("@AlbumName", SqlDbType.VarChar));
+                            cmd.Parameters["@AlbumName"].Value = dt.Rows[i]["alName"];
+
+                            cmd.Parameters.Add(new SqlParameter("@titlecategoryid", SqlDbType.BigInt));
+                            cmd.Parameters["@titlecategoryid"].Value = 4;
+
+                            cmd.Parameters.Add(new SqlParameter("@titleSubcategoryid", SqlDbType.VarChar));
+                            cmd.Parameters["@titleSubcategoryid"].Value = 22;
+
+                            cmd.Parameters.Add(new SqlParameter("@Time", SqlDbType.VarChar));
+                            cmd.Parameters["@Time"].Value = dt.Rows[i]["Time"];
+
+                            cmd.Parameters.Add(new SqlParameter("@AlbumLabel", SqlDbType.VarChar));
+                            cmd.Parameters["@AlbumLabel"].Value = "0";
+
+                            cmd.Parameters.Add(new SqlParameter("@CatalogCode", SqlDbType.VarChar));
+                            cmd.Parameters["@CatalogCode"].Value = "0";
+
+                            cmd.Parameters.Add(new SqlParameter("@titleYear", SqlDbType.Int));
+                            cmd.Parameters["@titleYear"].Value = 0;
+
+
+                            cmd.Parameters.Add(new SqlParameter("@GenreId", SqlDbType.Int));
+                            cmd.Parameters["@GenreId"].Value = dt.Rows[i]["GenreId"];
+
+                            cmd.Parameters.Add(new SqlParameter("@tempo", SqlDbType.VarChar));
+                            cmd.Parameters["@tempo"].Value = "Mid";
+
+
+                            cmd.Parameters.Add(new SqlParameter("@mType", SqlDbType.VarChar));
+                            cmd.Parameters["@mType"].Value = dt.Rows[i]["mediatype"];
+
+                            cmd.Parameters.Add(new SqlParameter("@acategory", SqlDbType.VarChar));
+                            cmd.Parameters["@acategory"].Value = dt.Rows[i]["aCategory"];
+
+                            cmd.Parameters.Add(new SqlParameter("@language", SqlDbType.VarChar));
+                            cmd.Parameters["@language"].Value = dt.Rows[i]["language"];
+
+                            cmd.Parameters.Add(new SqlParameter("@isRF", SqlDbType.VarChar));
+                            cmd.Parameters["@isRF"].Value = dt.Rows[i]["IsRoyaltyFree"];
+
+                            cmd.Parameters.Add(new SqlParameter("@isrc", SqlDbType.VarChar));
+                            cmd.Parameters["@isrc"].Value = "";
+
+                            cmd.Parameters.Add(new SqlParameter("@FileSize", SqlDbType.VarChar));
+                            cmd.Parameters["@FileSize"].Value = dt.Rows[i]["FileSize"];
+
+                            cmd.Parameters.Add(new SqlParameter("@dfclientid", SqlDbType.BigInt));
+                            cmd.Parameters["@dfclientid"].Value = data.dfClientId;
+
+                            cmd.Parameters.Add(new SqlParameter("@folderid", SqlDbType.BigInt));
+                            cmd.Parameters["@folderid"].Value = data.FolderId;
+
+                            cmd.Parameters.Add(new SqlParameter("@dbType", SqlDbType.VarChar));
+                            cmd.Parameters["@dbType"].Value = dt.Rows[i]["dbtype"];
+
+                            cmd.Parameters.Add(new SqlParameter("@IsAnnouncement", SqlDbType.Int));
+                            cmd.Parameters["@IsAnnouncement"].Value = "0";
+
+                            Int32 Title_Id = Convert.ToInt32(cmd.ExecuteScalar());
+                            cmd.Dispose();
+                            string ext = "";
+                            if (dt.Rows[i]["mediatype"].ToString().Trim() == "Image")
+                            {
+                                ext = ".jpg";
+                            }
+                            if (dt.Rows[i]["mediatype"].ToString().Trim() == "Video")
+                            {
+                                ext = ".mp4";
+                            }
+                            var fName_old = "~/mp3files/" + dt.Rows[i]["titleid"].ToString() + "" + ext;
+                            var filePath = System.Web.Hosting.HostingEnvironment.MapPath(fName_old);
+                            var fileInfo = new FileInfo(filePath);
+
+                            var fName_New = Title_Id.ToString() + "" + ext;
+                            var filePath_new = HttpContext.Current.Server.MapPath("~/mp3files/" + fName_New);
+                            fileInfo.CopyTo(filePath_new);
+                        }
+                    }
+                }
+                con.Close();
+                result.Responce = "1";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
 
     }
 }
