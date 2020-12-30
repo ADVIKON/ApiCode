@@ -959,5 +959,10 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("SaveCopyContent")]
         ResResponce SaveCopyContent(ReqTransferContent data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "FindToken", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("FindToken")]
+        ResResponce FindToken(ReqFindToken data);
     }
 }

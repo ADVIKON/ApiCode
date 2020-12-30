@@ -14069,6 +14069,67 @@ namespace EuforyServices.ServiceImplementation
             }
         }
 
+        public ResResponce FindToken(ReqFindToken data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                SqlCommand cmd = new SqlCommand();
+                string str = "";
+                str = "FillCustomer " + data.IsAdmin + "," + data.ClientId + ", '" + data.DbType + "'";
+                cmd = new SqlCommand(str, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(ds);
+                ad.Dispose();
+                cmd.Dispose();
+                string cid = "";
+                if (ds.Rows.Count > 0)
+                {
+                    for (int i = 0; i < ds.Rows.Count; i++)
+                    {
+                        if (cid == "")
+                        {
+                            cid = ds.Rows[i]["Id"].ToString();
+                        }
+                        else
+                        {
+                            cid = cid+","+ ds.Rows[i]["Id"].ToString();
+                        }
+                    }
+
+                    str = "select distinct tokenid from AMPlayerTokens where tokenid =" + data.tokenid + " and clientid in(" + cid + ")";
+                    cmd = new SqlCommand(str, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    ad = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    ad.Fill(dt);
+                    ad.Dispose();
+                    cmd.Dispose();
+                    con.Close();
+                    if (dt.Rows.Count > 0)
+                    {
+                         
+                        result.Responce = "1";
+                        return result;
+                    }
+                }
+                con.Close();
+                result.Responce = "0";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                result.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
 
     }
 }

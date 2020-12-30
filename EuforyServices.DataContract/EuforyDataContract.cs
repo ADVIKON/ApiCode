@@ -2848,5 +2848,17 @@ namespace EuforyServices.DataContract
         public string apikey { get; set; }
     }
 
+    public class ReqFindToken
+    {
+        [DataMember]
+        public string ClientId { get; set; }
+        [DataMember]
+        public string IsAdmin { get; set; }
+        [DataMember]
+        public string DbType { get; set; }
+        [DataMember]
+        public string tokenid { get; set; }
+    }
+
 }
 
