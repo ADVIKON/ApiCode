@@ -1114,6 +1114,8 @@ namespace EuforyServices.DataContract
         public string AlertMail { get; set; }
         [DataMember]
         public bool IsShowShotToast { get; set; }
+        [DataMember]
+        public string OsVersion { get; set; }
     }
     [DataContract]
     public class ReqSaveTokenInfo
@@ -1168,6 +1170,8 @@ namespace EuforyServices.DataContract
         public string AlertMail { get; set; }
         [DataMember]
         public bool IsShowShotToast { get; set; }
+        [DataMember]
+        public string OsVersion { get; set; }
     }
     [DataContract]
     public class ReqDispenserAlert

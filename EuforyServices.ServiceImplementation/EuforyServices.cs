@@ -3291,6 +3291,7 @@ namespace EuforyServices.ServiceImplementation
                         TotalShot = ds.Rows[i]["TotalShot"].ToString(),
                         AlertMail = ds.Rows[i]["AlertEmail"].ToString(),
                         IsShowShotToast = Convert.ToBoolean(ds.Rows[i]["IsShowShotToast"]),
+                        OsVersion = ds.Rows[i]["OsVersion"].ToString(),
                     });
                 }
 
@@ -3467,6 +3468,8 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters["@AlertEmail"].Value = data.AlertMail;
                 cmd.Parameters.Add(new SqlParameter("@IsShowShotToast", SqlDbType.Bit));
                 cmd.Parameters["@IsShowShotToast"].Value = Convert.ToByte(data.IsShowShotToast);
+                cmd.Parameters.Add(new SqlParameter("@OsVersion", SqlDbType.NVarChar));
+                cmd.Parameters["@OsVersion"].Value = data.OsVersion;
 
                 if (con.State == ConnectionState.Closed) { con.Open(); }
                 cmd.ExecuteNonQuery();
@@ -14100,7 +14103,10 @@ namespace EuforyServices.ServiceImplementation
                         }
                     }
 
-                    str = "select distinct tokenid from AMPlayerTokens where tokenid =" + data.tokenid + " and clientid in(" + cid + ")";
+                    //str = "select distinct tokenid from AMPlayerTokens where tokenid =" + data.tokenid + " and clientid in(" + cid + ")";
+                    str = "select distinct tokenid, (select clientname from dfclients where dfclients.DFClientID= AMPlayerTokens.ClientID) as clientname," +
+                        " (select top 1 (playdate+' '+playDTP)  from tbTokenPlayedSongs_Live where tokenid=AMPlayerTokens.tokenid order by playdate desc, playDTP desc) as  laststatus " +
+                        " from AMPlayerTokens where tokenid =" + data.tokenid + " and clientid in(" + cid + ")";
                     cmd = new SqlCommand(str, con);
                     cmd.CommandType = System.Data.CommandType.Text;
                     ad = new SqlDataAdapter(cmd);
@@ -14113,6 +14119,8 @@ namespace EuforyServices.ServiceImplementation
                     {
                          
                         result.Responce = "1";
+                        result.status =string.Format("{0:dd-MMM-yyyy HH:mm:ss}", dt.Rows[0]["laststatus"]);
+                        result.message = dt.Rows[0]["clientname"].ToString();
                         return result;
                     }
                 }
