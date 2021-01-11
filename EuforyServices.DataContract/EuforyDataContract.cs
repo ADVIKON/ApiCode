@@ -191,6 +191,8 @@ namespace EuforyServices.DataContract
         public string IsMute { get; set; }
         [DataMember]
         public int IsSeprationActive_New { get; set; }
+        [DataMember]
+        public string PercentageValue { get; set; }
     }
 
     [DataContract]
@@ -971,6 +973,8 @@ namespace EuforyServices.DataContract
         public string gName { get; set; }
         [DataMember]
         public string tZone { get; set; }
+        [DataMember]
+        public string TokenStatus { get; set; }
 
     }
     [DataContract]
@@ -1014,6 +1018,8 @@ namespace EuforyServices.DataContract
         public string formatid { get; set; }
         [DataMember]
         public string splPlaylistId { get; set; }
+        [DataMember]
+        public string PercentageValue { get; set; }
     }
     [DataContract]
     public class ResTokenAds
@@ -2813,6 +2819,8 @@ namespace EuforyServices.DataContract
         public List<ReqSFToken> TokenList { get; set; }
         [DataMember]
         public List<ReqSF_Playlist_New> lstPlaylist { get; set; }
+        [DataMember]
+        public string ScheduleType { get; set; }
         
     }
     public class ReqSF_Playlist_New
@@ -2831,6 +2839,8 @@ namespace EuforyServices.DataContract
         public string wId { get; set; }
         [DataMember]
         public string wName { get; set; }
+        [DataMember]
+        public string PercentageValue { get; set; }
 
     }
     public class ReqDeleteTitleOwn

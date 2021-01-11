@@ -1569,6 +1569,8 @@ namespace EuforyServices.ServiceImplementation
                         IsFadingActive = Convert.ToInt32(ds.Tables[0].Rows[i]["IsFadingActive"]),
                         FormatId = 0,
                         IsMute = ds.Tables[0].Rows[i]["IsMute"].ToString(),
+                        PercentageValue = ds.Tables[0].Rows[i]["PercentageValue"].ToString(),
+
                     });
                 }
                 con.Close();
@@ -2570,6 +2572,7 @@ namespace EuforyServices.ServiceImplementation
                         IsFadingActive = 1,
                         FormatId = 0,
                         IsMute = ds.Tables[0].Rows[i]["IsMute"].ToString(),
+                        PercentageValue = ds.Tables[0].Rows[i]["PercentageValue"].ToString(),
                     });
                 }
                 con.Close();
@@ -3071,6 +3074,7 @@ namespace EuforyServices.ServiceImplementation
                         FinalStatus = 100;
                     }
                     string PlayerType = "";
+                    string tokenStatus = "";
                     if (ds.Rows[i]["PlType"].ToString() == "Desktop")
                     {
                         PlayerType = "Windows";
@@ -3079,6 +3083,14 @@ namespace EuforyServices.ServiceImplementation
                     {
                         PlayerType = ds.Rows[i]["PlType"].ToString();
 
+                    }
+                    if (ds.Rows[i]["token"].ToString() != "used")
+                    {
+                        tokenStatus = "UnRegsiter";
+                    }
+                    else
+                    {
+                        tokenStatus = "Regsiter";
                     }
                     lstResult.Add(new ResTokenInfo()
                     {
@@ -3113,6 +3125,7 @@ namespace EuforyServices.ServiceImplementation
                         AlertEmail = ds.Rows[i]["AlertEmail"].ToString(),
                         gName = ds.Rows[i]["gname"].ToString(),
                         tZone = ds.Rows[i]["tZone"].ToString(),
+                        TokenStatus= tokenStatus
                     });
                 }
                 con.Close();
@@ -3161,6 +3174,7 @@ namespace EuforyServices.ServiceImplementation
                         WeekDay = ds.Rows[i]["wName"].ToString(),
                         formatid = ds.Rows[i]["formatid"].ToString(),
                         splPlaylistId = ds.Rows[i]["splPlaylistid"].ToString(),
+                        PercentageValue = ds.Rows[i]["PercentageValue"].ToString(),
                     });
                 }
 
@@ -13668,6 +13682,36 @@ namespace EuforyServices.ServiceImplementation
             {
 
                 con.Open();
+                string tid = "";
+                foreach (var iToken in data.TokenList)
+                {
+                    if (tid == "")
+                    {
+                        tid = iToken.tokenId.ToString();
+                    }
+                    else {
+                        tid = tid+ "," + iToken.tokenId.ToString();
+                    }
+                }
+                if (data.ScheduleType != "Normal")
+                {
+                    string st = "";
+                    st = "delete from tbSpecialPlaylistSchedule where pSchId in(select pSchId from tbSpecialPlaylistSchedule_Token where tokenid in (" + tid + "))";
+                    cmd = new SqlCommand(st, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                    st = "delete from tbSpecialPlaylistSchedule_Weekday where pSchId in(select pSchId from tbSpecialPlaylistSchedule_Token where tokenid in (" + tid + "))";
+                    cmd = new SqlCommand(st, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                    st = "delete from tbSpecialPlaylistSchedule_Token where tokenid in (" + tid + ")";
+                    cmd = new SqlCommand(st, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                }
                 foreach (var iToken in data.TokenList)
                 {
                     foreach (var item_PL in data.lstPlaylist)
@@ -13734,6 +13778,9 @@ namespace EuforyServices.ServiceImplementation
 
                         cmd.Parameters.Add(new SqlParameter("@FormatId", SqlDbType.BigInt));
                         cmd.Parameters["@FormatId"].Value = data.FormatId;
+
+                        cmd.Parameters.Add(new SqlParameter("@PercentageValue", SqlDbType.Int));
+                        cmd.Parameters["@PercentageValue"].Value = item_PL.PercentageValue;
 
                         Int32 rtPschId = Convert.ToInt32(cmd.ExecuteScalar());
                         //==========================================
