@@ -193,6 +193,8 @@ namespace EuforyServices.DataContract
         public int IsSeprationActive_New { get; set; }
         [DataMember]
         public string PercentageValue { get; set; }
+        [DataMember]
+        public string TotalCount { get; set; }
     }
 
     [DataContract]
@@ -975,6 +977,8 @@ namespace EuforyServices.DataContract
         public string tZone { get; set; }
         [DataMember]
         public string TokenStatus { get; set; }
+        [DataMember]
+        public string RebootTime { get; set; }
 
     }
     [DataContract]
@@ -1020,6 +1024,7 @@ namespace EuforyServices.DataContract
         public string splPlaylistId { get; set; }
         [DataMember]
         public string PercentageValue { get; set; }
+        
     }
     [DataContract]
     public class ResTokenAds
@@ -1283,6 +1288,9 @@ namespace EuforyServices.DataContract
         public string expiryDate { get; set; }
         [DataMember]
         public string Key { get; set; }
+        [DataMember]
+        public string IsTemplateActive { get; set; }
+        
 
     }
     [DataContract]
@@ -2873,6 +2881,22 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string tokenid { get; set; }
     }
-
+    public class ReqUpdateExpiryDate_Template_Creator
+    {
+        [DataMember]
+        public Int32 dfClientId { get; set; }
+        [DataMember]
+        public string status { get; set; }
+        [DataMember]
+        public string ExpiryDate { get; set; }
+    }
+    public class ReqRebootTime
+    {
+        [DataMember]
+        public string startTime { get; set; }
+        
+        [DataMember]
+        public List<string> TokenList { get; set; }
+    }
 }
 

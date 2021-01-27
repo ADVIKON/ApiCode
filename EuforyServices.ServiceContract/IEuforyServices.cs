@@ -964,5 +964,15 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("FindToken")]
         ResResponce FindToken(ReqFindToken data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "UpdateExpiryDate_Template_Creator", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("UpdateExpiryDate_Template_Creator")]
+        ResResponce UpdateExpiryDate_Template_Creator(ReqUpdateExpiryDate_Template_Creator data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveRebootTime", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveRebootTime")]
+        ResResponce SaveRebootTime(ReqRebootTime data);
     }
 }

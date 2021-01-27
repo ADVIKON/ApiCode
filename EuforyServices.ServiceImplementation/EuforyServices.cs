@@ -368,9 +368,9 @@ namespace EuforyServices.ServiceImplementation
                     {
                         mtypeFormat = ".jpg";
                     }
-                
 
-                    url = "http://134.119.178.26/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
+
+                    url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
                     result.Add(new ResponceSplSplaylistTitle()
                     {
                         splPlaylistId = Convert.ToInt32(ds.Tables[0].Rows[i]["splPlaylistId"]),
@@ -504,7 +504,7 @@ namespace EuforyServices.ServiceImplementation
                         mtypeFormat = ".jpg";
                     }
 
-                    url = "http://134.119.178.26/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
+                    url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
 
                     result.Add(new ResponceSplSplaylistTitle()
                     {
@@ -1570,7 +1570,7 @@ namespace EuforyServices.ServiceImplementation
                         FormatId = 0,
                         IsMute = ds.Tables[0].Rows[i]["IsMute"].ToString(),
                         PercentageValue = ds.Tables[0].Rows[i]["PercentageValue"].ToString(),
-
+                        TotalCount = ds.Tables[0].Rows[i]["TotalCount"].ToString(),
                     });
                 }
                 con.Close();
@@ -1621,7 +1621,7 @@ namespace EuforyServices.ServiceImplementation
 
 
 
-                    url = "http://134.119.178.26/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
+                    url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
 
                     result.Add(new ResponceSplSplaylistTitle()
                     {
@@ -1926,7 +1926,7 @@ namespace EuforyServices.ServiceImplementation
                         arName = ds.Tables[0].Rows[i]["arName"].ToString(),
                         AlbumID = Convert.ToInt32(ds.Tables[0].Rows[i]["AlbumID"]),
                         alName = ds.Tables[0].Rows[i]["alName"].ToString(),
-                        TitleUrl = "http://134.119.178.26/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat,
+                        TitleUrl = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat,
                         MediaType = data.MediaType,
                     });
                 }
@@ -2065,7 +2065,7 @@ namespace EuforyServices.ServiceImplementation
 
 
 
-                    url = "http://134.119.178.26/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
+                    url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
 
                     result.Add(new ResponceSplSplaylistTitle()
                     {
@@ -2573,6 +2573,7 @@ namespace EuforyServices.ServiceImplementation
                         FormatId = 0,
                         IsMute = ds.Tables[0].Rows[i]["IsMute"].ToString(),
                         PercentageValue = ds.Tables[0].Rows[i]["PercentageValue"].ToString(),
+                        TotalCount = ds.Tables[0].Rows[i]["TotalCount"].ToString(),
                     });
                 }
                 con.Close();
@@ -3092,6 +3093,18 @@ namespace EuforyServices.ServiceImplementation
                     {
                         tokenStatus = "Regsiter";
                     }
+                    string rebootTime = "";
+                    DateTimeFormatInfo fi = new DateTimeFormatInfo();
+                    fi.AMDesignator = "AM";
+                    fi.PMDesignator = "PM";
+                    if (string.Format(fi, "{0:HH:mm}", ds.Rows[i]["RebootTime"]) == "00:00")
+                    {
+                        rebootTime = "";
+                    }
+                    else
+                    {
+                        rebootTime = string.Format(fi, "{0:HH:mm}", ds.Rows[i]["RebootTime"]);
+                    }
                     lstResult.Add(new ResTokenInfo()
                     {
                         tokenid = ds.Rows[i]["tokenid"].ToString(),
@@ -3125,7 +3138,8 @@ namespace EuforyServices.ServiceImplementation
                         AlertEmail = ds.Rows[i]["AlertEmail"].ToString(),
                         gName = ds.Rows[i]["gname"].ToString(),
                         tZone = ds.Rows[i]["tZone"].ToString(),
-                        TokenStatus= tokenStatus
+                        TokenStatus = tokenStatus,
+                        RebootTime = rebootTime
                     });
                 }
                 con.Close();
@@ -3576,10 +3590,10 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 string str = "select distinct DFClients.DFClientID,CountryCodes.CountryName, DFClients.ClientName,isnull(DFClients.Email,'') as email,DFClients.orderno , DFClients.DealerNoTotalToken ,DFClients.DealerCode, max(tbdealerlogin.Expirydate) as Expirydate";
-                str = str + " , isnull(DFClients.apikey,'') as apikey from DFClients inner join CountryCodes on DFClients.CountryCode= CountryCodes.CountryCode ";
+                str = str + " , isnull(DFClients.apikey,'') as apikey , isnull(DFClients.IsTemplateActive,'0') as IsTemplateActive from DFClients inner join CountryCodes on DFClients.CountryCode= CountryCodes.CountryCode ";
                 str = str + " inner join tbdealerlogin on DFClients.DFClientID= tbdealerlogin.DFClientID  ";
                 str = str + " where DFClients.IsDealer=1 and  (DFClients.dbtype='" + data.DBType + "' or DFClients.dbtype='Both') ";
-                str = str + " group by DFClients.DFClientID,CountryCodes.CountryName, DFClients.ClientName,DFClients.Email, DFClients.orderno , DFClients.DealerNoTotalToken ,DFClients.DealerCode , DFClients.apikey ";
+                str = str + " group by DFClients.DFClientID,CountryCodes.CountryName, DFClients.ClientName,DFClients.Email, DFClients.orderno , DFClients.DealerNoTotalToken ,DFClients.DealerCode , DFClients.apikey , DFClients.IsTemplateActive";
                 str = str + " order by DFClientID desc ";
 
                 SqlCommand cmd = new SqlCommand(str, con);
@@ -3600,6 +3614,7 @@ namespace EuforyServices.ServiceImplementation
                         totalToken = ds.Rows[i]["DealerNoTotalToken"].ToString(),
                         expiryDate = string.Format("{0:dd/MMM/yyyy}", ds.Rows[i]["Expirydate"]),
                         Key = ds.Rows[i]["apikey"].ToString(),
+                        IsTemplateActive = ds.Rows[i]["IsTemplateActive"].ToString(),
                     });
                 }
                 con.Close();
@@ -4246,7 +4261,7 @@ namespace EuforyServices.ServiceImplementation
                         }
                     }
 
-                    url = "http://134.119.178.26/mp3files/" + ds.Rows[i]["titleId"].ToString() + mtypeFormat;
+                    url = "http://api.advikon.com/mp3files/" + ds.Rows[i]["titleId"].ToString() + mtypeFormat;
 
                     lstPlaylistSong.Add(new ResPlaylistSongList()
                     {
@@ -4881,7 +4896,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         format = ".jpg";
                     }
-                    url = "http://134.119.178.26/mp3files/" + ds.Rows[i]["titleId"].ToString() + format;
+                    url = "http://api.advikon.com/mp3files/" + ds.Rows[i]["titleId"].ToString() + format;
                     var rDate = "";
                     if (string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Rows[i]["rDate"])) == "01-Jan-1900")
                     {
@@ -5226,7 +5241,7 @@ namespace EuforyServices.ServiceImplementation
                     }
 
 
-                    url = "http://134.119.178.26/mp3files/" + ds.Rows[i]["titleId"].ToString() + format;
+                    url = "http://api.advikon.com/mp3files/" + ds.Rows[i]["titleId"].ToString() + format;
 
                     lstSong.Add(new ResSongList()
                     {
@@ -5694,17 +5709,17 @@ namespace EuforyServices.ServiceImplementation
                 if (objs.type.ToString() == "Video")
                 {
                     cmd.Parameters.Add(new SqlParameter("@AdvtFilePath", SqlDbType.VarChar));
-                    cmd.Parameters["@AdvtFilePath"].Value = "http://134.119.178.26/AdvtSongs/" + ReturnAdvtId + ".mp4";
+                    cmd.Parameters["@AdvtFilePath"].Value = "http://api.advikon.com/AdvtSongs/" + ReturnAdvtId + ".mp4";
                 }
                 else if (objs.type.ToString() == "Picture")
                 {
                     cmd.Parameters.Add(new SqlParameter("@AdvtFilePath", SqlDbType.VarChar));
-                    cmd.Parameters["@AdvtFilePath"].Value = "http://134.119.178.26/AdvtSongs/" + ReturnAdvtId + ".jpg";
+                    cmd.Parameters["@AdvtFilePath"].Value = "http://api.advikon.com/AdvtSongs/" + ReturnAdvtId + ".jpg";
                 }
                 else
                 {
                     cmd.Parameters.Add(new SqlParameter("@AdvtFilePath", SqlDbType.VarChar));
-                    cmd.Parameters["@AdvtFilePath"].Value = "http://134.119.178.26/AdvtSongs/" + ReturnAdvtId + ".mp3";
+                    cmd.Parameters["@AdvtFilePath"].Value = "http://api.advikon.com/AdvtSongs/" + ReturnAdvtId + ".mp3";
                 }
                 cmd.Parameters.Add(new SqlParameter("@AdvtPlayertype", SqlDbType.VarChar));
                 cmd.Parameters["@AdvtPlayertype"].Value = "NativeCR";
@@ -6370,17 +6385,17 @@ namespace EuforyServices.ServiceImplementation
                 if (objs.type.ToString() == "Video")
                 {
                     cmd.Parameters.Add(new SqlParameter("@AdvtFilePath", SqlDbType.VarChar));
-                    cmd.Parameters["@AdvtFilePath"].Value = "http://134.119.178.26/AdvtSongs/" + ReturnAdvtId + ".mp4";
+                    cmd.Parameters["@AdvtFilePath"].Value = "http://api.advikon.com/AdvtSongs/" + ReturnAdvtId + ".mp4";
                 }
                 else if (objs.type.ToString() == "Picture")
                 {
                     cmd.Parameters.Add(new SqlParameter("@AdvtFilePath", SqlDbType.VarChar));
-                    cmd.Parameters["@AdvtFilePath"].Value = "http://134.119.178.26/AdvtSongs/" + ReturnAdvtId + ".jpg";
+                    cmd.Parameters["@AdvtFilePath"].Value = "http://api.advikon.com/AdvtSongs/" + ReturnAdvtId + ".jpg";
                 }
                 else
                 {
                     cmd.Parameters.Add(new SqlParameter("@AdvtFilePath", SqlDbType.VarChar));
-                    cmd.Parameters["@AdvtFilePath"].Value = "http://134.119.178.26/AdvtSongs/" + ReturnAdvtId + ".mp3";
+                    cmd.Parameters["@AdvtFilePath"].Value = "http://api.advikon.com/AdvtSongs/" + ReturnAdvtId + ".mp3";
                 }
                 cmd.Parameters.Add(new SqlParameter("@AdvtPlayertype", SqlDbType.VarChar));
                 cmd.Parameters["@AdvtPlayertype"].Value = "NativeCR";
@@ -8149,9 +8164,9 @@ namespace EuforyServices.ServiceImplementation
                             cmd.Parameters.Add(new SqlParameter("@MediaType", SqlDbType.NVarChar));
                             cmd.Parameters["@MediaType"].Value = dt.Rows[i]["mtype"].ToString();
 
-                             string formatId_new = cmd.ExecuteScalar().ToString();
+                            string formatId_new = cmd.ExecuteScalar().ToString();
                             cmd.Dispose();
-                            
+
                             cmd = new SqlCommand("ClonePlaylist", con);
                             cmd.CommandType = CommandType.StoredProcedure;
 
@@ -10375,7 +10390,7 @@ namespace EuforyServices.ServiceImplementation
                     body += "Your Support Team";
                     body += "\n";
                     body += "\n";
-                    body += "Note: Please Unzip the Windows player file after download in the administration location. Then click on the player exe for the activation of your license adding your customer name with country code and the token you use for the selected player.";
+                    //body += "Note: Please Unzip the Windows player file after download in the administration location. Then click on the player exe for the activation of your license adding your customer name with country code and the token you use for the selected player.";
                     body += "\n";
                     body += "More information you can find in the manual what you can download from the login page. \n";
                     var smtp = new SmtpClient
@@ -10428,7 +10443,7 @@ namespace EuforyServices.ServiceImplementation
                     body += "Your Support Team";
                     body += "\n";
                     body += "\n";
-                    body += "Note: Please Unzip the Windows player file after download in the administration location. Then click on the player exe for the activation of your license adding your customer name with country code and the token you use for the selected player.";
+                    //body += "Note: Please Unzip the Windows player file after download in the administration location. Then click on the player exe for the activation of your license adding your customer name with country code and the token you use for the selected player.";
                     body += "\n";
                     body += "More information you can find in the manual what you can download from the login page. \n";
                     var smtp = new SmtpClient
@@ -10576,7 +10591,7 @@ namespace EuforyServices.ServiceImplementation
                         splId = Convert.ToInt32(cmd.ExecuteScalar());
 
                         str = "";
-                        str = "insert into tbSpecialPlaylists_Titles select " + splId + ", titleid,srno from tbSpecialPlaylists_Titles where splplaylistid= " + dt.Rows[i]["splPlaylistId"];
+                        str = "insert into tbSpecialPlaylists_Titles select " + splId + ", titleid,srno,ImgTimeInterval from tbSpecialPlaylists_Titles where splplaylistid= " + dt.Rows[i]["splPlaylistId"];
                         SqlCommand cmdTitle = new SqlCommand(str, con);
                         cmdTitle.CommandType = System.Data.CommandType.Text;
                         if (con.State == ConnectionState.Closed) { con.Open(); }
@@ -10686,7 +10701,7 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters.Add(new SqlParameter("@dfclientid", SqlDbType.BigInt));
                 cmd.Parameters["@dfclientid"].Value = CustomerId;
                 cmd.Parameters.Add(new SqlParameter("@ImgPath", SqlDbType.NVarChar));
-                cmd.Parameters["@ImgPath"].Value = "http://134.119.178.26/AppStreamPic/" + fName;
+                cmd.Parameters["@ImgPath"].Value = "http://api.advikon.com/AppStreamPic/" + fName;
                 cmd.ExecuteNonQuery();
 
                 Result.Responce = "1";
@@ -10862,7 +10877,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         id = ds.Rows[i]["TitleID"].ToString(),
                         IsFind = ds.Rows[i]["titleImgId"].ToString(),
-                        TitleIdLink = "http://134.119.178.26/mp3files/" + ds.Rows[i]["TitleID"].ToString() + ".jpg"
+                        TitleIdLink = "http://api.advikon.com/mp3files/" + ds.Rows[i]["TitleID"].ToString() + ".jpg"
 
                     });
                 }
@@ -10883,7 +10898,7 @@ namespace EuforyServices.ServiceImplementation
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
             try
             {
-                var url = "http://134.119.178.26/mp3files/" + data.TitleId.ToString() + ".jpg";
+                var url = "http://api.advikon.com/mp3files/" + data.TitleId.ToString() + ".jpg";
                 SqlCommand cmd = new SqlCommand();
                 cmd.Connection = con;
                 cmd.CommandText = "insert into tblMiddleImage_App(titleimgid,imgpath,tokenid)" +
@@ -10960,7 +10975,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         id = ds.Rows[i]["TitleID"].ToString(),
                         IsFind = ds.Rows[i]["TitleID"].ToString(),
-                        TitleIdLink = "http://134.119.178.26/mp3files/" + ds.Rows[i]["TitleID"].ToString() + ".jpg"
+                        TitleIdLink = "http://api.advikon.com/mp3files/" + ds.Rows[i]["TitleID"].ToString() + ".jpg"
 
                     });
                 }
@@ -11056,7 +11071,7 @@ namespace EuforyServices.ServiceImplementation
                     TotalShot = Convert.ToInt32(dt.Rows[0]["TotalShot"]),
                     DispenserAlert = dt.Rows[0]["DispenserAlert"].ToString(),
                     FireAlertId = dt.Rows[0]["FireAlertId"].ToString(),
-                    FireAlertUrl = "http://134.119.178.26/mp3files/" + dt.Rows[0]["FireAlertId"].ToString() + mtypeFormat,
+                    FireAlertUrl = "http://api.advikon.com/mp3files/" + dt.Rows[0]["FireAlertId"].ToString() + mtypeFormat,
 
                 });
 
@@ -11128,7 +11143,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         mtypeFormat = ".jpg";
                     }
-                    url = "http://134.119.178.26/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
+                    url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
 
 
                     result.Add(new ResGetMachineAnnouncement()
@@ -11941,7 +11956,7 @@ namespace EuforyServices.ServiceImplementation
                         mtypeFormat = ".jpg";
                     }
 
-                    url = "http://134.119.178.26/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
+                    url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
 
                     result.Add(new ResponceSplSplaylistTitle()
                     {
@@ -12010,7 +12025,7 @@ namespace EuforyServices.ServiceImplementation
 
                     clsData.id = data.id;
                     clsData.type = "Song";
-                    clsData.url = "http://134.119.178.26/mp3files/" + data.id + ".mp4";
+                    clsData.url = "http://api.advikon.com/mp3files/" + data.id + ".mp4";
                     clsData.DeviceToken = ds.Rows[iFCM]["FcmId"].ToString();
                     clsData.title = data.title;
                     clsData.albumid = data.albumid;
@@ -12129,7 +12144,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         format = ".jpg";
                     }
-                    url = "http://134.119.178.26/mp3files/" + ds.Rows[i]["titleId"].ToString() + format;
+                    url = "http://api.advikon.com/mp3files/" + ds.Rows[i]["titleId"].ToString() + format;
                     var rDate = "";
                     if (string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Rows[i]["rDate"])) == "01-Jan-1900")
                     {
@@ -12540,7 +12555,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         mtypeFormat = ".jpg";
                     }
-                    url = "http://134.119.178.26/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
+                    url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
 
 
                     result.Add(new ResGetMachineAnnouncement()
@@ -12638,7 +12653,7 @@ namespace EuforyServices.ServiceImplementation
                 DateTime dt = new DateTime();
                 DateTime dt2 = new DateTime();
 
-                string h="";
+                string h = "";
 
                 dt2 = Convert.ToDateTime(string.Format("{0:yyyy-mm-dd}", data.cDate));
                 h = dt2.Date.ToString("yyyy-MM-dd");
@@ -12650,7 +12665,7 @@ namespace EuforyServices.ServiceImplementation
 
                 var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 var unixDateTime = (dt.ToUniversalTime() - epoch).TotalSeconds;
-               
+
                 if (data.search != "")
                 {
                     url = url + "&search=" + data.search;
@@ -12673,7 +12688,7 @@ namespace EuforyServices.ServiceImplementation
                         }
                     }
                 }
-               
+
                 return lstResult;
 
             }
@@ -12783,7 +12798,7 @@ namespace EuforyServices.ServiceImplementation
                             await stream.CopyToAsync(fileStream);
                         }
                     }
-                    
+
 
                     string strDel = "";
                     strDel = "update titles set filesize='" + fsize + "' where titleid =" + Title_Id.ToString();
@@ -12989,7 +13004,27 @@ namespace EuforyServices.ServiceImplementation
                 var obj = ClientName.Split('-');
                 firstName = obj[0];
                 lastName = obj[1];
-                
+
+                DateTime dt = new DateTime();
+                DateTime dt2 = new DateTime();
+
+                string h = "";
+                var k = string.Format("{0:yyyy-MM-dd}", dtDetail.Rows[0]["ExpiryDate"]);
+                dt2 = Convert.ToDateTime(string.Format("{0:yyyy-mm-dd}", k));
+                h = dt2.Date.ToString("yyyy-MM-dd");
+                dt = Convert.ToDateTime(string.Format("{0:yyyy-MM-dd}", h));
+
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var unixDateTime_ExpiryDate = (dt.ToUniversalTime() - epoch).TotalSeconds;
+
+                DateTime dtStart = new DateTime();
+                dtStart = DateTime.Now.Date;
+                var epoch2 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var unixDateTime_StartDate = (dtStart.ToUniversalTime() - epoch).TotalSeconds;
+
+
+
+
 
                 var client = new RestClient("https://content.nusign.eu/api/register");
                 client.Timeout = -1;
@@ -13001,7 +13036,8 @@ namespace EuforyServices.ServiceImplementation
                 request.AddParameter("lastName", lastName);
                 request.AddParameter("email", ClientEmail_Templates);
                 request.AddParameter("password", LoginPassword);
-
+                request.AddParameter("trialStartDate", unixDateTime_StartDate);
+                request.AddParameter("trialEndDate", unixDateTime_ExpiryDate);
 
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
                 IRestResponse response = client.Execute(request);
@@ -13012,7 +13048,7 @@ namespace EuforyServices.ServiceImplementation
 
                     if (con.State == ConnectionState.Closed) { con.Open(); }
                     str = "";
-                    str = "update DFClients set apikey='" + resAPI.key + "' where DFClientID = " + data.clientId;
+                    str = "update DFClients set apikey='" + resAPI.key + "',IsTemplateActive=1,Template_Login_Email='" + ClientEmail_Templates + "' where DFClientID = " + data.clientId;
                     cmd = new SqlCommand(str, con);
                     cmd.CommandType = CommandType.Text;
                     cmd.ExecuteNonQuery();
@@ -13435,7 +13471,7 @@ namespace EuforyServices.ServiceImplementation
                     conSql.Close();
                     return Result;
                 }
-                
+
                 if (dtM.Columns[9].ToString().ToLower() != "isaudioplayer")
                 {
                     Result.Responce = "0";
@@ -13689,8 +13725,9 @@ namespace EuforyServices.ServiceImplementation
                     {
                         tid = iToken.tokenId.ToString();
                     }
-                    else {
-                        tid = tid+ "," + iToken.tokenId.ToString();
+                    else
+                    {
+                        tid = tid + "," + iToken.tokenId.ToString();
                     }
                 }
                 if (data.ScheduleType != "Normal")
@@ -13888,7 +13925,7 @@ namespace EuforyServices.ServiceImplementation
                         return result;
                     }
                 }
-                
+
 
 
                 strDel = "";
@@ -13992,7 +14029,7 @@ namespace EuforyServices.ServiceImplementation
                 if (tId != "")
                 {
 
-                    
+
                     str = "";
                     str = "select Titles.*, Artists.Name as aName , Albums.Name as alName from Titles  inner join Artists on Artists.ArtistID= Titles.ArtistID inner join Albums on Albums.AlbumID= Titles.AlbumID " +
                         " where titleid in (" + tId + ")";
@@ -14146,7 +14183,7 @@ namespace EuforyServices.ServiceImplementation
                         }
                         else
                         {
-                            cid = cid+","+ ds.Rows[i]["Id"].ToString();
+                            cid = cid + "," + ds.Rows[i]["Id"].ToString();
                         }
                     }
 
@@ -14164,9 +14201,9 @@ namespace EuforyServices.ServiceImplementation
                     con.Close();
                     if (dt.Rows.Count > 0)
                     {
-                         
+
                         result.Responce = "1";
-                        result.status =string.Format("{0:dd-MMM-yyyy HH:mm:ss}", dt.Rows[0]["laststatus"]);
+                        result.status = string.Format("{0:dd-MMM-yyyy HH:mm:ss}", dt.Rows[0]["laststatus"]);
                         result.message = dt.Rows[0]["clientname"].ToString();
                         return result;
                     }
@@ -14185,6 +14222,164 @@ namespace EuforyServices.ServiceImplementation
                 return result;
             }
         }
+
+
+        public ResResponce UpdateExpiryDate_Template_Creator(ReqUpdateExpiryDate_Template_Creator data)
+        {
+            ResResponce result = new ResResponce();
+            ResClientTemplateRegsiter resAPI = new ResClientTemplateRegsiter();
+
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string aKey = "", Template_Login_Email = "";
+                string str = "select isnull(apikey,'') as aKey, Template_Login_Email  from DFClients where DFClientID =" + data.dfClientId;
+                SqlCommand cmd = new SqlCommand(str, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                if (con.State == ConnectionState.Closed) { con.Open(); }
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(ds);
+                if (ds.Rows.Count > 0)
+                {
+                    if (ds.Rows[0]["aKey"].ToString() != "")
+                    {
+                        aKey = ds.Rows[0]["aKey"].ToString();
+                        Template_Login_Email = ds.Rows[0]["Template_Login_Email"].ToString();
+                    }
+                }
+
+                if (string.IsNullOrEmpty(aKey) == true)
+                {
+                    con.Close();
+                    result.Responce = "0";
+                    return result;
+                }
+
+
+                DateTime dt = new DateTime();
+                DateTime dt2 = new DateTime();
+
+                string h = "";
+                string IsTemplateActive = "1";
+                if (data.status == "Disable")
+                {
+                    data.ExpiryDate = DateTime.Now.ToString();
+                    IsTemplateActive = "0";
+                }
+                if (data.status == "Active")
+                {
+                     
+                    IsTemplateActive = "1";
+                }
+                dt2 = Convert.ToDateTime(string.Format("{0:yyyy-mm-dd}", data.ExpiryDate));
+                h = dt2.Date.ToString("yyyy-MM-dd");
+                dt = Convert.ToDateTime(string.Format("{0:yyyy-MM-dd}", h));
+                if (dt.Date < DateTime.Now.Date)
+                {
+
+                }
+
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                var unixDateTime = (dt.ToUniversalTime() - epoch).TotalSeconds;
+
+                var client = new RestClient("https://content.nusign.eu/api/modify-trial-end-date?key=f72c963e19c6ecf88b5e17a8d51ebbf0&email=" + Template_Login_Email.Trim());
+                client.Timeout = -1;
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.AddParameter("trialEndDate", unixDateTime);
+
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                IRestResponse response = client.Execute(request);
+
+                resAPI = JsonConvert.DeserializeObject<ResClientTemplateRegsiter>(response.Content);
+                if (resAPI.status == "success")
+                {
+                    if (con.State == ConnectionState.Closed) { con.Open(); }
+                    str = "";
+                    str = "update DFClients set IsTemplateActive=" + IsTemplateActive + " where DFClientID = " + data.dfClientId;
+                    cmd = new SqlCommand(str, con);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                    con.Close();
+
+                    result.Responce = "1";
+                    con.Close();
+                    return result;
+                }
+                con.Close();
+                result.Responce = "0";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                result.Responce = "0";
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
+
+        public ResResponce SaveRebootTime(ReqRebootTime data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection conMain = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
+            try
+            {
+                DateTimeFormatInfo fi = new DateTimeFormatInfo();
+                fi.AMDesignator = "AM";
+                fi.PMDesignator = "PM";
+                string tid = "";
+                foreach (var TokenId in data.TokenList)
+                {
+                    if (TokenId != "0")
+                    {
+                        if (tid == "")
+                        {
+                            tid = TokenId;
+                        }
+                        else
+                        {
+                            tid = tid + ',' + TokenId;
+                        }
+
+                    }
+
+                }
+
+                if (tid != "")
+                {
+                    if (conMain.State == ConnectionState.Closed)
+                    {
+                        conMain.Open();
+                    }
+                    var k = "01-01-1900 " + string.Format(fi, "{0:HH:mm:ss}", Convert.ToDateTime(data.startTime));
+
+                    string strDel = "";
+                    strDel = "";
+                    strDel = "update AMPlayerTokens set RebootTime='" + k + "' where tokenId in (" + tid + ")";
+                    SqlCommand cmd = new SqlCommand(strDel, conMain);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                    result.Responce = "1";
+                }
+                conMain.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                result.Responce = "0";
+                conMain.Close();
+                return result;
+            }
+        }
+ 
 
     }
 }
