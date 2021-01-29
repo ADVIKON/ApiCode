@@ -599,7 +599,9 @@ namespace EuforyServices.ServiceImplementation
         {
             List<ResponceUserRights> result = new List<ResponceUserRights>();
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
-
+            DateTimeFormatInfo fi = new DateTimeFormatInfo();
+            fi.AMDesignator = "AM";
+            fi.PMDesignator = "PM";
             try
             {
                 string mType = "";
@@ -651,6 +653,7 @@ namespace EuforyServices.ServiceImplementation
                         IsDemoToken = Convert.ToBoolean(ds.Tables[0].Rows[0]["IsDemoToken"]),
                         TotalShot = Convert.ToInt32(ds.Tables[0].Rows[0]["TotalShot"]),
                         DeviceType = ds.Tables[0].Rows[0]["DeviceType"].ToString(),
+                        RebootTime = string.Format(fi, "{0:hh:mm tt}", ds.Tables[0].Rows[0]["RebootTime"]),
                     });
                 }
                 con.Close();
@@ -3561,8 +3564,14 @@ namespace EuforyServices.ServiceImplementation
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
             try
             {
+                string PercentageValue = "0";
+                if (string.IsNullOrEmpty(data.PercentageValue) == false)
+                {
+                    PercentageValue = data.PercentageValue.ToString();
+
+                }
                 string str = "";
-                str = "update tbSpecialPlaylistSchedule set StartTime='" + string.Format(fi, "{0:hh:mm tt}", Convert.ToDateTime(data.ModifyStartTime)) + "', ";
+                str = "update tbSpecialPlaylistSchedule set PercentageValue='"+ PercentageValue + "', StartTime='" + string.Format(fi, "{0:hh:mm tt}", Convert.ToDateTime(data.ModifyStartTime)) + "', ";
                 str = str + " EndTime ='" + string.Format(fi, "{0:hh:mm tt}", Convert.ToDateTime(data.ModifyEndTime)) + "' where pschid= " + data.pschid;
                 SqlCommand cmd = new SqlCommand(str, con);
                 cmd.CommandType = CommandType.Text;

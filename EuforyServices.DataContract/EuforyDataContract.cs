@@ -142,6 +142,8 @@ namespace EuforyServices.DataContract
         public string FireAlertId { get; set; }
         [DataMember]
         public string FireAlertUrl { get; set; }
+        [DataMember]
+        public string RebootTime { get; set; }
     }
 
     [DataContract]
@@ -1268,6 +1270,9 @@ namespace EuforyServices.DataContract
         public string ModifyStartTime { get; set; }
         [DataMember]
         public string ModifyEndTime { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "PercentageValue", Order = 1)]
+        public string PercentageValue { get; set; }
+
     }
     [DataContract]
     public class ResCustomerList
