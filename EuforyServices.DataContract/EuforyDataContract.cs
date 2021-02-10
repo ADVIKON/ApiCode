@@ -2299,6 +2299,8 @@ namespace EuforyServices.DataContract
         public string fname { get; set; }
         [DataMember]
         public string dfClientId { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "IsPromoFolder", Order = 1)]
+        public bool IsPromoFolder { get; set; }
     }
     [DataContract]
     public class ReqTitleLog
@@ -2902,6 +2904,13 @@ namespace EuforyServices.DataContract
         
         [DataMember]
         public List<string> TokenList { get; set; }
+    }
+    [DataContract]
+    public class ReqGetClientFolder
+    {
+        [DataMember]
+        public string ClientId { get; set; }
+
     }
 }
 

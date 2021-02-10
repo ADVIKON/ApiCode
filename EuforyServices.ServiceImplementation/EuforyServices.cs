@@ -5001,6 +5001,33 @@ namespace EuforyServices.ServiceImplementation
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
             try
             {
+                con.Open();
+                string str = "";
+                if (string.IsNullOrEmpty(data.id) == true)
+                {
+                    str = "select * from tbSpecialPlaylists where splplaylistname ='" + data.plName.ToString().Trim().ToLower() + "' and formatid= " + data.formatid;
+                }
+                else
+                {
+                    str = "select * from tbSpecialPlaylists where splplaylistid !="+ data.id + " and  splplaylistname ='" + data.plName.ToString().Trim().ToLower() + "' and formatid= " + data.formatid;
+                }
+                DataTable dtPl = new DataTable();
+                    SqlCommand cmdPL = new SqlCommand(str, con);
+                    cmdPL.CommandType = System.Data.CommandType.Text;
+                    SqlDataAdapter adPL = new SqlDataAdapter(cmdPL);
+                    adPL.Fill(dtPl);
+                    adPL.Dispose();
+                    cmdPL.Dispose();
+                    if (dtPl.Rows.Count > 0)
+                    {
+                        con.Close();
+
+                        clsResult.Responce = "2";
+                        return clsResult;
+                    }
+               
+
+
                 SqlCommand cmd = new SqlCommand("spSpecialPlaylists_Save_Update", con);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add(new SqlParameter("@pAction", SqlDbType.VarChar));
@@ -5029,7 +5056,7 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters["@Formatid"].Value = data.formatid;
                 cmd.Parameters.Add(new SqlParameter("@mType", SqlDbType.VarChar));
                 cmd.Parameters["@mType"].Value = "Audio";
-                con.Open();
+               
                 cmd.ExecuteNonQuery();
                 con.Close();
 
@@ -9562,6 +9589,8 @@ namespace EuforyServices.ServiceImplementation
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
             try
             {
+                bool IsPromoFolder = false;
+                var h = data.IsPromoFolder;
                 SqlCommand cmd = new SqlCommand("spSaveFolder", con);
                 cmd.CommandType = CommandType.StoredProcedure;
 
@@ -9573,6 +9602,9 @@ namespace EuforyServices.ServiceImplementation
 
                 cmd.Parameters.Add(new SqlParameter("@dfClientId", SqlDbType.Int));
                 cmd.Parameters["@dfClientId"].Value = data.dfClientId;
+
+                cmd.Parameters.Add(new SqlParameter("@IsPromoFolder", SqlDbType.Int));
+                cmd.Parameters["@IsPromoFolder"].Value = data.IsPromoFolder;
                 con.Open();
                 clsResult.Responce = cmd.ExecuteScalar().ToString();
 
@@ -10569,7 +10601,7 @@ namespace EuforyServices.ServiceImplementation
             {
                 int splId = 0;
                 string str = "";
-                str = "select  * from tbSpecialPlaylists where formatid= " + data.CopyFormatId;
+                str = "select  * from tbSpecialPlaylists where formatid= " + data.FormatId;
                 DataTable dt = new DataTable();
                 SqlCommand cmdDT = new SqlCommand(str, con);
                 cmdDT.CommandType = System.Data.CommandType.Text;
@@ -10582,23 +10614,45 @@ namespace EuforyServices.ServiceImplementation
                 {
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        SqlCommand cmd = new SqlCommand("spSpecialPlaylists_Save_Update", con);
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.Add(new SqlParameter("@pAction", SqlDbType.VarChar));
-                        cmd.Parameters["@pAction"].Value = "New";
-                        cmd.Parameters.Add(new SqlParameter("@splPlaylistId", SqlDbType.BigInt));
-                        cmd.Parameters["@splPlaylistId"].Value = 0;
-                        cmd.Parameters.Add(new SqlParameter("@splPlaylistName", SqlDbType.VarChar));
-                        cmd.Parameters["@splPlaylistName"].Value = dt.Rows[i]["splPlaylistName"].ToString().Trim();
-                        cmd.Parameters.Add(new SqlParameter("@pVersion", SqlDbType.VarChar));
-                        cmd.Parameters["@pVersion"].Value = "c";
-                        cmd.Parameters.Add(new SqlParameter("@Formatid", SqlDbType.BigInt));
-                        cmd.Parameters["@Formatid"].Value = data.FormatId;
-                        cmd.Parameters.Add(new SqlParameter("@mType", SqlDbType.VarChar));
-                        cmd.Parameters["@mType"].Value = "Audio";
-                        if (con.State == ConnectionState.Closed) { con.Open(); }
-                        splId = Convert.ToInt32(cmd.ExecuteScalar());
-
+                        str = "";
+                        str = "select * from tbSpecialPlaylists where splplaylistname ='" + dt.Rows[i]["splPlaylistName"].ToString().Trim().ToLower() + "' and formatid= " + data.CopyFormatId; 
+                        DataTable dtPl = new DataTable();
+                        SqlCommand cmdPL = new SqlCommand(str, con);
+                        cmdPL.CommandType = System.Data.CommandType.Text;
+                        SqlDataAdapter adPL = new SqlDataAdapter(cmdPL);
+                        adPL.Fill(dtPl);
+                        adPL.Dispose();
+                        cmdPL.Dispose();
+                        if (dtPl.Rows.Count > 0)
+                        {
+                            splId =Convert.ToInt32(dtPl.Rows[0]["splPlaylistId"]);
+                            str = "";
+                            str = "delete from tbSpecialPlaylists_Titles where splPlaylistId =" + splId + "";
+                            SqlCommand cmdplDel = new SqlCommand(str, con);
+                            cmdplDel.CommandType = System.Data.CommandType.Text;
+                            if (con.State == ConnectionState.Closed) { con.Open(); }
+                            cmdplDel.ExecuteNonQuery();
+                            cmdplDel.Dispose();
+                        }
+                        else
+                        {
+                            SqlCommand cmd = new SqlCommand("spSpecialPlaylists_Save_Update", con);
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Add(new SqlParameter("@pAction", SqlDbType.VarChar));
+                            cmd.Parameters["@pAction"].Value = "New";
+                            cmd.Parameters.Add(new SqlParameter("@splPlaylistId", SqlDbType.BigInt));
+                            cmd.Parameters["@splPlaylistId"].Value = 0;
+                            cmd.Parameters.Add(new SqlParameter("@splPlaylistName", SqlDbType.VarChar));
+                            cmd.Parameters["@splPlaylistName"].Value = dt.Rows[i]["splPlaylistName"].ToString().Trim();
+                            cmd.Parameters.Add(new SqlParameter("@pVersion", SqlDbType.VarChar));
+                            cmd.Parameters["@pVersion"].Value = "c";
+                            cmd.Parameters.Add(new SqlParameter("@Formatid", SqlDbType.BigInt));
+                            cmd.Parameters["@Formatid"].Value = data.CopyFormatId;
+                            cmd.Parameters.Add(new SqlParameter("@mType", SqlDbType.VarChar));
+                            cmd.Parameters["@mType"].Value = "Audio";
+                            if (con.State == ConnectionState.Closed) { con.Open(); }
+                            splId = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
                         str = "";
                         str = "insert into tbSpecialPlaylists_Titles select " + splId + ", titleid,srno,ImgTimeInterval from tbSpecialPlaylists_Titles where splplaylistid= " + dt.Rows[i]["splPlaylistId"];
                         SqlCommand cmdTitle = new SqlCommand(str, con);
@@ -14388,7 +14442,44 @@ namespace EuforyServices.ServiceImplementation
                 return result;
             }
         }
- 
+
+
+        public List<ResComboQuery> GetClientFolder(ReqGetClientFolder data)
+        {
+            List<ResComboQuery> lstResult = new List<ResComboQuery>();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+
+            try
+            {
+                var qry = "select folderId as Id, foldername as DisplayName ,isnull(IsPromoFolder,0) as IsPromoFolder from tbFolder ";
+                qry = qry + " where dfclientId=" + data.ClientId + " ";
+                qry = qry + " order by foldername ";
+                SqlCommand cmd = new SqlCommand(qry, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                if (con.State == ConnectionState.Closed) { con.Open(); }
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataSet ds = new DataSet();
+                ad.Fill(ds);
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+                    lstResult.Add(new ResComboQuery()
+                    {
+                        Id = ds.Tables[0].Rows[i]["id"].ToString(),
+                        DisplayName = ds.Tables[0].Rows[i]["DisplayName"].ToString(),
+                        check = Convert.ToBoolean(ds.Tables[0].Rows[i]["IsPromoFolder"]),
+                    });
+                }
+                con.Close();
+                return lstResult;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return lstResult;
+            }
+        }
+
 
     }
 }

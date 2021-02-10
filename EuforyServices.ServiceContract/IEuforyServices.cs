@@ -974,5 +974,10 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("SaveRebootTime")]
         ResResponce SaveRebootTime(ReqRebootTime data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "GetClientFolder", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("GetClientFolder")]
+        List<ResComboQuery> GetClientFolder(ReqGetClientFolder data);
     }
 }
