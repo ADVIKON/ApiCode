@@ -979,5 +979,10 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("GetClientFolder")]
         List<ResComboQuery> GetClientFolder(ReqGetClientFolder data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "ReplaceFolderContent", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("ReplaceFolderContent")]
+        ResResponce ReplaceFolderContent(ReqReplaceFolderContent data);
     }
 }

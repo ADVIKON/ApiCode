@@ -14481,6 +14481,122 @@ namespace EuforyServices.ServiceImplementation
         }
 
 
+        public ResResponce ReplaceFolderContent(ReqReplaceFolderContent data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+
+            try
+            {
+                var qry = "getFolderContent " + data.ClientId + " , " + data.FolderId;
+                SqlCommand cmd = new SqlCommand(qry, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                if (con.State == ConnectionState.Closed) { con.Open(); }
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataSet ds = new DataSet();
+                ad.Fill(ds);
+                DataTable dtAll = new DataTable();
+                DataTable dtPlaylistContent = new DataTable();
+                DataTable dtNewContent = new DataTable();
+                DataTable dtDeleteContent = new DataTable();
+
+                DataTable dt = new DataTable();
+                dt.Columns.Add("splPlaylistId", typeof(int));
+                dt.Columns.Add("titleId", typeof(int));
+                dt.Columns.Add("srNo", typeof(int));
+
+                dtAll = ds.Tables[0];
+                dtPlaylistContent = ds.Tables[1];
+                dtNewContent = ds.Tables[2];
+                dtDeleteContent = ds.Tables[3];
+                string del_titleId = "";
+                if (dtNewContent.Rows.Count == 0)
+                {
+                    result.Responce = "2";
+                    con.Close();
+                    return result;
+                }
+                for (int i = 0; i < dtDeleteContent.Rows.Count; i++)
+                {
+                    if (del_titleId == "")
+                    {
+                        del_titleId = dtDeleteContent.Rows[i]["titleId"].ToString();
+                    }
+                    else
+                    {
+                        del_titleId = del_titleId +','+ dtDeleteContent.Rows[i]["titleId"].ToString();
+                    }
+                }
+
+                string strDel = "";
+                strDel = "";
+                strDel = "delete from tbSpecialPlaylists_Titles where titleid in (" + del_titleId + ")";
+                SqlCommand cmdDel = new SqlCommand(strDel, con);
+                cmdDel.CommandType = CommandType.Text;
+                cmdDel.ExecuteNonQuery();
+                cmdDel.Dispose();
+
+                strDel = "";
+                strDel = "delete from Titles where titleid in (" + del_titleId + ")";
+                cmdDel = new SqlCommand(strDel, con);
+                cmdDel.CommandType = CommandType.Text;
+                cmdDel.ExecuteNonQuery();
+                cmdDel.Dispose();
+
+                for (int iPl = 0; iPl < dtPlaylistContent.Rows.Count; iPl++)
+                {       int sr = 0;
+                    for (int iCont = 0; iCont < dtNewContent.Rows.Count; iCont++)
+                    {
+                        
+                        sr++;
+                        DataRow nr = dt.NewRow();
+                        nr["splPlaylistId"] = dtPlaylistContent.Rows[iPl]["splPlaylistId"];
+                        nr["titleId"] = dtNewContent.Rows[iCont]["titleId"];
+                        nr["srNo"] = sr;
+                        dt.Rows.Add(nr);
+                    }
+                }
+
+                 
+
+                if (dt.Rows.Count > 0)
+                {
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
+                    {
+                        SqlBulkCopyColumnMapping mapID =
+                         new SqlBulkCopyColumnMapping("splPlaylistId", "splPlaylistId");
+                        bulkCopy.ColumnMappings.Add(mapID);
+
+                        SqlBulkCopyColumnMapping mapMumber =
+                            new SqlBulkCopyColumnMapping("titleId", "titleId");
+                        bulkCopy.ColumnMappings.Add(mapMumber);
+
+                        SqlBulkCopyColumnMapping mapName =
+                         new SqlBulkCopyColumnMapping("srNo", "srNo");
+                        bulkCopy.ColumnMappings.Add(mapName);
+
+                        bulkCopy.DestinationTableName = "dbo.tbSpecialPlaylists_Titles";
+
+                        if (con.State == ConnectionState.Open) con.Close();
+                        con.Open();
+                        bulkCopy.WriteToServer(dt);
+                        con.Close();
+
+                    }
+                }
+                result.Responce = "1";
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Responce = "0";
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
     }
 }
 //spGetAdvtAdmin_NativeOnly_New

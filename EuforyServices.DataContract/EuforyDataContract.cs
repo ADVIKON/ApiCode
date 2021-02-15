@@ -2912,5 +2912,13 @@ namespace EuforyServices.DataContract
         public string ClientId { get; set; }
 
     }
+    public class ReqReplaceFolderContent
+    {
+        [DataMember]
+        public string FolderId { get; set; }
+        [DataMember]
+        public string ClientId { get; set; }
+
+    }
 }
 
