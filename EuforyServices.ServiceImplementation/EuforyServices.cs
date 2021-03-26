@@ -13920,6 +13920,9 @@ namespace EuforyServices.ServiceImplementation
                         cmd.Parameters.Add(new SqlParameter("@PercentageValue", SqlDbType.Int));
                         cmd.Parameters["@PercentageValue"].Value = item_PL.PercentageValue;
 
+                        cmd.Parameters.Add(new SqlParameter("@volume", SqlDbType.Int));
+                        cmd.Parameters["@volume"].Value = item_PL.volume;
+
                         Int32 rtPschId = Convert.ToInt32(cmd.ExecuteScalar());
                         //==========================================
                         cmd = new SqlCommand();

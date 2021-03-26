@@ -2879,6 +2879,8 @@ namespace EuforyServices.DataContract
         public string wName { get; set; }
         [DataMember]
         public string PercentageValue { get; set; }
+        [DataMember]
+        public string volume { get; set; }
 
     }
     public class ReqDeleteTitleOwn
