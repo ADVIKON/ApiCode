@@ -456,6 +456,7 @@ namespace EuforyServices.ServiceImplementation
                         IsFadingActive = Convert.ToInt32(ds.Tables[0].Rows[i]["IsFadingActive"]),
                         FormatId = 0,
                         IsMute = ds.Tables[0].Rows[i]["IsMute"].ToString(),
+                        VolumeLevel = ds.Tables[0].Rows[i]["VolumeLevel"].ToString(),
                     });
                 }
                 con.Close();
@@ -1120,7 +1121,7 @@ namespace EuforyServices.ServiceImplementation
 
                 foreach (var Player in data)
                 {
-                    //if (Player.TokenId.ToString() == "1847")
+                    //if (Player.TokenId.ToString() == "1894")
                     //{
                     //    WriteData = "" + Player.TokenId + ", " + Player.PlayedDateTime + " , " + Player.TitleId + "," + Player.ArtistId + "," + Player.splPlaylistId + ", {0} ";
                     //    using (StreamWriter writer = new StreamWriter(path, true))
@@ -1574,6 +1575,7 @@ namespace EuforyServices.ServiceImplementation
                         IsMute = ds.Tables[0].Rows[i]["IsMute"].ToString(),
                         PercentageValue = ds.Tables[0].Rows[i]["PercentageValue"].ToString(),
                         TotalCount = ds.Tables[0].Rows[i]["TotalCount"].ToString(),
+                        VolumeLevel = ds.Tables[0].Rows[i]["VolumeLevel"].ToString(),
                     });
                 }
                 con.Close();
@@ -2577,6 +2579,7 @@ namespace EuforyServices.ServiceImplementation
                         IsMute = ds.Tables[0].Rows[i]["IsMute"].ToString(),
                         PercentageValue = ds.Tables[0].Rows[i]["PercentageValue"].ToString(),
                         TotalCount = ds.Tables[0].Rows[i]["TotalCount"].ToString(),
+                        VolumeLevel = ds.Tables[0].Rows[i]["VolumeLevel"].ToString(),
                     });
                 }
                 con.Close();
@@ -5179,6 +5182,7 @@ namespace EuforyServices.ServiceImplementation
                             IsMixedContent = Convert.ToBoolean(Convert.ToByte(ds.Rows[i]["IsMixedContent"])),
                             tokenIds = ds.Rows[i]["tokenid"].ToString().Split(new Char[] { ',' }),
                             IsDuplicate = Convert.ToBoolean(Convert.ToByte(ds.Rows[i]["IsDuplicate"])),
+                            volume = ds.Rows[i]["VolumeLevel"].ToString(),
                         });
                     }
                 }
@@ -7166,20 +7170,26 @@ namespace EuforyServices.ServiceImplementation
                     {
                         LastStatus = "";
                     }
-                    if (tDays >= 20)
-                    {
-                        pStatus = "Away";
-                        OfflinePlayer = OfflinePlayer + 1;
-                    }
-                    if (tDays == 21)
-                    {
-                        pStatus = "Away";
-                        OfflinePlayer = OfflinePlayer + 1;
-                    }
-                    if (tDays <= 20)
+                    //if (tDays >= 20)
+                    //{
+                    //    pStatus = "Away";
+                    //    OfflinePlayer = OfflinePlayer + 1;
+                    //}
+                    //if (tDays == 21)
+                    //{
+                    //    pStatus = "Away";
+                    //    OfflinePlayer = OfflinePlayer + 1;
+                    //}
+                    if (tDays <= 70)
                     {
                         pStatus = "Online";
                         OnlinePlayer = OnlinePlayer + 1;
+                    }
+                    else
+                    {
+                        
+                         pStatus = "Away";
+                        OfflinePlayer = OfflinePlayer + 1;
                     }
                     if ((data.ftype == "Online") && (pStatus == "Online"))
                     {
@@ -7366,6 +7376,8 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkUpload = Convert.ToBoolean(ds.Rows[0]["chkUpload"]);
                     Result.chkStreaming = Convert.ToBoolean(ds.Rows[0]["chkStreaming"]);
                     Result.chkCopyData = Convert.ToBoolean(ds.Rows[0]["chkCopyData"]);
+                    Result.chkOfflineAlert = Convert.ToBoolean(ds.Rows[0]["chkOfflineAlert"]);
+                    Result.OfflineIntervalHour = ds.Rows[0]["OfflineIntervalHour"].ToString();
 
                     sQr = "select distinct tokenid from tbUserTokens_web where userid = " + data.UserId + "";
                     cmd = new SqlCommand(sQr, con);
@@ -7510,6 +7522,11 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters["@chkCopyData"].Value = Convert.ToByte(data.chkCopyData);
                 cmd.Parameters.Add(new SqlParameter("@chkStreaming", SqlDbType.Int));
                 cmd.Parameters["@chkStreaming"].Value = Convert.ToByte(data.chkStreaming);
+
+                cmd.Parameters.Add(new SqlParameter("@chkOfflineAlert", SqlDbType.Int));
+                cmd.Parameters["@chkOfflineAlert"].Value = Convert.ToByte(data.chkOfflineAlert);
+                cmd.Parameters.Add(new SqlParameter("@OfflineIntervalHour", SqlDbType.Int));
+                cmd.Parameters["@OfflineIntervalHour"].Value = Convert.ToByte(data.OfflineIntervalHour);
 
                 Int32 ReturnId = Convert.ToInt32(cmd.ExecuteScalar());
                 foreach (var iToken in data.lstToken)
@@ -7672,6 +7689,7 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkUpload = Convert.ToBoolean(dsUser.Rows[0]["chkUpload"]);
                     Result.chkStreaming = Convert.ToBoolean(dsUser.Rows[0]["chkStreaming"]);
                     Result.chkCopyData = Convert.ToBoolean(dsUser.Rows[0]["chkCopyData"]);
+                    Result.ClientName = dsUser.Rows[0]["ClientName"].ToString();
                 }
                 else if (dsCustomer.Rows.Count > 0)
                 {
@@ -7697,6 +7715,7 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkStreaming = true;
                     Result.chkCopyData = true;
                     Result.ContentType = dsCustomer.Rows[0]["ContentType"].ToString();
+                    Result.ClientName = dsCustomer.Rows[0]["ClientName"].ToString();
                 }
                 else
                 {
@@ -8504,6 +8523,7 @@ namespace EuforyServices.ServiceImplementation
                 strDel = "update  tbSpecialPlaylists set IsMixedContent=" + Convert.ToByte(data.chkMixed) + " , " +
                     " isVideoMute =" + Convert.ToByte(data.chkMute) + ", isshowdefault=" + Convert.ToByte(data.chkFixed) + " " +
                     " , chkDuplicateContent =" + Convert.ToByte(data.chkDuplicate) + " " +
+                    " , VolumeLevel = " + data.volume.ToString() + " " +
                     " where splplaylistid = " + data.playlistid;
                 SqlCommand cmd = new SqlCommand(strDel, con);
                 cmd.CommandType = System.Data.CommandType.Text;
@@ -9284,6 +9304,7 @@ namespace EuforyServices.ServiceImplementation
                         AppLogoId = ds.Rows[i]["AppLogoId"].ToString(),
                         Version = ds.Rows[i]["ver"].ToString(),
                         PublishUpdate = ds.Rows[i]["isPublishUpdate"].ToString(),
+                        Volume = ds.Rows[i]["volume"].ToString(),
                     });
                 }
                 con.Close();
@@ -12036,6 +12057,7 @@ namespace EuforyServices.ServiceImplementation
                         TitleUrl = url,
                         TitleUrl2 = url,
                         FileSize = ds.Tables[0].Rows[i]["filesize"].ToString(),
+                        mediatype = ds.Tables[0].Rows[i]["mType"].ToString().Trim()
                     });
                 }
                 con.Close();
@@ -12059,6 +12081,19 @@ namespace EuforyServices.ServiceImplementation
                 string sQr = "";
                 string success = "0";
                 string tid = "";
+                string ext = "";
+                if (data.mediatype == "Audio")
+                {
+                    ext = ".mp3";
+                }
+                if (data.mediatype == "Video")
+                {
+                    ext = ".mp4";
+                }
+                if (data.mediatype == "Image")
+                {
+                    ext = ".jpg";
+                }
                 foreach (var item in data.tid)
                 {
                     if (tid == "")
@@ -12088,12 +12123,13 @@ namespace EuforyServices.ServiceImplementation
 
                     clsData.id = data.id;
                     clsData.type = "Song";
-                    clsData.url = "http://api.advikon.com/mp3files/" + data.id + ".mp4";
+                    clsData.url = "http://api.advikon.com/mp3files/" + data.id + ""+ ext;
                     clsData.DeviceToken = ds.Rows[iFCM]["FcmId"].ToString();
                     clsData.title = data.title;
                     clsData.albumid = data.albumid;
                     clsData.artistid = data.artistid;
-                    clsData.artistname = clsData.artistname;
+                    clsData.artistname = data.artistname;
+                    clsData.Repeat = data.Repeat;
                     clsData.PlayType = "Next";
                     string DeviceToken = clsData.DeviceToken;
 
@@ -12769,6 +12805,7 @@ namespace EuforyServices.ServiceImplementation
         {
             ResResponce result = new ResResponce();
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            Int32 Title_Id= 0;
             try
             {
                 con.Open();
@@ -12843,7 +12880,7 @@ namespace EuforyServices.ServiceImplementation
                     cmd.Parameters.Add(new SqlParameter("@IsAnnouncement", SqlDbType.Int));
                     cmd.Parameters["@IsAnnouncement"].Value = "0";
 
-                    Int32 Title_Id = Convert.ToInt32(cmd.ExecuteScalar());
+                    Title_Id = Convert.ToInt32(cmd.ExecuteScalar());
                     //Int32 Title_Id = DateTime.Now.Millisecond;
                     cmd.Dispose();
 
@@ -12879,6 +12916,7 @@ namespace EuforyServices.ServiceImplementation
 
                 con.Close();
                 result.Responce = "1";
+                result.TitleId = Title_Id.ToString();
                 return result;
 
             }
@@ -14544,10 +14582,10 @@ namespace EuforyServices.ServiceImplementation
                 cmdDel.Dispose();
 
                 for (int iPl = 0; iPl < dtPlaylistContent.Rows.Count; iPl++)
-                {       int sr = 0;
+                {       
                     for (int iCont = 0; iCont < dtNewContent.Rows.Count; iCont++)
                     {
-                        
+                        int sr = 0;
                         sr++;
                         DataRow nr = dt.NewRow();
                         nr["splPlaylistId"] = dtPlaylistContent.Rows[iPl]["splPlaylistId"];
@@ -14591,7 +14629,236 @@ namespace EuforyServices.ServiceImplementation
             catch (Exception ex)
             {
                 result.Responce = "0";
+                result.ContentType = ex.Message.ToString();
                 con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
+
+        public ResResponce SaveUpdateOfflineAlert(ReqOfflineAlert data)
+        {
+            ResResponce Result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string tid = "";
+                con.Open();
+                DataTable dtInsert = new DataTable();
+                dtInsert.Columns.Add("userid", typeof(int));
+                dtInsert.Columns.Add("tokenid", typeof(int));
+                SqlCommand cmd = new SqlCommand("SaveUpdateOfflineAlert", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@id", SqlDbType.Int));
+                cmd.Parameters["@id"].Value = data.id;
+
+                cmd.Parameters.Add(new SqlParameter("@email", SqlDbType.VarChar));
+                cmd.Parameters["@email"].Value = data.email;
+
+                cmd.Parameters.Add(new SqlParameter("@interval", SqlDbType.Int));
+                cmd.Parameters["@interval"].Value = data.interval;
+
+                cmd.Parameters.Add(new SqlParameter("@dfClientid", SqlDbType.Int));
+                cmd.Parameters["@dfClientid"].Value = data.dfClientid;
+                
+
+                Int32 ReturnId = Convert.ToInt32(cmd.ExecuteScalar());
+                foreach (var iToken in data.lstToken)
+                {
+                    DataRow nr = dtInsert.NewRow();
+                    nr["userid"] = ReturnId;
+                    nr["tokenid"] = iToken;
+                    dtInsert.Rows.Add(nr);
+                }
+                if (dtInsert.Rows.Count > 0)
+                {
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
+                    {
+                        SqlBulkCopyColumnMapping userid =
+                         new SqlBulkCopyColumnMapping("userid", "userid");
+                        bulkCopy.ColumnMappings.Add(userid);
+
+                        SqlBulkCopyColumnMapping tokenid =
+                        new SqlBulkCopyColumnMapping("tokenid", "tokenid");
+                        bulkCopy.ColumnMappings.Add(tokenid);
+
+                        bulkCopy.DestinationTableName = "dbo.tbOfflineAlert_Token";
+                        bulkCopy.WriteToServer(dtInsert);
+                    }
+                }
+
+                
+                con.Close();
+                Result.Responce = "1";
+                return Result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                Result.Responce = "0";
+                HttpContext.Current.Response.StatusCode = 1;
+                return Result;
+            }
+        }
+
+        public ReqOfflineAlert EditOfflineUser(ReqUserInfo data)
+        {
+            ReqOfflineAlert Result = new ReqOfflineAlert();
+            List<ResTokenInfo> lstTokenInfo = new List<ResTokenInfo>();
+            List<string> TokenArray = new List<string>();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                SqlCommand cmd = new SqlCommand();
+                SqlDataAdapter ad = new SqlDataAdapter();
+                con.Open();
+                string sQr = "GetOfflineAlertInfo " + data.UserId + "";
+                cmd = new SqlCommand(sQr, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(ds);
+                if (ds.Rows.Count > 0)
+                {
+                    Result.Responce = "1";
+                    Result.id = ds.Rows[0]["id"].ToString();
+                    Result.email = ds.Rows[0]["email"].ToString();
+                    Result.interval = ds.Rows[0]["interval"].ToString();
+                    Result.dfClientid = ds.Rows[0]["dfClientid"].ToString();
+
+                    sQr = "select distinct tokenid from tbOfflineAlert_Token where userid = " + data.UserId + "";
+                    cmd = new SqlCommand(sQr, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    ad = new SqlDataAdapter(cmd);
+                    DataTable dsUserToken = new DataTable();
+                    ad.Fill(dsUserToken);
+
+
+
+
+                    cmd = new SqlCommand("GetTokenInfo " + Result.dfClientid, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    ad = new SqlDataAdapter(cmd);
+                    DataTable dsTokenAll = new DataTable();
+                    ad.Fill(dsTokenAll);
+
+                    for (int i = 0; i < dsTokenAll.Rows.Count; i++)
+                    {
+                        bool iCheck = dsUserToken.Select().ToList().Exists(row => row["tokenid"].ToString() == dsTokenAll.Rows[i]["tokenid"].ToString());
+                        if (iCheck == true)
+                        {
+                            TokenArray.Add(dsTokenAll.Rows[i]["tokenid"].ToString());
+                        }
+                        lstTokenInfo.Add(new ResTokenInfo()
+                        {
+                            tokenid = dsTokenAll.Rows[i]["tokenid"].ToString(),
+                            tokenCode = dsTokenAll.Rows[i]["tNo"].ToString(),
+                            Name = dsTokenAll.Rows[i]["PersonName"].ToString(),
+                            location = dsTokenAll.Rows[i]["Location"].ToString(),
+                            city = dsTokenAll.Rows[i]["CityName"].ToString(),
+                            countryName = dsTokenAll.Rows[i]["CountryName"].ToString(),
+                            playerType = dsTokenAll.Rows[i]["PlType"].ToString(),
+                            LicenceType = dsTokenAll.Rows[i]["LiType"].ToString(),
+                            tInfo = dsTokenAll.Rows[i]["tInfo"].ToString(),
+                            check = iCheck,
+                        });
+                    }
+                    Result.lstTokenInfo = lstTokenInfo;
+                    Result.lstToken = TokenArray;
+                }
+                else
+                {
+                    Result.Responce = "0";
+                }
+                con.Close();
+                return Result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                Result.Responce = "0";
+                HttpContext.Current.Response.StatusCode = 1;
+                return Result;
+            }
+        }
+
+        public List<ResUser> FillOfflineAlertList(ReqTokenInfo data)
+        {
+            List<ResUser> lstUser = new List<ResUser>();
+
+            SqlCommand cmd = new SqlCommand();
+            SqlDataAdapter ad = new SqlDataAdapter();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                con.Open();
+                string sQr = "select id, email, interval from tbOfflineUser where dfClientid= " + data.clientId + " order by email";
+                cmd = new SqlCommand(sQr, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(ds);
+
+                for (int i = 0; i < ds.Rows.Count; i++)
+                {
+                    lstUser.Add(new ResUser()
+                    {
+                        id = ds.Rows[i]["id"].ToString(),
+                        UserName1 = ds.Rows[i]["email"].ToString(),
+                        Password1 = ds.Rows[i]["interval"].ToString(),
+                    });
+                }
+                con.Close();
+                return lstUser;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return lstUser;
+            }
+        }
+        public ResResponce SavePlaylistTokenVolume(ReqPlaylistTokenVolume Data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string str = "";
+                con.Open();
+                string tokenid = "";
+                foreach (var data in Data.tokenIds)
+                {
+                    if (tokenid == "")
+                    {
+                        tokenid = data;
+                    }
+                    else
+                    {
+                        tokenid = tokenid + "," + data;
+                    }
+                }
+                if (tokenid != "")
+                {
+                    str = "update tbSpecialPlaylistSchedule set volume=" + Data.volume + " where pSchId in(select distinct pSchId from tbSpecialPlaylistSchedule_Token where tokenid=" + tokenid + " and splPlaylistId=" + Data.pid + ")";
+                    SqlCommand cmd = new SqlCommand(str, con);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                }
+                con.Close();
+                result.Responce = "1";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
                 HttpContext.Current.Response.StatusCode = 1;
                 return result;
             }

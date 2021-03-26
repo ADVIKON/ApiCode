@@ -984,5 +984,25 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("ReplaceFolderContent")]
         ResResponce ReplaceFolderContent(ReqReplaceFolderContent data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveUpdateOfflineAlert", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveUpdateOfflineAlert")]
+        ResResponce SaveUpdateOfflineAlert(ReqOfflineAlert data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "EditOfflineUser", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("EditOfflineUser")]
+        ReqOfflineAlert EditOfflineUser(ReqUserInfo data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "FillOfflineAlertList", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("FillOfflineAlertList")]
+        List<ResUser> FillOfflineAlertList(ReqTokenInfo data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SavePlaylistTokenVolume", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SavePlaylistTokenVolume")]
+        ResResponce SavePlaylistTokenVolume(ReqPlaylistTokenVolume data);
     }
 }

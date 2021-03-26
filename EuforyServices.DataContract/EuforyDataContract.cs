@@ -197,6 +197,9 @@ namespace EuforyServices.DataContract
         public string PercentageValue { get; set; }
         [DataMember]
         public string TotalCount { get; set; }
+        [DataMember]
+        public string VolumeLevel { get; set; }
+        
     }
 
     [DataContract]
@@ -245,6 +248,8 @@ namespace EuforyServices.DataContract
         public int TimeInterval { get; set; }
         [DataMember]
         public bool IsLoop { get; set; }
+        [DataMember]
+        public string mediatype { get; set; }
     }
 
     [DataContract]
@@ -981,7 +986,8 @@ namespace EuforyServices.DataContract
         public string TokenStatus { get; set; }
         [DataMember]
         public string RebootTime { get; set; }
-
+        [DataMember]
+        public string Volume { get; set; }
     }
     [DataContract]
     public class ReqToken
@@ -1252,6 +1258,8 @@ namespace EuforyServices.DataContract
         public List<string> TitlePlaylists { get; set; }
         [DataMember]
         public string TitleId { get; set; }
+        [DataMember]
+        public string ClientName { get; set; }
     }
     [DataContract]
     public class ReqResetToken
@@ -1567,6 +1575,8 @@ namespace EuforyServices.DataContract
         public string[] tokenIds { get; set; }
         [DataMember]
         public Boolean IsDuplicate { get; set; }
+        [DataMember]
+        public string volume { get; set; }
 
     }
     [DataContract]
@@ -1860,6 +1870,8 @@ namespace EuforyServices.DataContract
         public string tid { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "PlayType", Order = 1)]
         public string PlayType { get; set; }
+        [DataMember]
+        public int Repeat { get; set; }
     }
     [DataContract]
     public class ResNoti
@@ -1925,6 +1937,11 @@ namespace EuforyServices.DataContract
         public Boolean chkCopyData { get; set; }
         [DataMember]
         public Boolean chkStreaming { get; set; }
+
+        [DataMember]
+        public Boolean chkOfflineAlert { get; set; }
+        [DataMember]
+        public string OfflineIntervalHour { get; set; }
     }
     [DataContract]
     public class ReqUserInfo
@@ -2015,6 +2032,8 @@ namespace EuforyServices.DataContract
         public Boolean chkMixed { get; set; }
         [DataMember]
         public Boolean chkDuplicate { get; set; }
+        [DataMember]
+        public string volume { get; set; }
     }
     [DataContract]
     public class ReqUpdatePlaylistSRNo
@@ -2627,6 +2646,10 @@ namespace EuforyServices.DataContract
         public string artistname { get; set; }
         [DataMember]
         public Int32[] tid { get; set; }
+        [DataMember]
+        public int Repeat { get; set; }
+        [DataMember]
+        public string mediatype { get; set; }
     }
     [DataContract]
     public class ReqGetInstantPlaySpecialPlaylistsTitles
@@ -2919,6 +2942,34 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string ClientId { get; set; }
 
+    }
+
+    public class ReqOfflineAlert
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string email { get; set; }
+        [DataMember]
+        public string interval { get; set; }
+        [DataMember]
+        public string Responce { get; set; }
+
+        [DataMember]
+        public List<string> lstToken { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "lstTokenInfo", Order = 1)]
+        public List<ResTokenInfo> lstTokenInfo { get; set; }
+        [DataMember]
+        public string dfClientid { get; set; }
+    }
+    public class ReqPlaylistTokenVolume
+    {
+        [DataMember]
+        public string[] tokenIds { get; set; }
+        [DataMember]
+        public string pid { get; set; }
+        [DataMember]
+        public string volume { get; set; }
     }
 }
 
