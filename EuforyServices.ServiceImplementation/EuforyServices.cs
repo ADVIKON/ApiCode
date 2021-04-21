@@ -352,10 +352,12 @@ namespace EuforyServices.ServiceImplementation
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
                 DataSet ds = new DataSet();
                 ad.Fill(ds);
-                string url = "";
-                string mtypeFormat = "";
+                string url = "",mtypeFormat="";
+                int urlrefershtime = 0;
+                int timeInterval = 5;
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
+                    timeInterval = 5;
                     if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Audio")
                     {
                         mtypeFormat = ".mp3";
@@ -367,12 +369,19 @@ namespace EuforyServices.ServiceImplementation
                     if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Image")
                     {
                         mtypeFormat = ".jpg";
+                        timeInterval = Convert.ToInt32(ds.Tables[0].Rows[i]["imgInterval"]);
                     }
 
-
                     url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
+                    //389
+                    if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Url")
+                    {
+                        url = ds.Tables[0].Rows[i]["url"].ToString().Trim();
+                        timeInterval = (Convert.ToInt32(ds.Tables[0].Rows[i]["Urlduration"]) * 60);
+                    }
                     result.Add(new ResponceSplSplaylistTitle()
                     {
+
                         splPlaylistId = Convert.ToInt32(ds.Tables[0].Rows[i]["splPlaylistId"]),
                         titleId = Convert.ToInt32(ds.Tables[0].Rows[i]["titleId"]),
                         Title = ds.Tables[0].Rows[i]["Title"].ToString(),
@@ -381,8 +390,14 @@ namespace EuforyServices.ServiceImplementation
                         arName = ds.Tables[0].Rows[i]["arName"].ToString(),
                         AlbumID = Convert.ToInt32(ds.Tables[0].Rows[i]["AlbumID"]),
                         alName = ds.Tables[0].Rows[i]["alName"].ToString(),
+                        srno = Convert.ToInt32(ds.Tables[0].Rows[i]["srno"]),
                         TitleUrl = url,
+                        TitleUrl2 = url,
                         FileSize = ds.Tables[0].Rows[i]["filesize"].ToString(),
+                        TimeInterval = timeInterval,
+                        IsLoop = false,
+                        mediatype = ds.Tables[0].Rows[i]["mType"].ToString().Trim(),
+                        urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]) * 60)
                     });
                 }
                 con.Close();
@@ -490,8 +505,11 @@ namespace EuforyServices.ServiceImplementation
                 DataSet ds = new DataSet();
                 ad.Fill(ds);
                 string url = "";
+                int urlrefershtime = 0;
+                int timeInterval = 5;
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
+                    timeInterval = 5;
                     if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Audio")
                     {
                         mtypeFormat = ".mp3";
@@ -503,11 +521,17 @@ namespace EuforyServices.ServiceImplementation
                     if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Image")
                     {
                         mtypeFormat = ".jpg";
+                        timeInterval = Convert.ToInt32(ds.Tables[0].Rows[i]["imgInterval"]);
                     }
 
                     url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
-
-                    result.Add(new ResponceSplSplaylistTitle()
+                    //389
+                    if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Url")
+                    {
+                        url = ds.Tables[0].Rows[i]["url"].ToString().Trim();
+                        timeInterval = (Convert.ToInt32(ds.Tables[0].Rows[i]["Urlduration"])*60);
+                    }
+                        result.Add(new ResponceSplSplaylistTitle()
                     {
 
                         splPlaylistId = Convert.ToInt32(ds.Tables[0].Rows[i]["splPlaylistId"]),
@@ -522,10 +546,14 @@ namespace EuforyServices.ServiceImplementation
                         TitleUrl = url,
                         TitleUrl2 = url,
                         FileSize = ds.Tables[0].Rows[i]["filesize"].ToString(),
-                        TimeInterval = Convert.ToInt32(ds.Tables[0].Rows[i]["imgInterval"]),
+                        TimeInterval = timeInterval,
                         IsLoop = false,
-                    });
+                        mediatype = ds.Tables[0].Rows[i]["mType"].ToString().Trim(),
+                        urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]) * 60)
+                });
+                    
                 }
+                
                 con.Close();
                 return result;
             }
@@ -1609,8 +1637,10 @@ namespace EuforyServices.ServiceImplementation
                 DataSet ds = new DataSet();
                 ad.Fill(ds);
                 string url = "";
+                int timeInterval = 5;
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
+                    timeInterval = 5;
                     if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Audio")
                     {
                         mtypeFormat = ".mp3";
@@ -1622,31 +1652,38 @@ namespace EuforyServices.ServiceImplementation
                     if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Image")
                     {
                         mtypeFormat = ".jpg";
+                        timeInterval = Convert.ToInt32(ds.Tables[0].Rows[i]["imgInterval"]);
                     }
 
-
-
                     url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
-
+                    //389
+                    if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Url")
+                    {
+                        url = ds.Tables[0].Rows[i]["url"].ToString().Trim();
+                        timeInterval = (Convert.ToInt32(ds.Tables[0].Rows[i]["Urlduration"]) * 60);
+                    }
                     result.Add(new ResponceSplSplaylistTitle()
                     {
 
                         splPlaylistId = Convert.ToInt32(ds.Tables[0].Rows[i]["splPlaylistId"]),
                         titleId = Convert.ToInt32(ds.Tables[0].Rows[i]["titleId"]),
-                        Title = ds.Tables[0].Rows[i]["Title"].ToString().Trim(),
-                        tTime = ds.Tables[0].Rows[i]["Time"].ToString().Trim(),
+                        Title = ds.Tables[0].Rows[i]["Title"].ToString(),
+                        tTime = ds.Tables[0].Rows[i]["Time"].ToString(),
                         ArtistID = Convert.ToInt32(ds.Tables[0].Rows[i]["ArtistID"]),
-                        arName = ds.Tables[0].Rows[i]["arName"].ToString().Trim(),
+                        arName = ds.Tables[0].Rows[i]["arName"].ToString(),
                         AlbumID = Convert.ToInt32(ds.Tables[0].Rows[i]["AlbumID"]),
-                        alName = ds.Tables[0].Rows[i]["alName"].ToString().Trim(),
+                        alName = ds.Tables[0].Rows[i]["alName"].ToString(),
                         srno = Convert.ToInt32(ds.Tables[0].Rows[i]["srno"]),
                         TitleUrl = url,
                         TitleUrl2 = url,
                         FileSize = ds.Tables[0].Rows[i]["filesize"].ToString(),
-                        TimeInterval = Convert.ToInt32(ds.Tables[0].Rows[i]["imgInterval"]),
+                        TimeInterval = timeInterval,
                         IsLoop = false,
+                        mediatype = ds.Tables[0].Rows[i]["mType"].ToString().Trim(),
+                        urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]) * 60)
                     });
                 }
+               
                 con.Close();
                 return result;
             }
@@ -4219,7 +4256,7 @@ namespace EuforyServices.ServiceImplementation
                 sQr = "";
                 if (data.IsBestOffPlaylist == "Yes")
                 {
-                    sQr = "SELECT  Titles.TitleID, rtrim(ltrim(Titles.Title)) as Title, Titles.Time,rtrim(ltrim(Albums.Name)) AS AlbumName ,";
+                    sQr = "SELECT Titles.TitleID as Id, Titles.TitleID, rtrim(ltrim(Titles.Title)) as Title, Titles.Time,rtrim(ltrim(Albums.Name)) AS AlbumName ,";
                     sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName,'' as Category  ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, '0' as srno , isnull(tbGenre.genre,'') as genre, isnull(Titles.label,'') as label, '5' as ImgTimeInterval FROM ((( TitlesInPlaylists  ";
                     sQr = sQr + " INNER JOIN Titles ON TitlesInPlaylists.TitleID = Titles.TitleID )  ";
                     sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID ) ";
@@ -13980,6 +14017,13 @@ namespace EuforyServices.ServiceImplementation
                         //========================================
 
                     }
+
+                   string st = "";
+                    st = "update AMPlayerTokens set ScheduleType='" + iToken.schType + "' where tokenid = " + iToken.tokenId;
+                    cmd = new SqlCommand(st, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
                 }
                 con.Close();
                 clsResult.Responce = "1";
@@ -14588,8 +14632,8 @@ namespace EuforyServices.ServiceImplementation
                 {       
                     for (int iCont = 0; iCont < dtNewContent.Rows.Count; iCont++)
                     {
-                        int sr = 0;
-                        sr++;
+                        int sr = 5;
+                        //sr++;
                         DataRow nr = dt.NewRow();
                         nr["splPlaylistId"] = dtPlaylistContent.Rows[iPl]["splPlaylistId"];
                         nr["titleId"] = dtNewContent.Rows[iCont]["titleId"];
@@ -14852,6 +14896,224 @@ namespace EuforyServices.ServiceImplementation
                     cmd.ExecuteNonQuery();
                     cmd.Dispose();
                 }
+                con.Close();
+                result.Responce = "1";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+        public ResResponce DeleteOfflineAlert(ReqUserInfo data)
+        {
+            ResResponce Result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                con.Open();
+                string strDel = "";
+                strDel = "delete from tbOfflineUser where id=  " + data.UserId;
+                SqlCommand cmd = new SqlCommand(strDel, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+
+                strDel = "delete from tbOfflineAlert_Token where userid=  " + data.UserId;
+                cmd = new SqlCommand(strDel, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+                con.Close();
+
+                Result.Responce = "1";
+                return Result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                Result.Responce = "0";
+                HttpContext.Current.Response.StatusCode = 1;
+                return Result;
+            }
+
+        }
+
+
+        public ResResponce SaveTemplateUrl(ReqSaveTemplateUrl Data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string str = "";
+                con.Open();
+                if (Data.id == "0")
+                {
+                    SqlCommand cmd = new SqlCommand("InsertTemplate", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.Add(new SqlParameter("@TiTleTiTle", SqlDbType.VarChar));
+                    cmd.Parameters["@TiTleTiTle"].Value = Data.urlName;
+
+                    cmd.Parameters.Add(new SqlParameter("@TitleArtistName", SqlDbType.VarChar));
+                    cmd.Parameters["@TitleArtistName"].Value = "Template";
+
+                    cmd.Parameters.Add(new SqlParameter("@AlbumName", SqlDbType.VarChar));
+                    cmd.Parameters["@AlbumName"].Value = "Template";
+
+                    cmd.Parameters.Add(new SqlParameter("@titlecategoryid", SqlDbType.BigInt));
+                    cmd.Parameters["@titlecategoryid"].Value = 4;
+
+                    cmd.Parameters.Add(new SqlParameter("@titleSubcategoryid", SqlDbType.VarChar));
+                    cmd.Parameters["@titleSubcategoryid"].Value = 22;
+
+                    cmd.Parameters.Add(new SqlParameter("@Time", SqlDbType.VarChar));
+                    cmd.Parameters["@Time"].Value = "00:00:00";
+
+                    cmd.Parameters.Add(new SqlParameter("@AlbumLabel", SqlDbType.VarChar));
+                    cmd.Parameters["@AlbumLabel"].Value = "0";
+
+                    cmd.Parameters.Add(new SqlParameter("@CatalogCode", SqlDbType.VarChar));
+                    cmd.Parameters["@CatalogCode"].Value = "0";
+
+                    cmd.Parameters.Add(new SqlParameter("@titleYear", SqlDbType.Int));
+                    cmd.Parameters["@titleYear"].Value = 0;
+
+
+                    cmd.Parameters.Add(new SqlParameter("@GenreId", SqlDbType.Int));
+                    cmd.Parameters["@GenreId"].Value = 489;
+
+                    cmd.Parameters.Add(new SqlParameter("@tempo", SqlDbType.VarChar));
+                    cmd.Parameters["@tempo"].Value = "Mid";
+
+
+                    cmd.Parameters.Add(new SqlParameter("@mType", SqlDbType.VarChar));
+                    cmd.Parameters["@mType"].Value = "Url";
+
+                    cmd.Parameters.Add(new SqlParameter("@acategory", SqlDbType.VarChar));
+                    cmd.Parameters["@acategory"].Value = "Template";
+
+                    cmd.Parameters.Add(new SqlParameter("@language", SqlDbType.VarChar));
+                    cmd.Parameters["@language"].Value = "";
+
+                    cmd.Parameters.Add(new SqlParameter("@isRF", SqlDbType.VarChar));
+                    cmd.Parameters["@isRF"].Value = "0";
+
+                    cmd.Parameters.Add(new SqlParameter("@isrc", SqlDbType.VarChar));
+                    cmd.Parameters["@isrc"].Value = "";
+
+                    cmd.Parameters.Add(new SqlParameter("@FileSize", SqlDbType.VarChar));
+                    cmd.Parameters["@FileSize"].Value = '0';
+
+                    cmd.Parameters.Add(new SqlParameter("@dfclientid", SqlDbType.BigInt));
+                    cmd.Parameters["@dfclientid"].Value = Data.cmbCustomer;
+
+                    cmd.Parameters.Add(new SqlParameter("@folderid", SqlDbType.BigInt));
+                    cmd.Parameters["@folderid"].Value = Data.cmbFolder;
+
+                    cmd.Parameters.Add(new SqlParameter("@dbType", SqlDbType.VarChar));
+                    cmd.Parameters["@dbType"].Value = Data.dbType;
+
+                    cmd.Parameters.Add(new SqlParameter("@IsAnnouncement", SqlDbType.Int));
+                    cmd.Parameters["@IsAnnouncement"].Value = 0;
+
+                    cmd.Parameters.Add(new SqlParameter("@url", SqlDbType.VarChar));
+                    cmd.Parameters["@url"].Value = Data.urlLink;
+
+                    cmd.Parameters.Add(new SqlParameter("@duration", SqlDbType.Int));
+                    cmd.Parameters["@duration"].Value = Data.duration;
+
+                    cmd.Parameters.Add(new SqlParameter("@refershtime", SqlDbType.Int));
+                    cmd.Parameters["@refershtime"].Value = Data.refersh;
+
+                    Int32 Title_Id = Convert.ToInt32(cmd.ExecuteScalar()); con.Close();
+                }
+                else
+                {
+                    str = "";
+                    str = "update titles set title='" + Data.urlName + "', duration ='" + Data.duration + "' , folderid="+Data.cmbFolder+", refershtime ='" + Data.refersh + "', url='" + Data.urlLink + "' where titleid= " + Data.id + "";
+                    SqlCommand cmd = new SqlCommand(str, con);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                }
+                result.Responce = "1";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
+        public List<ResTemplateUrl> GetTemplateUrl(ReqDeleteTemplateUrl data)
+        {
+            List<ResTemplateUrl> lstUrl = new List<ResTemplateUrl>();
+
+            SqlCommand cmd = new SqlCommand();
+            SqlDataAdapter ad = new SqlDataAdapter();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                con.Open();
+                string sQr = "select TitleID,Title,url,isnull(duration,2) as duration,isnull(refershtime,30) as refershtime,isnull(folderId,0) as folderId from Titles where dfclientid=" + data.id + " and MediaType='Url' order by Title";
+                cmd = new SqlCommand(sQr, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+
+                ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(ds);
+
+                for (int i = 0; i < ds.Rows.Count; i++)
+                {
+                    lstUrl.Add(new ResTemplateUrl()
+                    {
+                        id = ds.Rows[i]["TitleID"].ToString(),
+                        cmbCustomer = data.id.ToString(),
+                        cmbFolder = ds.Rows[i]["folderId"].ToString(),
+                        urlName = ds.Rows[i]["Title"].ToString(),
+                        duration = ds.Rows[i]["duration"].ToString(),
+                        refersh = ds.Rows[i]["refershtime"].ToString(),
+                        urlLink = ds.Rows[i]["url"].ToString(),
+                    });
+                }
+                con.Close();
+                return lstUrl;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return lstUrl;
+            }
+        }
+        public ResResponce DeleteTemplateUrl(ReqDeleteTemplateUrl data)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string str = "";
+                con.Open();
+
+                str = "delete from Titles where TitleID=  " + data.id;
+                SqlCommand cmd = new SqlCommand(str, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+                
+                str = "delete from tbSpecialPlaylists_Titles where TitleID=  " + data.id;
+                cmd = new SqlCommand(str, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+                
                 con.Close();
                 result.Responce = "1";
                 return result;

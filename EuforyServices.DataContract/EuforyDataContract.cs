@@ -250,6 +250,8 @@ namespace EuforyServices.DataContract
         public bool IsLoop { get; set; }
         [DataMember]
         public string mediatype { get; set; }
+        [DataMember]
+        public int urlRefershTime { get; set; }
     }
 
     [DataContract]
@@ -2972,6 +2974,48 @@ namespace EuforyServices.DataContract
         public string pid { get; set; }
         [DataMember]
         public string volume { get; set; }
+    }
+    public class ReqSaveTemplateUrl
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string cmbCustomer { get; set; }
+        [DataMember]
+        public string cmbFolder { get; set; }
+        [DataMember]
+        public string urlName { get; set; }
+        [DataMember]
+        public string duration { get; set; }
+        [DataMember]
+        public string refersh { get; set; }
+        [DataMember]
+        public string urlLink { get; set; }
+        [DataMember]
+        public string dbType { get; set; }
+    }
+    public class ResTemplateUrl
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string cmbCustomer { get; set; }
+        [DataMember]
+        public string cmbFolder { get; set; }
+        [DataMember]
+        public string urlName { get; set; }
+        [DataMember]
+        public string duration { get; set; }
+        [DataMember]
+        public string refersh { get; set; }
+        [DataMember]
+        public string urlLink { get; set; }
+    }
+    public class ReqDeleteTemplateUrl
+    {
+        [DataMember]
+        public string id { get; set; }
+
     }
 }
 

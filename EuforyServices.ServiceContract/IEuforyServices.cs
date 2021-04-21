@@ -1004,5 +1004,26 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("SavePlaylistTokenVolume")]
         ResResponce SavePlaylistTokenVolume(ReqPlaylistTokenVolume data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteOfflineAlert", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteOfflineAlert")]
+        ResResponce DeleteOfflineAlert(ReqUserInfo data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveTemplateUrl", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveTemplateUrl")]
+        ResResponce SaveTemplateUrl(ReqSaveTemplateUrl data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "DeleteTemplateUrl", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DeleteTemplateUrl")]
+        ResResponce DeleteTemplateUrl(ReqDeleteTemplateUrl data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "GetTemplateUrl", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("GetTemplateUrl")]
+        List<ResTemplateUrl> GetTemplateUrl(ReqDeleteTemplateUrl data);
+
     }
 }
