@@ -1137,6 +1137,8 @@ namespace EuforyServices.DataContract
         public bool IsShowShotToast { get; set; }
         [DataMember]
         public string OsVersion { get; set; }
+        [DataMember]
+        public string ClientContentType { get; set; }
     }
     [DataContract]
     public class ReqSaveTokenInfo
@@ -1305,7 +1307,9 @@ namespace EuforyServices.DataContract
         public string Key { get; set; }
         [DataMember]
         public string IsTemplateActive { get; set; }
-        
+        [DataMember]
+        public string ContentType { get; set; }
+
 
     }
     [DataContract]

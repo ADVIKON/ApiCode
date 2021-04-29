@@ -3363,6 +3363,7 @@ namespace EuforyServices.ServiceImplementation
                         AlertMail = ds.Rows[i]["AlertEmail"].ToString(),
                         IsShowShotToast = Convert.ToBoolean(ds.Rows[i]["IsShowShotToast"]),
                         OsVersion = ds.Rows[i]["OsVersion"].ToString(),
+                        ClientContentType = ds.Rows[i]["ContentType"].ToString(),
                     });
                 }
 
@@ -15157,6 +15158,7 @@ namespace EuforyServices.ServiceImplementation
                 return result;
             }
         }
+
 
     }
 }
