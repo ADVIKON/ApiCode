@@ -1415,6 +1415,8 @@ namespace EuforyServices.DataContract
         public string titleyear { get; set; }
         [DataMember]
         public string dfClientId { get; set; }
+        [DataMember]
+        public string genreId { get; set; }
 
 
     }
@@ -1455,6 +1457,8 @@ namespace EuforyServices.DataContract
         public string ImgAllBtn { get; set; }
         [DataMember]
         public string isImgFind { get; set; }
+        [DataMember]
+        public string genreId { get; set; }
     }
 
     [DataContract]
@@ -2489,6 +2493,10 @@ namespace EuforyServices.DataContract
         public int TimeInterval { get; set; }
         [DataMember]
         public bool IsLoop { get; set; }
+        [DataMember]
+        public string genreId { get; set; }
+        [DataMember]
+        public string MediaType { get; set; }
 
     }
     [DataContract]
@@ -2965,6 +2973,8 @@ namespace EuforyServices.DataContract
         public List<ResTokenInfo> lstTokenInfo { get; set; }
         [DataMember]
         public string dfClientid { get; set; }
+        [DataMember]
+        public string weekDay { get; set; }
     }
     public class ReqPlaylistTokenVolume
     {
@@ -2984,6 +2994,8 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string cmbFolder { get; set; }
         [DataMember]
+        public string cmbGenre { get; set; }
+        [DataMember]
         public string urlName { get; set; }
         [DataMember]
         public string duration { get; set; }
@@ -2993,6 +3005,8 @@ namespace EuforyServices.DataContract
         public string urlLink { get; set; }
         [DataMember]
         public string dbType { get; set; }
+        [DataMember]
+        public bool IsAnnouncement { get; set; }
     }
     public class ResTemplateUrl
     {
@@ -3000,6 +3014,8 @@ namespace EuforyServices.DataContract
         public string id { get; set; }
         [DataMember]
         public string cmbCustomer { get; set; }
+        [DataMember]
+        public string cmbGenre { get; set; }
         [DataMember]
         public string cmbFolder { get; set; }
         [DataMember]
@@ -3010,6 +3026,8 @@ namespace EuforyServices.DataContract
         public string refersh { get; set; }
         [DataMember]
         public string urlLink { get; set; }
+        [DataMember]
+        public bool IsAnnouncement { get; set; }
     }
     public class ReqDeleteTemplateUrl
     {

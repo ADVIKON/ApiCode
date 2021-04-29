@@ -377,7 +377,7 @@ namespace EuforyServices.ServiceImplementation
                     if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Url")
                     {
                         url = ds.Tables[0].Rows[i]["url"].ToString().Trim();
-                        timeInterval = (Convert.ToInt32(ds.Tables[0].Rows[i]["Urlduration"]) * 60);
+                        timeInterval = (Convert.ToInt32(ds.Tables[0].Rows[i]["Urlduration"]));
                     }
                     result.Add(new ResponceSplSplaylistTitle()
                     {
@@ -397,7 +397,7 @@ namespace EuforyServices.ServiceImplementation
                         TimeInterval = timeInterval,
                         IsLoop = false,
                         mediatype = ds.Tables[0].Rows[i]["mType"].ToString().Trim(),
-                        urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]) * 60)
+                        urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]))
                     });
                 }
                 con.Close();
@@ -549,7 +549,7 @@ namespace EuforyServices.ServiceImplementation
                         TimeInterval = timeInterval,
                         IsLoop = false,
                         mediatype = ds.Tables[0].Rows[i]["mType"].ToString().Trim(),
-                        urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]) * 60)
+                        urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]))
                 });
                     
                 }
@@ -1660,7 +1660,7 @@ namespace EuforyServices.ServiceImplementation
                     if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Url")
                     {
                         url = ds.Tables[0].Rows[i]["url"].ToString().Trim();
-                        timeInterval = (Convert.ToInt32(ds.Tables[0].Rows[i]["Urlduration"]) * 60);
+                        timeInterval = (Convert.ToInt32(ds.Tables[0].Rows[i]["Urlduration"]));
                     }
                     result.Add(new ResponceSplSplaylistTitle()
                     {
@@ -1680,7 +1680,7 @@ namespace EuforyServices.ServiceImplementation
                         TimeInterval = timeInterval,
                         IsLoop = false,
                         mediatype = ds.Tables[0].Rows[i]["mType"].ToString().Trim(),
-                        urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]) * 60)
+                        urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]))
                     });
                 }
                
@@ -4257,7 +4257,7 @@ namespace EuforyServices.ServiceImplementation
                 if (data.IsBestOffPlaylist == "Yes")
                 {
                     sQr = "SELECT Titles.TitleID as Id, Titles.TitleID, rtrim(ltrim(Titles.Title)) as Title, Titles.Time,rtrim(ltrim(Albums.Name)) AS AlbumName ,";
-                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName,'' as Category  ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, '0' as srno , isnull(tbGenre.genre,'') as genre, isnull(Titles.label,'') as label, '5' as ImgTimeInterval FROM ((( TitlesInPlaylists  ";
+                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName,'' as Category  ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, '0' as srno , isnull(tbGenre.genre,'') as genre, isnull(Titles.label,'') as label, '5' as ImgTimeInterval , isnull(Titles.genreid,0) as genreId , isnull(titles.url,'') as url FROM ((( TitlesInPlaylists  ";
                     sQr = sQr + " INNER JOIN Titles ON TitlesInPlaylists.TitleID = Titles.TitleID )  ";
                     sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID ) ";
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID ) ";
@@ -4268,7 +4268,7 @@ namespace EuforyServices.ServiceImplementation
                 {
                     sQr = "SELECT  Titles.TitleID, rtrim(ltrim(Titles.Title)) as Title, Titles.Time,rtrim(ltrim(Albums.Name)) AS AlbumName ,";
                     sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName , isnull(tbGenre.genre,'') as genre, isnull(Titles.tempo,'') as Tempo  , isnull(acategory,'') as Category ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, tbSpecialPlaylists_Titles.srno, isnull(Titles.label,'') as label, tbSpecialPlaylists_Titles.id ,";
-                    sQr = sQr + " iif(tbSpecialPlaylists_Titles.ImgTimeInterval = 0, 5, isnull(tbSpecialPlaylists_Titles.ImgTimeInterval, 5)) as ImgTimeInterval FROM   tbSpecialPlaylists_Titles  ";
+                    sQr = sQr + " iif(tbSpecialPlaylists_Titles.ImgTimeInterval = 0, 5, isnull(tbSpecialPlaylists_Titles.ImgTimeInterval, 5)) as ImgTimeInterval , isnull(Titles.genreid,0) as genreId , isnull(titles.url,'') as url FROM   tbSpecialPlaylists_Titles  ";
                     sQr = sQr + " INNER JOIN Titles ON tbSpecialPlaylists_Titles.TitleID = Titles.TitleID   ";
                     sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID  ";
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID  ";
@@ -4309,8 +4309,14 @@ namespace EuforyServices.ServiceImplementation
                             btnImgAll = "Hide";
                         }
                     }
-
                     url = "http://api.advikon.com/mp3files/" + ds.Rows[i]["titleId"].ToString() + mtypeFormat;
+                    if (ds.Rows[i]["MediaType"].ToString().Trim() == "Url")
+                    {
+                        url = ds.Rows[i]["url"].ToString();
+                    }
+
+
+                        
 
                     lstPlaylistSong.Add(new ResPlaylistSongList()
                     {
@@ -4331,6 +4337,7 @@ namespace EuforyServices.ServiceImplementation
                         ImageTimeInterval = ds.Rows[i]["ImgTimeInterval"].ToString(),
                         ImgAllBtn = btnImgAll,
                         isImgFind = isImgFind,
+                        genreId = ds.Rows[i]["genreId"].ToString(),
                     });
                 }
                 con.Close();
@@ -4946,6 +4953,11 @@ namespace EuforyServices.ServiceImplementation
                         format = ".jpg";
                     }
                     url = "http://api.advikon.com/mp3files/" + ds.Rows[i]["titleId"].ToString() + format;
+                    if (ds.Rows[i]["MediaType"].ToString() == "Url")
+                    {
+                        url = ds.Rows[i]["Url"].ToString();
+                    }
+
                     var rDate = "";
                     if (string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Rows[i]["rDate"])) == "01-Jan-1900")
                     {
@@ -4978,6 +4990,7 @@ namespace EuforyServices.ServiceImplementation
                         Language = ds.Rows[i]["lang"].ToString(),
                         titleyear = ds.Rows[i]["titleyear"].ToString(),
                         dfClientId = ds.Rows[i]["dfClientId"].ToString(),
+                        genreId = ds.Rows[i]["genreId"].ToString(),
                     });
                 }
                 con.Close();
@@ -5319,7 +5332,10 @@ namespace EuforyServices.ServiceImplementation
 
 
                     url = "http://api.advikon.com/mp3files/" + ds.Rows[i]["titleId"].ToString() + format;
-
+                    if (ds.Rows[i]["MediaType"].ToString() == "Url")
+                    {
+                        url = ds.Rows[i]["url"].ToString();
+                    }
                     lstSong.Add(new ResSongList()
                     {
                         id = ds.Rows[i]["TitleID"].ToString(),
@@ -5341,6 +5357,7 @@ namespace EuforyServices.ServiceImplementation
                         Language = ds.Rows[i]["lang"].ToString(),
                         titleyear = ds.Rows[i]["titleyear"].ToString(),
                         dfClientId = ds.Rows[i]["dfclientid"].ToString(),
+                        genreId = ds.Rows[i]["genreId"].ToString(),
                     });
                 }
                 con.Close();
@@ -10508,8 +10525,8 @@ namespace EuforyServices.ServiceImplementation
                     message.To.Add("jan@advikon.eu");
                     message.To.Add("talwinder@advikon.eu");
                     message.From = fromAddress;
-                    string Manualfile = HttpContext.Current.Server.MapPath("~/Manual.pdf");
-                    message.Attachments.Add(new Attachment(Manualfile));
+                   // string Manualfile = HttpContext.Current.Server.MapPath("~/Manual.pdf");
+                   // message.Attachments.Add(new Attachment(Manualfile));
                     smtp.Send(message);
                     Result.Responce = "1";
                     con.Close();
@@ -10559,8 +10576,8 @@ namespace EuforyServices.ServiceImplementation
                     message.Subject = subject;
                     message.Body = body;
                     message.To.Add(toAddress);
-                    string Manualfile = HttpContext.Current.Server.MapPath("~/Manual.pdf");
-                    message.Attachments.Add(new Attachment(Manualfile));
+                   // string Manualfile = HttpContext.Current.Server.MapPath("~/Manual.pdf");
+                   // message.Attachments.Add(new Attachment(Manualfile));
                     message.To.Add("info@sanisign.eu");
                     message.To.Add("talwinder@advikon.eu");
                     message.From = fromAddress;
@@ -11265,7 +11282,10 @@ namespace EuforyServices.ServiceImplementation
                         mtypeFormat = ".jpg";
                     }
                     url = "http://api.advikon.com/mp3files/" + ds.Tables[0].Rows[i]["titleId"].ToString() + mtypeFormat;
-
+                    if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Url")
+                    {
+                        url = ds.Tables[0].Rows[i]["Url"].ToString();
+                    }
 
                     result.Add(new ResGetMachineAnnouncement()
                     {
@@ -11278,6 +11298,8 @@ namespace EuforyServices.ServiceImplementation
                         aType = ds.Tables[0].Rows[i]["aType"].ToString(),
                         TimeInterval = Convert.ToInt32(ds.Tables[0].Rows[i]["ImgInterval"]),
                         IsLoop = true,
+                        genreId = ds.Tables[0].Rows[i]["genreId"].ToString(),
+                        MediaType = ds.Tables[0].Rows[i]["mType"].ToString(),
                     });
                 }
                 con.Close();
@@ -14709,7 +14731,9 @@ namespace EuforyServices.ServiceImplementation
 
                 cmd.Parameters.Add(new SqlParameter("@dfClientid", SqlDbType.Int));
                 cmd.Parameters["@dfClientid"].Value = data.dfClientid;
-                
+
+                cmd.Parameters.Add(new SqlParameter("@WeekId", SqlDbType.Int));
+                cmd.Parameters["@WeekId"].Value = data.weekDay;
 
                 Int32 ReturnId = Convert.ToInt32(cmd.ExecuteScalar());
                 foreach (var iToken in data.lstToken)
@@ -14774,6 +14798,7 @@ namespace EuforyServices.ServiceImplementation
                     Result.email = ds.Rows[0]["email"].ToString();
                     Result.interval = ds.Rows[0]["interval"].ToString();
                     Result.dfClientid = ds.Rows[0]["dfClientid"].ToString();
+                    Result.weekDay = ds.Rows[0]["WeekId"].ToString();
 
                     sQr = "select distinct tokenid from tbOfflineAlert_Token where userid = " + data.UserId + "";
                     cmd = new SqlCommand(sQr, con);
@@ -14841,14 +14866,14 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 con.Open();
-                string sQr = "select id, email, interval from tbOfflineUser where dfClientid= " + data.clientId + " order by email";
+                string sQr = "select id, email, interval, isnull(WeekId,0) as WeekId from tbOfflineUser where dfClientid= " + data.clientId + " order by email";
                 cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
 
                 ad = new SqlDataAdapter(cmd);
                 DataTable ds = new DataTable();
                 ad.Fill(ds);
-
+                string[] ar = { "","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday" };
                 for (int i = 0; i < ds.Rows.Count; i++)
                 {
                     lstUser.Add(new ResUser()
@@ -14856,6 +14881,8 @@ namespace EuforyServices.ServiceImplementation
                         id = ds.Rows[i]["id"].ToString(),
                         UserName1 = ds.Rows[i]["email"].ToString(),
                         Password1 = ds.Rows[i]["interval"].ToString(),
+                        OfflineIntervalHour = ds.Rows[i]["WeekId"].ToString(),
+                        cmbPlaylist=ar[Convert.ToInt32(ds.Rows[i]["WeekId"])]
                     });
                 }
                 con.Close();
@@ -14985,7 +15012,7 @@ namespace EuforyServices.ServiceImplementation
 
 
                     cmd.Parameters.Add(new SqlParameter("@GenreId", SqlDbType.Int));
-                    cmd.Parameters["@GenreId"].Value = 489;
+                    cmd.Parameters["@GenreId"].Value = Data.cmbGenre;
 
                     cmd.Parameters.Add(new SqlParameter("@tempo", SqlDbType.VarChar));
                     cmd.Parameters["@tempo"].Value = "Mid";
@@ -15019,7 +15046,7 @@ namespace EuforyServices.ServiceImplementation
                     cmd.Parameters["@dbType"].Value = Data.dbType;
 
                     cmd.Parameters.Add(new SqlParameter("@IsAnnouncement", SqlDbType.Int));
-                    cmd.Parameters["@IsAnnouncement"].Value = 0;
+                    cmd.Parameters["@IsAnnouncement"].Value = Convert.ToInt32(Data.IsAnnouncement);
 
                     cmd.Parameters.Add(new SqlParameter("@url", SqlDbType.VarChar));
                     cmd.Parameters["@url"].Value = Data.urlLink;
@@ -15035,7 +15062,7 @@ namespace EuforyServices.ServiceImplementation
                 else
                 {
                     str = "";
-                    str = "update titles set title='" + Data.urlName + "', duration ='" + Data.duration + "' , folderid="+Data.cmbFolder+", refershtime ='" + Data.refersh + "', url='" + Data.urlLink + "' where titleid= " + Data.id + "";
+                    str = "update titles set title='" + Data.urlName + "', IsAnnouncement =" + Convert.ToInt32(Data.IsAnnouncement) + ", duration ='" + Data.duration + "' , genreid=" + Data.cmbGenre + ", folderid=" + Data.cmbFolder+", refershtime ='" + Data.refersh + "', url='" + Data.urlLink + "' where titleid= " + Data.id + "";
                     SqlCommand cmd = new SqlCommand(str, con);
                     cmd.CommandType = CommandType.Text;
                     cmd.ExecuteNonQuery();
@@ -15064,7 +15091,7 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 con.Open();
-                string sQr = "select TitleID,Title,url,isnull(duration,2) as duration,isnull(refershtime,30) as refershtime,isnull(folderId,0) as folderId from Titles where dfclientid=" + data.id + " and MediaType='Url' order by Title";
+                string sQr = "select TitleID,Title,url,isnull(duration,2) as duration,isnull(refershtime,30) as refershtime,isnull(folderId,0) as folderId,isnull(genreId,0) as genreId, isnull(IsAnnouncement,0) as IsAnnouncement from Titles where dfclientid=" + data.id + " and MediaType='Url' order by Title";
                 cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
 
@@ -15079,10 +15106,12 @@ namespace EuforyServices.ServiceImplementation
                         id = ds.Rows[i]["TitleID"].ToString(),
                         cmbCustomer = data.id.ToString(),
                         cmbFolder = ds.Rows[i]["folderId"].ToString(),
+                        cmbGenre = ds.Rows[i]["genreId"].ToString(),
                         urlName = ds.Rows[i]["Title"].ToString(),
                         duration = ds.Rows[i]["duration"].ToString(),
                         refersh = ds.Rows[i]["refershtime"].ToString(),
                         urlLink = ds.Rows[i]["url"].ToString(),
+                        IsAnnouncement = Convert.ToBoolean(ds.Rows[i]["IsAnnouncement"]),
                     });
                 }
                 con.Close();
