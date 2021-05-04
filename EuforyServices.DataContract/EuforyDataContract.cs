@@ -2330,6 +2330,10 @@ namespace EuforyServices.DataContract
         public string dfClientId { get; set; }
         [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "IsPromoFolder", Order = 1)]
         public bool IsPromoFolder { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "IsAutoDelete", Order = 1)]
+        public bool IsAutoDelete { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "dtpDeleteDate", Order = 1)]
+        public string dtpDeleteDate { get; set; }
     }
     [DataContract]
     public class ReqTitleLog
@@ -2978,7 +2982,9 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string dfClientid { get; set; }
         [DataMember]
-        public string weekDay { get; set; }
+        public string fromdate { get; set; }
+        [DataMember]
+        public string todate { get; set; }
     }
     public class ReqPlaylistTokenVolume
     {
@@ -3038,6 +3044,20 @@ namespace EuforyServices.DataContract
         [DataMember]
         public string id { get; set; }
 
+    }
+    [DataContract]
+    public class ResClientFolder
+    {
+        [DataMember]
+        public string Id { get; set; }
+        [DataMember]
+        public string DisplayName { get; set; }
+        [DataMember]
+        public Boolean check { get; set; }
+        [DataMember]
+        public Boolean IsAutoDelete { get; set; }
+        [DataMember]
+        public string DeleteDate { get; set; }
     }
 }
 

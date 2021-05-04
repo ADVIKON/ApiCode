@@ -529,7 +529,7 @@ namespace EuforyServices.ServiceImplementation
                     if (ds.Tables[0].Rows[i]["mType"].ToString().Trim() == "Url")
                     {
                         url = ds.Tables[0].Rows[i]["url"].ToString().Trim();
-                        timeInterval = (Convert.ToInt32(ds.Tables[0].Rows[i]["Urlduration"])*60);
+                        timeInterval = (Convert.ToInt32(ds.Tables[0].Rows[i]["Urlduration"]));
                     }
                         result.Add(new ResponceSplSplaylistTitle()
                     {
@@ -9681,6 +9681,12 @@ namespace EuforyServices.ServiceImplementation
 
                 cmd.Parameters.Add(new SqlParameter("@IsPromoFolder", SqlDbType.Int));
                 cmd.Parameters["@IsPromoFolder"].Value = data.IsPromoFolder;
+
+                cmd.Parameters.Add(new SqlParameter("@IsAutoDelete", SqlDbType.Int));
+                cmd.Parameters["@IsAutoDelete"].Value = data.IsAutoDelete;
+
+                cmd.Parameters.Add(new SqlParameter("@DeleteDate", SqlDbType.DateTime));
+                cmd.Parameters["@DeleteDate"].Value = string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.dtpDeleteDate));
                 con.Open();
                 clsResult.Responce = cmd.ExecuteScalar().ToString();
 
@@ -14552,14 +14558,14 @@ namespace EuforyServices.ServiceImplementation
         }
 
 
-        public List<ResComboQuery> GetClientFolder(ReqGetClientFolder data)
+        public List<ResClientFolder> GetClientFolder(ReqGetClientFolder data)
         {
-            List<ResComboQuery> lstResult = new List<ResComboQuery>();
+            List<ResClientFolder> lstResult = new List<ResClientFolder>();
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
 
             try
             {
-                var qry = "select folderId as Id, foldername as DisplayName ,isnull(IsPromoFolder,0) as IsPromoFolder from tbFolder ";
+                var qry = "select folderId as Id, foldername as DisplayName ,isnull(IsPromoFolder,0) as IsPromoFolder,isnull(DeleteDate,'') as DeleteDate,isnull(IsAutoDelete,0) as IsAutoDelete from tbFolder ";
                 qry = qry + " where dfclientId=" + data.ClientId + " ";
                 qry = qry + " order by foldername ";
                 SqlCommand cmd = new SqlCommand(qry, con);
@@ -14568,13 +14574,26 @@ namespace EuforyServices.ServiceImplementation
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
                 DataSet ds = new DataSet();
                 ad.Fill(ds);
+                string delDate = "";
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
-                    lstResult.Add(new ResComboQuery()
+                    if ((string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Tables[0].Rows[i]["DeleteDate"])) == "01-Jan-1900") || (Convert.ToBoolean(ds.Tables[0].Rows[i]["IsAutoDelete"])==false))
+                    {
+                        delDate = string.Format("{0:dd-MMM-yyyy}", DateTime.Now);
+                    }
+                    
+                    else
+                    {
+                        delDate = string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Tables[0].Rows[i]["DeleteDate"]));
+                    }
+
+                    lstResult.Add(new ResClientFolder()
                     {
                         Id = ds.Tables[0].Rows[i]["id"].ToString(),
                         DisplayName = ds.Tables[0].Rows[i]["DisplayName"].ToString(),
                         check = Convert.ToBoolean(ds.Tables[0].Rows[i]["IsPromoFolder"]),
+                        IsAutoDelete = Convert.ToBoolean(ds.Tables[0].Rows[i]["IsAutoDelete"]),
+                        DeleteDate = delDate,
                     });
                 }
                 con.Close();
@@ -14733,8 +14752,11 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters.Add(new SqlParameter("@dfClientid", SqlDbType.Int));
                 cmd.Parameters["@dfClientid"].Value = data.dfClientid;
 
-                cmd.Parameters.Add(new SqlParameter("@WeekId", SqlDbType.Int));
-                cmd.Parameters["@WeekId"].Value = data.weekDay;
+                cmd.Parameters.Add(new SqlParameter("@fromdate", SqlDbType.DateTime));
+                cmd.Parameters["@fromdate"].Value = string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(data.fromdate));
+
+                cmd.Parameters.Add(new SqlParameter("@todate", SqlDbType.DateTime));
+                cmd.Parameters["@todate"].Value = string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(data.todate));
 
                 Int32 ReturnId = Convert.ToInt32(cmd.ExecuteScalar());
                 foreach (var iToken in data.lstToken)
@@ -14799,7 +14821,8 @@ namespace EuforyServices.ServiceImplementation
                     Result.email = ds.Rows[0]["email"].ToString();
                     Result.interval = ds.Rows[0]["interval"].ToString();
                     Result.dfClientid = ds.Rows[0]["dfClientid"].ToString();
-                    Result.weekDay = ds.Rows[0]["WeekId"].ToString();
+                    Result.fromdate = string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(ds.Rows[0]["fromdate"]));
+                    Result.todate = string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(ds.Rows[0]["todate"]));
 
                     sQr = "select distinct tokenid from tbOfflineAlert_Token where userid = " + data.UserId + "";
                     cmd = new SqlCommand(sQr, con);
@@ -14857,9 +14880,9 @@ namespace EuforyServices.ServiceImplementation
             }
         }
 
-        public List<ResUser> FillOfflineAlertList(ReqTokenInfo data)
+        public List<ReqOfflineAlert> FillOfflineAlertList(ReqTokenInfo data)
         {
-            List<ResUser> lstUser = new List<ResUser>();
+            List<ReqOfflineAlert> lstUser = new List<ReqOfflineAlert>();
 
             SqlCommand cmd = new SqlCommand();
             SqlDataAdapter ad = new SqlDataAdapter();
@@ -14867,7 +14890,7 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 con.Open();
-                string sQr = "select id, email, interval, isnull(WeekId,0) as WeekId from tbOfflineUser where dfClientid= " + data.clientId + " order by email";
+                string sQr = "select id, email, interval, fromdate, todate from tbOfflineUser where dfClientid= " + data.clientId + " order by email";
                 cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
 
@@ -14877,13 +14900,13 @@ namespace EuforyServices.ServiceImplementation
                 string[] ar = { "","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday" };
                 for (int i = 0; i < ds.Rows.Count; i++)
                 {
-                    lstUser.Add(new ResUser()
+                    lstUser.Add(new ReqOfflineAlert()
                     {
                         id = ds.Rows[i]["id"].ToString(),
-                        UserName1 = ds.Rows[i]["email"].ToString(),
-                        Password1 = ds.Rows[i]["interval"].ToString(),
-                        OfflineIntervalHour = ds.Rows[i]["WeekId"].ToString(),
-                        cmbPlaylist=ar[Convert.ToInt32(ds.Rows[i]["WeekId"])]
+                        email = ds.Rows[i]["email"].ToString(),
+                        interval = ds.Rows[i]["interval"].ToString(),
+                        fromdate = string.Format("{0:dd-MMM-yyyy}",ds.Rows[i]["fromdate"]),
+                        todate= string.Format("{0:dd-MMM-yyyy}", ds.Rows[i]["todate"])
                     });
                 }
                 con.Close();
