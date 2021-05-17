@@ -2769,6 +2769,8 @@ namespace EuforyServices.DataContract
         public string videoUrl { get; set; }
         [DataMember]
         public string videoCreatedAt { get; set; }
+        [DataMember]
+        public string duration { get; set; }
 
     }
     [DataContract]

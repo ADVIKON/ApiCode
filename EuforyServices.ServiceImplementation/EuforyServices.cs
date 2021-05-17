@@ -4587,7 +4587,21 @@ namespace EuforyServices.ServiceImplementation
                     {
                         sQr = sQr + " and (isnull(Titles.dfclientid,0)=0 or Titles.dfclientid=" + data.ClientId + ") ";
                     }
-
+                    if (data.ContentType == "Signage")
+                    {
+                        if (data.mediaType == "Image")
+                        {
+                            sQr = sQr + " and Titles.genreid in(325,324)";
+                        }
+                        else if (data.mediaType == "Video")
+                        {
+                            sQr = sQr + " and Titles.genreid in(303,297)";
+                        }
+                        else if (data.mediaType == "Url")
+                        {
+                            sQr = sQr + " and Titles.genreid in(303,297)";
+                        }
+                    }
 
                     sQr = sQr + " ) as d  order by title     ";
                 }
@@ -5278,7 +5292,19 @@ namespace EuforyServices.ServiceImplementation
                 }
                 if (data.ContentType == "Signage")
                 {
-                    sQr = sQr + " and Titles.genreid in(303,297, 325,324)";
+                    if (data.mediaType == "Image")
+                    {
+                        sQr = sQr + " and Titles.genreid in(325,324)";
+                    }
+                    else if (data.mediaType == "Video")
+                    {
+                        sQr = sQr + " and Titles.genreid in(303,297)";
+                    }
+                    else if (data.mediaType == "Url")
+                    {
+                        sQr = sQr + " and Titles.genreid in(303,297)";
+                    }
+                    //sQr = sQr + " and Titles.genreid in(303,297, 325,324)";
                 }
                 if (data.ContentType == "MusicMedia")
                 {
@@ -13497,6 +13523,8 @@ namespace EuforyServices.ServiceImplementation
                         StartTime = t1,
                         EndTime = t2,
                         WeekName = ds.Rows[i]["wName"].ToString(),
+                        MediaType = ds.Rows[i]["mediatype"].ToString(),
+                        Name = ds.Rows[i]["pName"].ToString(),
                     });
                 }
                 con.Close();
