@@ -4558,7 +4558,7 @@ namespace EuforyServices.ServiceImplementation
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
             try
             {
-                string[] genreid = { "325", "324", "297", "303" };
+                string[] genreid = { "325", "324", "297", "303", "495", "496" };
 
                 string sQr = "";
                 sQr = " select  top 500 TitleID, ltrim(Title) as Title,Time, ltrim(ArtistName) as ArtistName, ltrim(AlbumName) as AlbumName , isnull(genre,'') as genre, Tempo ,titleyear,Category,AlbumID, ArtistID, mediatype , label,fname ,EngeryLevel, bpm, rdate, lang  , dfclientid from( ";
@@ -4599,7 +4599,7 @@ namespace EuforyServices.ServiceImplementation
                         }
                         else if (data.mediaType == "Url")
                         {
-                            sQr = sQr + " and Titles.genreid in(303,297)";
+                            sQr = sQr + " and Titles.genreid in(495,496)";
                         }
                     }
 
@@ -4786,6 +4786,27 @@ namespace EuforyServices.ServiceImplementation
                 else if (data.searchType == "Label")
                 {
                     sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.label= ''" + data.searchText + "'' and Titles.mediaType=''" + data.mediaType + "'' ";
+                    if (data.mediaType != "Image")
+                    {
+                        sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
+                    }
+                    sQr = sQr + " and (Titles.dbtype=''" + data.DBType + "'' or Titles.dbtype=''Both'') ";
+
+                    if (data.IsAdmin == false)
+                    {
+                        sQr = sQr + " and (isnull(Titles.dfclientid,0)=0 or Titles.dfclientid=" + data.ClientId + " or Titles.dfclientid=" + data.LoginClientId + ") ";
+                    }
+                    else
+                    {
+                        sQr = sQr + " and (isnull(Titles.dfclientid,0)=0 or Titles.dfclientid=" + data.ClientId + ") ";
+                    }
+
+                    sQr = sQr + " and isnull(Titles.Explicit,0)= " + Convert.ToByte(data.IsExplicit);
+                    sQr = sQr + " ) as d  order by TitleID desc     ";
+                }
+                else if (data.searchType == "BitRate")
+                {
+                    sQr = sQr + " where isnull(titles.IsAnnouncement,0)= " + data.IsAnnouncement + " and Titles.BitRate= ''" + data.searchText + "'' and Titles.mediaType=''" + data.mediaType + "'' ";
                     if (data.mediaType != "Image")
                     {
                         sQr = sQr + " and IsRoyaltyFree= " + data.IsRf + " ";
@@ -5302,7 +5323,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                     else if (data.mediaType == "Url")
                     {
-                        sQr = sQr + " and Titles.genreid in(303,297)";
+                        sQr = sQr + " and Titles.genreid in(495,496)";
                     }
                     //sQr = sQr + " and Titles.genreid in(303,297, 325,324)";
                 }
@@ -12833,11 +12854,11 @@ namespace EuforyServices.ServiceImplementation
 
                 var url = "";
                 url = "https://content.nusign.eu/api/my-templates?key=" + aKey.Trim();
-                if (data.GenreId == 297)
+                if (data.GenreId == 496)
                 {
                     orientation = "landscape";
                 }
-                if (data.GenreId == 303)
+                if (data.GenreId == 495)
                 {
                     orientation = "portrait";
                 }
@@ -13009,6 +13030,136 @@ namespace EuforyServices.ServiceImplementation
                 con.Close();
                 result.Responce = "1";
                 result.TitleId = Title_Id.ToString();
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
+
+        public ResResponce DownloadTemplates_new(ReqDownloadTemplates req)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string str = "";
+                con.Open();
+
+                foreach (var item in req.tList)
+                {
+                    str = "";
+                    str = "select TitleID,templateUUID from titles where templateUUID = '" + item.id + "'";
+                    SqlCommand cmdUrl = new SqlCommand(str, con);
+                    cmdUrl.CommandType = System.Data.CommandType.Text;
+                    if (con.State == ConnectionState.Closed) { con.Open(); }
+                    SqlDataAdapter ad = new SqlDataAdapter(cmdUrl);
+                    DataTable dt = new DataTable();
+                    ad.Fill(dt);
+                    ad.Dispose();
+                    cmdUrl.Dispose();
+                    if (dt.Rows.Count == 0)
+                    {
+                        SqlCommand cmd = new SqlCommand("InsertTemplate", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.Parameters.Add(new SqlParameter("@TiTleTiTle", SqlDbType.VarChar));
+                        cmd.Parameters["@TiTleTiTle"].Value = item.TemplateName.Trim();
+
+                        cmd.Parameters.Add(new SqlParameter("@TitleArtistName", SqlDbType.VarChar));
+                        cmd.Parameters["@TitleArtistName"].Value = "Template";
+
+                        cmd.Parameters.Add(new SqlParameter("@AlbumName", SqlDbType.VarChar));
+                        cmd.Parameters["@AlbumName"].Value = "Template";
+
+                        cmd.Parameters.Add(new SqlParameter("@titlecategoryid", SqlDbType.BigInt));
+                        cmd.Parameters["@titlecategoryid"].Value = 4;
+
+                        cmd.Parameters.Add(new SqlParameter("@titleSubcategoryid", SqlDbType.VarChar));
+                        cmd.Parameters["@titleSubcategoryid"].Value = 22;
+
+                        cmd.Parameters.Add(new SqlParameter("@Time", SqlDbType.VarChar));
+                        cmd.Parameters["@Time"].Value = "00:00:00";
+
+                        cmd.Parameters.Add(new SqlParameter("@AlbumLabel", SqlDbType.VarChar));
+                        cmd.Parameters["@AlbumLabel"].Value = "0";
+
+                        cmd.Parameters.Add(new SqlParameter("@CatalogCode", SqlDbType.VarChar));
+                        cmd.Parameters["@CatalogCode"].Value = "0";
+
+                        cmd.Parameters.Add(new SqlParameter("@titleYear", SqlDbType.Int));
+                        cmd.Parameters["@titleYear"].Value = 0;
+
+
+                        cmd.Parameters.Add(new SqlParameter("@GenreId", SqlDbType.Int));
+                        cmd.Parameters["@GenreId"].Value = req.GenreId;
+
+                        cmd.Parameters.Add(new SqlParameter("@tempo", SqlDbType.VarChar));
+                        cmd.Parameters["@tempo"].Value = "Mid";
+
+
+                        cmd.Parameters.Add(new SqlParameter("@mType", SqlDbType.VarChar));
+                        cmd.Parameters["@mType"].Value = "Url";
+
+                        cmd.Parameters.Add(new SqlParameter("@acategory", SqlDbType.VarChar));
+                        cmd.Parameters["@acategory"].Value = "Template";
+
+                        cmd.Parameters.Add(new SqlParameter("@language", SqlDbType.VarChar));
+                        cmd.Parameters["@language"].Value = "";
+
+                        cmd.Parameters.Add(new SqlParameter("@isRF", SqlDbType.VarChar));
+                        cmd.Parameters["@isRF"].Value = "0";
+
+                        cmd.Parameters.Add(new SqlParameter("@isrc", SqlDbType.VarChar));
+                        cmd.Parameters["@isrc"].Value = "";
+
+                        cmd.Parameters.Add(new SqlParameter("@FileSize", SqlDbType.VarChar));
+                        cmd.Parameters["@FileSize"].Value = '0';
+
+                        cmd.Parameters.Add(new SqlParameter("@dfclientid", SqlDbType.BigInt));
+                        cmd.Parameters["@dfclientid"].Value = req.dfClientId;
+
+                        cmd.Parameters.Add(new SqlParameter("@folderid", SqlDbType.BigInt));
+                        cmd.Parameters["@folderid"].Value = req.FolderId;
+
+                        cmd.Parameters.Add(new SqlParameter("@dbType", SqlDbType.VarChar));
+                        cmd.Parameters["@dbType"].Value = req.dbType;
+
+                        cmd.Parameters.Add(new SqlParameter("@IsAnnouncement", SqlDbType.Int));
+                        cmd.Parameters["@IsAnnouncement"].Value = Convert.ToInt32(item.IsAnnouncement);
+
+                        cmd.Parameters.Add(new SqlParameter("@url", SqlDbType.VarChar));
+                        cmd.Parameters["@url"].Value = item.Url;
+
+                        cmd.Parameters.Add(new SqlParameter("@duration", SqlDbType.Int));
+                        cmd.Parameters["@duration"].Value = item.duration;
+
+                        cmd.Parameters.Add(new SqlParameter("@refershtime", SqlDbType.Int));
+                        cmd.Parameters["@refershtime"].Value = item.Refersh;
+
+
+                        cmd.Parameters.Add(new SqlParameter("@templateUUID", SqlDbType.NVarChar));
+                        cmd.Parameters["@templateUUID"].Value = item.id;
+
+                        Int32 Title_Id = Convert.ToInt32(cmd.ExecuteScalar()); con.Close();
+                    }
+                    else
+                    {
+                        str = "";
+                        str = "update titles set title='" + item.TemplateName + "', IsAnnouncement =" + Convert.ToInt32(item.IsAnnouncement) + ", duration ='" + item.duration + "' , genreid=" + req.GenreId + ", folderid=" + req.FolderId + ", refershtime ='" + item.Refersh + "', url='" + item.Url + "' where templateUUID= '" + item.id + "'";
+                        SqlCommand cmd = new SqlCommand(str, con);
+                        cmd.CommandType = CommandType.Text;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                 
+                result.Responce = "1";
                 return result;
 
             }

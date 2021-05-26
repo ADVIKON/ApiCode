@@ -2797,6 +2797,12 @@ namespace EuforyServices.DataContract
         public string Url { get; set; }
         [DataMember]
         public string id { get; set; }
+        [DataMember]
+        public string duration { get; set; }
+        [DataMember]
+        public string Refersh { get; set; }
+        [DataMember]
+        public bool IsAnnouncement { get; set; }
     }
     [DataContract]
     public class ReqSaveImageTimeInterval

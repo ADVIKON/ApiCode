@@ -1025,5 +1025,9 @@ namespace EuforyServices.ServiceContract
         [Description("GetTemplateUrl")]
         List<ResTemplateUrl> GetTemplateUrl(ReqDeleteTemplateUrl data);
 
+        [WebInvoke(Method = "POST", UriTemplate = "DownloadTemplates_new", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DownloadTemplates_new")]
+        ResResponce DownloadTemplates_new(ReqDownloadTemplates data);
     }
 }
