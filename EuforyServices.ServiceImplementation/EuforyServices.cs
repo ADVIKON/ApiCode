@@ -5634,10 +5634,10 @@ namespace EuforyServices.ServiceImplementation
                 {
                     if (data.UserId != "0")
                     {
-                        qtr = qtr + " and tokenid in(select tokenid from tbuserTokens_web where userid= " + data.UserId + ")";
+                        qtr = qtr + " and m.tokenid in(select tokenid from tbuserTokens_web where userid= " + data.UserId + ")";
                     }
                 }
-                qtr = qtr + " order by tokenid, personname , StartTime ";
+                qtr = qtr + " order by m.tokenid, personname , StartTime ";
 
                 string sQr = "GetCustomerPlaylistSchedule '" + qtr + "'";
                 cmd = new SqlCommand(sQr, con);
@@ -7478,6 +7478,7 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkUpload = Convert.ToBoolean(ds.Rows[0]["chkUpload"]);
                     Result.chkStreaming = Convert.ToBoolean(ds.Rows[0]["chkStreaming"]);
                     Result.chkCopyData = Convert.ToBoolean(ds.Rows[0]["chkCopyData"]);
+                    Result.chkViewOnly = Convert.ToBoolean(ds.Rows[0]["chkViewOnly"]);
                     Result.chkOfflineAlert = Convert.ToBoolean(ds.Rows[0]["chkOfflineAlert"]);
                     Result.OfflineIntervalHour = ds.Rows[0]["OfflineIntervalHour"].ToString();
 
@@ -7629,6 +7630,9 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters["@chkOfflineAlert"].Value = Convert.ToByte(data.chkOfflineAlert);
                 cmd.Parameters.Add(new SqlParameter("@OfflineIntervalHour", SqlDbType.Int));
                 cmd.Parameters["@OfflineIntervalHour"].Value = Convert.ToByte(data.OfflineIntervalHour);
+
+                cmd.Parameters.Add(new SqlParameter("@chkViewOnly", SqlDbType.Int));
+                cmd.Parameters["@chkViewOnly"].Value = Convert.ToByte(data.chkViewOnly);
 
                 Int32 ReturnId = Convert.ToInt32(cmd.ExecuteScalar());
                 foreach (var iToken in data.lstToken)
@@ -7792,6 +7796,7 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkStreaming = Convert.ToBoolean(dsUser.Rows[0]["chkStreaming"]);
                     Result.chkCopyData = Convert.ToBoolean(dsUser.Rows[0]["chkCopyData"]);
                     Result.ClientName = dsUser.Rows[0]["ClientName"].ToString();
+                    Result.chkViewOnly = Convert.ToBoolean(dsUser.Rows[0]["chkViewOnly"]);
                 }
                 else if (dsCustomer.Rows.Count > 0)
                 {
@@ -7816,6 +7821,7 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkUpload = true;
                     Result.chkStreaming = true;
                     Result.chkCopyData = true;
+                    Result.chkViewOnly = true;
                     Result.ContentType = dsCustomer.Rows[0]["ContentType"].ToString();
                     Result.ClientName = dsCustomer.Rows[0]["ClientName"].ToString();
                 }

@@ -1264,6 +1264,9 @@ namespace EuforyServices.DataContract
         public string TitleId { get; set; }
         [DataMember]
         public string ClientName { get; set; }
+        [DataMember]
+        public Boolean chkViewOnly { get; set; }
+
     }
     [DataContract]
     public class ReqResetToken
@@ -1952,6 +1955,8 @@ namespace EuforyServices.DataContract
         public Boolean chkOfflineAlert { get; set; }
         [DataMember]
         public string OfflineIntervalHour { get; set; }
+        [DataMember]
+        public Boolean chkViewOnly { get; set; }
     }
     [DataContract]
     public class ReqUserInfo
