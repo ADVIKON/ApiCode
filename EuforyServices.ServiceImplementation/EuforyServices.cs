@@ -1129,7 +1129,7 @@ namespace EuforyServices.ServiceImplementation
             string path = Path.GetDirectoryName(rSave) + "\\data.txt";
             string WriteData = "";
             DateTime custDateTime = DateTime.Now;
-
+            string wTokenId  = "0";
             List<ResponcePlayedSong> result = new List<ResponcePlayedSong>();
             List<SongsArray> resultSong = new List<SongsArray>();
             SqlConnection conMain = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
@@ -1164,6 +1164,7 @@ namespace EuforyServices.ServiceImplementation
 
                     if (Player.TokenId != 0)
                     {
+                        wTokenId = Player.TokenId.ToString();
                         DataRow nr = dtInsert.NewRow();
                         var k = string.Format(fi, "{0:HH:mm:ss}", Convert.ToDateTime(Player.PlayedDateTime));
                         nr["TokenId"] = Player.TokenId;
@@ -1234,7 +1235,7 @@ namespace EuforyServices.ServiceImplementation
             }
             catch (Exception ex)
             {
-                WriteData = ex.ToString();
+                WriteData = wTokenId + " "+ ex.ToString();
                 using (StreamWriter writer = new StreamWriter(path, true))
                 {
                     writer.WriteLine(string.Format(WriteData, custDateTime.ToString("dd/MMM/yyyy hh:mm:ss tt")));
@@ -1271,12 +1272,20 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 string rSave = "0";
+                rSave = AppDomain.CurrentDomain.BaseDirectory;
+                string path = Path.GetDirectoryName(rSave) + "\\data.txt";
+                string WriteData = "";
 
                 foreach (var Player in data)
                 {
                     if (Player.TokenId != 0)
                     {
-                        string lType = "spTokenAdvt_Status " + Player.TokenId + ", " + Player.AdvtId + ",'" + string.Format("{0:dd-MMM-yyyy}", Player.PlayedDate) + "','" + string.Format("{0:hh:mm:ss}", Player.PlayedTime) + "'";
+                        if (string.IsNullOrEmpty(Player.PlayedDateTime) == false)
+                        {
+                            Player.PlayedDate = string.Format("{0:dd-MMM-yyyy}",Convert.ToDateTime( Player.PlayedDateTime));
+                            Player.PlayedTime = string.Format("{0:HH:mm:ss}", Convert.ToDateTime(Player.PlayedDateTime));
+                        }
+                        string lType = "spTokenAdvt_Status " + Player.TokenId + ", " + Player.AdvtId + ",'" + string.Format("{0:dd-MMM-yyyy}", Player.PlayedDate) + "','" + string.Format("{0:HH:mm:ss}", Player.PlayedTime) + "'";
                         SqlCommand cmd = new SqlCommand(lType, con);
                         cmd.CommandType = System.Data.CommandType.Text;
                         if (con.State == ConnectionState.Closed) { con.Open(); }
@@ -3364,6 +3373,7 @@ namespace EuforyServices.ServiceImplementation
                         IsShowShotToast = Convert.ToBoolean(ds.Rows[i]["IsShowShotToast"]),
                         OsVersion = ds.Rows[i]["OsVersion"].ToString(),
                         ClientContentType = ds.Rows[i]["ContentType"].ToString(),
+                        isShowKeyboardToast = Convert.ToBoolean(ds.Rows[i]["isShowKeyboardToast"]),
                     });
                 }
 
@@ -3542,6 +3552,8 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters["@IsShowShotToast"].Value = Convert.ToByte(data.IsShowShotToast);
                 cmd.Parameters.Add(new SqlParameter("@OsVersion", SqlDbType.NVarChar));
                 cmd.Parameters["@OsVersion"].Value = data.OsVersion;
+                cmd.Parameters.Add(new SqlParameter("@isShowKeyboardToast", SqlDbType.Bit));
+                cmd.Parameters["@isShowKeyboardToast"].Value = Convert.ToByte(data.isShowKeyboardToast);
 
                 if (con.State == ConnectionState.Closed) { con.Open(); }
                 cmd.ExecuteNonQuery();
@@ -5062,7 +5074,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                 }
 
-                strDel = "delete from tbSpecialPlaylists_Titles where TitleID in(" + tid + ") and splPlaylistId= " + data.playlistid;
+                strDel = "delete from tbSpecialPlaylists_Titles where ID in(" + tid + ") and splPlaylistId= " + data.playlistid;
 
                 SqlCommand cmd = new SqlCommand(strDel, con);
                 cmd.CommandType = CommandType.Text;
@@ -7581,11 +7593,7 @@ namespace EuforyServices.ServiceImplementation
                 dtInsert.Columns.Add("userid", typeof(int));
                 dtInsert.Columns.Add("tokenid", typeof(int));
 
-                DataTable dtInsertAPK = new DataTable();
-                dtInsertAPK.Columns.Add("userid", typeof(int));
-                dtInsertAPK.Columns.Add("TokenId", typeof(int));
-                dtInsertAPK.Columns.Add("splPlaylistId", typeof(int));
-                dtInsertAPK.Columns.Add("formatid", typeof(int));
+                
 
                 SqlCommand cmd = new SqlCommand("SaveUpdateUser", con);
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -7616,7 +7624,7 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters.Add(new SqlParameter("@chkDeleteSong", SqlDbType.Int));
                 cmd.Parameters["@chkDeleteSong"].Value = Convert.ToByte(data.chkDeleteSong);
                 cmd.Parameters.Add(new SqlParameter("@chkInstantApk", SqlDbType.Int));
-                cmd.Parameters["@chkInstantApk"].Value = Convert.ToByte(data.chkInstantApk);
+                cmd.Parameters["@chkInstantApk"].Value = 1;
                 cmd.Parameters.Add(new SqlParameter("@chkUserAdmin", SqlDbType.Int));
                 cmd.Parameters["@chkUserAdmin"].Value = Convert.ToByte(data.chkUserAdmin);
                 cmd.Parameters.Add(new SqlParameter("@chkUpload", SqlDbType.Int));
@@ -7642,27 +7650,7 @@ namespace EuforyServices.ServiceImplementation
                     nr["tokenid"] = iToken;
                     dtInsert.Rows.Add(nr);
                 }
-                if (data.chkInstantApk == true)
-                {
-                    foreach (var iToken in data.lstToken)
-                    {
-
-                        DataRow nr = dtInsertAPK.NewRow();
-                        nr["userid"] = ReturnId;
-                        nr["splPlaylistId"] = data.cmbPlaylist;
-                        nr["TokenId"] = iToken;
-                        nr["formatid"] = data.cmbFormat;
-                        dtInsertAPK.Rows.Add(nr);
-                        if (tid == "")
-                        {
-                            tid = iToken;
-                        }
-                        else
-                        {
-                            tid = tid + "," + iToken;
-                        }
-                    }
-                }
+                 
                 if (dtInsert.Rows.Count > 0)
                 {
                     using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
@@ -7680,32 +7668,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                 }
 
-                if (dtInsertAPK.Rows.Count > 0)
-                {
-
-
-                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
-                    {
-                        SqlBulkCopyColumnMapping TokenId =
-                         new SqlBulkCopyColumnMapping("TokenId", "TokenId");
-                        bulkCopy.ColumnMappings.Add(TokenId);
-
-                        SqlBulkCopyColumnMapping splPlaylistId =
-                        new SqlBulkCopyColumnMapping("splPlaylistId", "splPlaylistId");
-                        bulkCopy.ColumnMappings.Add(splPlaylistId);
-
-                        SqlBulkCopyColumnMapping formatid =
-                         new SqlBulkCopyColumnMapping("formatid", "formatid");
-                        bulkCopy.ColumnMappings.Add(formatid);
-
-                        SqlBulkCopyColumnMapping userid =
-                        new SqlBulkCopyColumnMapping("userid", "userid");
-                        bulkCopy.ColumnMappings.Add(userid);
-
-                        bulkCopy.DestinationTableName = "dbo.tbInstantPlayPlaylist";
-                        bulkCopy.WriteToServer(dtInsertAPK);
-                    }
-                }
+                
                 con.Close();
                 Result.Responce = "1";
                 return Result;
@@ -7821,7 +7784,7 @@ namespace EuforyServices.ServiceImplementation
                     Result.chkUpload = true;
                     Result.chkStreaming = true;
                     Result.chkCopyData = true;
-                    Result.chkViewOnly = true;
+                    Result.chkViewOnly = false;
                     Result.ContentType = dsCustomer.Rows[0]["ContentType"].ToString();
                     Result.ClientName = dsCustomer.Rows[0]["ClientName"].ToString();
                 }
@@ -9135,6 +9098,8 @@ namespace EuforyServices.ServiceImplementation
                         StartTime = string.Format(fi, "{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Rows[i]["sDate"])),
                         EndTime = string.Format(fi, "{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Rows[i]["eDate"])),
                         WeekNo = ds.Rows[i]["wName"].ToString(),
+                        location = ds.Rows[i]["location"].ToString(),
+                        city = ds.Rows[i]["city"].ToString(),
                     });
                 }
                 con.Close();
@@ -12642,6 +12607,7 @@ namespace EuforyServices.ServiceImplementation
                         id = ds.Tables[0].Rows[i]["id"].ToString(),
                         fName = ds.Tables[0].Rows[i]["FormatName"].ToString(),
                         pName = ds.Tables[0].Rows[i]["splPlaylistName"].ToString(),
+                        splid = ds.Tables[0].Rows[i]["splPlaylistId"].ToString(),
                     });
                 }
                 con.Close();
@@ -15368,6 +15334,137 @@ namespace EuforyServices.ServiceImplementation
         }
 
 
+
+        public ResResponce SaveInstantMobileAnnouncement(ReqInstantMobileAnnouncement data)
+        {
+            ResResponce clsResult = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                var pid = data.TokenId;
+
+                DataTable dt = new DataTable();
+                dt.Columns.Add("TokenId", typeof(int));
+                dt.Columns.Add("splPlaylistId", typeof(int));
+                dt.Columns.Add("formatid", typeof(int));
+                dt.Columns.Add("ClientId", typeof(int));
+                string tokenid = "";
+                foreach (var tId in data.TokenId)
+                {
+                    if (tokenid == "")
+                    {
+                        tokenid = tId.tokenid;
+                    }
+                    else
+                    {
+                        tokenid = tokenid + ',' + tId.tokenid;
+                    }
+                }
+
+                //string sQr = "delete from tbKeyboardAnnouncement where tokenid in(" + tokenid + ")";
+                //SqlCommand cmd = new SqlCommand(sQr, con);
+                //cmd.CommandType = System.Data.CommandType.Text;
+                //if (con.State == ConnectionState.Closed)
+                //{
+                //    con.Open();
+                //}
+                //cmd.ExecuteNonQuery();
+                //cmd.Dispose();
+                foreach (var tId in data.TokenId)
+                {
+
+                    DataRow nr = dt.NewRow();
+                    nr["TokenId"] = tId.tokenid;
+                    nr["splPlaylistId"] = data.splPlaylistId;
+                    nr["formatid"] = data.FormatId;
+                    nr["ClientId"] = data.ClientId;
+
+                    dt.Rows.Add(nr);
+
+                }
+                if (dt.Rows.Count > 0)
+                {
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
+                    {
+                        SqlBulkCopyColumnMapping mapID =
+                         new SqlBulkCopyColumnMapping("TokenId", "TokenId");
+                        bulkCopy.ColumnMappings.Add(mapID);
+
+                        SqlBulkCopyColumnMapping mapMumber =
+                            new SqlBulkCopyColumnMapping("splPlaylistId", "splPlaylistId");
+                        bulkCopy.ColumnMappings.Add(mapMumber);
+
+
+                        SqlBulkCopyColumnMapping formatid =
+                            new SqlBulkCopyColumnMapping("formatid", "formatid");
+                        bulkCopy.ColumnMappings.Add(formatid);
+
+
+                        SqlBulkCopyColumnMapping ClientId =
+                            new SqlBulkCopyColumnMapping("ClientId", "ClientId");
+                        bulkCopy.ColumnMappings.Add(ClientId);
+
+
+                        bulkCopy.DestinationTableName = "dbo.tbInstantPlayPlaylist";
+
+                        if (con.State == ConnectionState.Closed)
+                        { con.Open(); }
+                        bulkCopy.WriteToServer(dt);
+                        con.Close();
+
+                    }
+                }
+
+
+                clsResult.Responce = "1";
+                return clsResult;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return clsResult;
+            }
+        }
+
+        public List<ResGetKeyboardAnnouncement> GetInstantMobileAnnouncement(DataCustomerTokenId data)
+        {
+            List<ResGetKeyboardAnnouncement> result = new List<ResGetKeyboardAnnouncement>();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
+
+            try
+            {
+                SqlCommand cmd = new SqlCommand("GetInstantMobileAnnouncement " + data.Tokenid + " ", con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                if (con.State == ConnectionState.Closed) { con.Open(); }
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataSet ds = new DataSet();
+                ad.Fill(ds);
+                for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                {
+
+
+                    result.Add(new ResGetKeyboardAnnouncement()
+                    {
+                        id = ds.Tables[0].Rows[i]["id"].ToString(),
+                        fName = ds.Tables[0].Rows[i]["FormatName"].ToString(),
+                        pName = ds.Tables[0].Rows[i]["splPlaylistName"].ToString(),
+                        splid = ds.Tables[0].Rows[i]["splPlaylistId"].ToString(),
+                        formatid = ds.Tables[0].Rows[i]["formatid"].ToString(),
+                    });
+                }
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
     }
 }
 //spGetAdvtAdmin_NativeOnly_New

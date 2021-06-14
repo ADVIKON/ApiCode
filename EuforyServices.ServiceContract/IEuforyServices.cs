@@ -1029,5 +1029,15 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("DownloadTemplates_new")]
         ResResponce DownloadTemplates_new(ReqDownloadTemplates data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "SaveInstantMobileAnnouncement", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SaveInstantMobileAnnouncement")]
+        ResResponce SaveInstantMobileAnnouncement(ReqInstantMobileAnnouncement data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "GetInstantMobileAnnouncement", ResponseFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("GetInstantMobileAnnouncement")]
+        List<ResGetKeyboardAnnouncement> GetInstantMobileAnnouncement(DataCustomerTokenId data);
     }
 }

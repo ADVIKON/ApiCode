@@ -507,6 +507,8 @@ namespace EuforyServices.DataContract
         public string PlayedDate { get; set; }
         [DataMember]
         public string PlayedTime { get; set; }
+        [DataMember(EmitDefaultValue = true, IsRequired = false, Name = "PlayedDateTime", Order = 1)]
+        public string PlayedDateTime { get; set; }
     }
 
     #endregion
@@ -1139,6 +1141,8 @@ namespace EuforyServices.DataContract
         public string OsVersion { get; set; }
         [DataMember]
         public string ClientContentType { get; set; }
+        [DataMember]
+        public bool isShowKeyboardToast { get; set; }
     }
     [DataContract]
     public class ReqSaveTokenInfo
@@ -1195,6 +1199,8 @@ namespace EuforyServices.DataContract
         public bool IsShowShotToast { get; set; }
         [DataMember]
         public string OsVersion { get; set; }
+        [DataMember]
+        public bool isShowKeyboardToast { get; set; }
     }
     [DataContract]
     public class ReqDispenserAlert
@@ -1655,6 +1661,10 @@ namespace EuforyServices.DataContract
         public string EndTime { get; set; }
         [DataMember]
         public string WeekNo { get; set; }
+        [DataMember]
+        public string location { get; set; }
+        [DataMember]
+        public string city { get; set; }
     }
     [DataContract]
     public class ReqDeleteSF
@@ -2720,6 +2730,10 @@ namespace EuforyServices.DataContract
         public string fName { get; set; }
         [DataMember]
         public string id { get; set; }
+        [DataMember]
+        public string splid { get; set; }
+        [DataMember]
+        public string formatid { get; set; }
     }
     [DataContract]
     public class ReqDeleteKeyboardAnnouncement
@@ -3071,6 +3085,19 @@ namespace EuforyServices.DataContract
         public Boolean IsAutoDelete { get; set; }
         [DataMember]
         public string DeleteDate { get; set; }
+    }
+    [DataContract]
+    public class ReqInstantMobileAnnouncement
+    {
+        [DataMember]
+        public List<ReqTokenMachineAnnouncement> TokenId { get; set; }
+        [DataMember]
+        public string splPlaylistId { get; set; }
+        [DataMember]
+        public string FormatId { get; set; }
+        [DataMember]
+        public string ClientId { get; set; }
+
     }
 }
 
