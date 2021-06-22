@@ -1012,6 +1012,8 @@ namespace EuforyServices.DataContract
         public List<ResTokenData> lstTokenData { get; set; }
         [DataMember]
         public List<ResTokenPlaylistSch> APKPlaylist { get; set; }
+        [DataMember]
+        public List<ResTokenAdsPlaylist> lstAdsPlaylist { get; set; }
 
 
     }
@@ -2173,6 +2175,8 @@ namespace EuforyServices.DataContract
     public class ReqPlaylistAd
     {
         [DataMember]
+        public string id { get; set; }
+        [DataMember]
         public string CustomerId { get; set; }
         [DataMember]
         public string FormatId { get; set; }
@@ -3097,6 +3101,48 @@ namespace EuforyServices.DataContract
         public string FormatId { get; set; }
         [DataMember]
         public string ClientId { get; set; }
+
+    }
+    [DataContract]
+    public class ResUpdatePlaylistAds
+    {
+        [DataMember]
+        public string clientId { get; set; }
+        [DataMember]
+        public string formatid { get; set; }
+        [DataMember]
+        public string splId { get; set; }
+        [DataMember]
+        public string sDate { get; set; }
+        [DataMember]
+        public string eDate { get; set; }
+        [DataMember]
+        public string pMode { get; set; }
+        [DataMember]
+        public string TotalFrequancy { get; set; }
+        [DataMember]
+        public List<ReqSFWeek> wList { get; set; }
+        [DataMember]
+        public List<string> TokenLst { get; set; }
+    }
+
+    [DataContract]
+    public class ResTokenAdsPlaylist
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string fName { get; set; }
+        [DataMember]
+        public string pName { get; set; }
+        [DataMember]
+        public string sDate { get; set; }
+        [DataMember]
+        public string eDate { get; set; }
+        [DataMember]
+        public string pMode { get; set; }
+        [DataMember]
+        public string Fre { get; set; }
 
     }
 }

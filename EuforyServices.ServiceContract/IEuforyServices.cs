@@ -1039,5 +1039,11 @@ namespace EuforyServices.ServiceContract
         [FaultContract(typeof(FaultException))]
         [Description("GetInstantMobileAnnouncement")]
         List<ResGetKeyboardAnnouncement> GetInstantMobileAnnouncement(DataCustomerTokenId data);
+
+        [WebInvoke(Method = "POST", UriTemplate = "FillSavePlaylistAds", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("FillSavePlaylistAds")]
+        ResUpdatePlaylistAds FillSavePlaylistAds(ReqAdsId data);
+
     }
 }

@@ -352,7 +352,7 @@ namespace EuforyServices.ServiceImplementation
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
                 DataSet ds = new DataSet();
                 ad.Fill(ds);
-                string url = "",mtypeFormat="";
+                string url = "", mtypeFormat = "";
                 int urlrefershtime = 0;
                 int timeInterval = 5;
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
@@ -531,7 +531,7 @@ namespace EuforyServices.ServiceImplementation
                         url = ds.Tables[0].Rows[i]["url"].ToString().Trim();
                         timeInterval = (Convert.ToInt32(ds.Tables[0].Rows[i]["Urlduration"]));
                     }
-                        result.Add(new ResponceSplSplaylistTitle()
+                    result.Add(new ResponceSplSplaylistTitle()
                     {
 
                         splPlaylistId = Convert.ToInt32(ds.Tables[0].Rows[i]["splPlaylistId"]),
@@ -550,10 +550,10 @@ namespace EuforyServices.ServiceImplementation
                         IsLoop = false,
                         mediatype = ds.Tables[0].Rows[i]["mType"].ToString().Trim(),
                         urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]))
-                });
-                    
+                    });
+
                 }
-                
+
                 con.Close();
                 return result;
             }
@@ -1129,7 +1129,7 @@ namespace EuforyServices.ServiceImplementation
             string path = Path.GetDirectoryName(rSave) + "\\data.txt";
             string WriteData = "";
             DateTime custDateTime = DateTime.Now;
-            string wTokenId  = "0";
+            string wTokenId = "0";
             List<ResponcePlayedSong> result = new List<ResponcePlayedSong>();
             List<SongsArray> resultSong = new List<SongsArray>();
             SqlConnection conMain = new SqlConnection(WebConfigurationManager.ConnectionStrings["Demo"].ConnectionString);
@@ -1235,7 +1235,7 @@ namespace EuforyServices.ServiceImplementation
             }
             catch (Exception ex)
             {
-                WriteData = wTokenId + " "+ ex.ToString();
+                WriteData = wTokenId + " " + ex.ToString();
                 using (StreamWriter writer = new StreamWriter(path, true))
                 {
                     writer.WriteLine(string.Format(WriteData, custDateTime.ToString("dd/MMM/yyyy hh:mm:ss tt")));
@@ -1282,7 +1282,7 @@ namespace EuforyServices.ServiceImplementation
                     {
                         if (string.IsNullOrEmpty(Player.PlayedDateTime) == false)
                         {
-                            Player.PlayedDate = string.Format("{0:dd-MMM-yyyy}",Convert.ToDateTime( Player.PlayedDateTime));
+                            Player.PlayedDate = string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(Player.PlayedDateTime));
                             Player.PlayedTime = string.Format("{0:HH:mm:ss}", Convert.ToDateTime(Player.PlayedDateTime));
                         }
                         string lType = "spTokenAdvt_Status " + Player.TokenId + ", " + Player.AdvtId + ",'" + string.Format("{0:dd-MMM-yyyy}", Player.PlayedDate) + "','" + string.Format("{0:HH:mm:ss}", Player.PlayedTime) + "'";
@@ -1692,7 +1692,7 @@ namespace EuforyServices.ServiceImplementation
                         urlRefershTime = (Convert.ToInt32(ds.Tables[0].Rows[i]["urlrefershtime"]))
                     });
                 }
-               
+
                 con.Close();
                 return result;
             }
@@ -3212,6 +3212,7 @@ namespace EuforyServices.ServiceImplementation
             fi.PMDesignator = "PM";
             ResToken clsResult = new ResToken();
             List<ResTokenPlaylistSch> lstPlaylist = new List<ResTokenPlaylistSch>();
+            List<ResTokenAdsPlaylist> lstAdPlaylist = new List<ResTokenAdsPlaylist>();
             List<ResTokenAds> lstAd = new List<ResTokenAds>();
             List<ResTokenPrayer> lstPra = new List<ResTokenPrayer>();
             List<ResTokenData> lstTokend = new List<ResTokenData>();
@@ -3293,6 +3294,30 @@ namespace EuforyServices.ServiceImplementation
                     });
                 }
 
+                // Ads Playlist
+                sQr = "GetAdsPlaylist_Token " + data.tokenId;
+                cmd = new SqlCommand(sQr, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                ad = new SqlDataAdapter(cmd);
+                ds = new DataTable();
+                ad.Fill(ds);
+                for (int i = 0; i < ds.Rows.Count; i++)
+                {
+
+                    if (Convert.ToDateTime(string.Format("{0:dd-MMM-yyyy}", ds.Rows[i]["eDate"])) > Convert.ToDateTime(string.Format("{0:dd/MMM/yyyy}", DateTime.Now.Date)))
+                    {
+                        lstAdPlaylist.Add(new ResTokenAdsPlaylist()
+                        {
+                            id = ds.Rows[i]["pSchId"].ToString(),
+                            fName = ds.Rows[i]["FormatName"].ToString(),
+                            pName = ds.Rows[i]["splPlaylistName"].ToString(),
+                            sDate = string.Format("{0:dd-MMM-yyyy}", ds.Rows[i]["sDate"]),
+                            eDate = string.Format("{0:dd-MMM-yyyy}", ds.Rows[i]["eDate"]),
+                            pMode = ds.Rows[i]["pMode"].ToString(),
+                            Fre = ds.Rows[i]["Frequency"].ToString(),
+                        });
+                    }
+                }
 
                 // Prayer
                 sQr = "spGetPrayerDataInfo " + DateTime.Now.Date.Month + ", 0,0,0," + data.tokenId;
@@ -3409,6 +3434,7 @@ namespace EuforyServices.ServiceImplementation
                 clsResult.lstPrayer = lstPra;
                 clsResult.lstTokenData = lstTokend;
                 clsResult.APKPlaylist = lstAPKPlaylist;
+                clsResult.lstAdsPlaylist = lstAdPlaylist;
                 con.Close();
                 return clsResult;
             }
@@ -3624,7 +3650,7 @@ namespace EuforyServices.ServiceImplementation
 
                 }
                 string str = "";
-                str = "update tbSpecialPlaylistSchedule set PercentageValue='"+ PercentageValue + "', StartTime='" + string.Format(fi, "{0:hh:mm tt}", Convert.ToDateTime(data.ModifyStartTime)) + "', ";
+                str = "update tbSpecialPlaylistSchedule set PercentageValue='" + PercentageValue + "', StartTime='" + string.Format(fi, "{0:hh:mm tt}", Convert.ToDateTime(data.ModifyStartTime)) + "', ";
                 str = str + " EndTime ='" + string.Format(fi, "{0:hh:mm tt}", Convert.ToDateTime(data.ModifyEndTime)) + "' where pschid= " + data.pschid;
                 SqlCommand cmd = new SqlCommand(str, con);
                 cmd.CommandType = CommandType.Text;
@@ -4329,7 +4355,7 @@ namespace EuforyServices.ServiceImplementation
                     }
 
 
-                        
+
 
                     lstPlaylistSong.Add(new ResPlaylistSongList()
                     {
@@ -5110,23 +5136,23 @@ namespace EuforyServices.ServiceImplementation
                 }
                 else
                 {
-                    str = "select * from tbSpecialPlaylists where splplaylistid !="+ data.id + " and  splplaylistname ='" + data.plName.ToString().Trim().ToLower() + "' and formatid= " + data.formatid;
+                    str = "select * from tbSpecialPlaylists where splplaylistid !=" + data.id + " and  splplaylistname ='" + data.plName.ToString().Trim().ToLower() + "' and formatid= " + data.formatid;
                 }
                 DataTable dtPl = new DataTable();
-                    SqlCommand cmdPL = new SqlCommand(str, con);
-                    cmdPL.CommandType = System.Data.CommandType.Text;
-                    SqlDataAdapter adPL = new SqlDataAdapter(cmdPL);
-                    adPL.Fill(dtPl);
-                    adPL.Dispose();
-                    cmdPL.Dispose();
-                    if (dtPl.Rows.Count > 0)
-                    {
-                        con.Close();
+                SqlCommand cmdPL = new SqlCommand(str, con);
+                cmdPL.CommandType = System.Data.CommandType.Text;
+                SqlDataAdapter adPL = new SqlDataAdapter(cmdPL);
+                adPL.Fill(dtPl);
+                adPL.Dispose();
+                cmdPL.Dispose();
+                if (dtPl.Rows.Count > 0)
+                {
+                    con.Close();
 
-                        clsResult.Responce = "2";
-                        return clsResult;
-                    }
-               
+                    clsResult.Responce = "2";
+                    return clsResult;
+                }
+
 
 
                 SqlCommand cmd = new SqlCommand("spSpecialPlaylists_Save_Update", con);
@@ -5157,7 +5183,7 @@ namespace EuforyServices.ServiceImplementation
                 cmd.Parameters["@Formatid"].Value = data.formatid;
                 cmd.Parameters.Add(new SqlParameter("@mType", SqlDbType.VarChar));
                 cmd.Parameters["@mType"].Value = "Audio";
-               
+
                 cmd.ExecuteNonQuery();
                 con.Close();
 
@@ -7301,8 +7327,8 @@ namespace EuforyServices.ServiceImplementation
                     }
                     else
                     {
-                        
-                         pStatus = "Away";
+
+                        pStatus = "Away";
                         OfflinePlayer = OfflinePlayer + 1;
                     }
                     if ((data.ftype == "Online") && (pStatus == "Online"))
@@ -7593,7 +7619,7 @@ namespace EuforyServices.ServiceImplementation
                 dtInsert.Columns.Add("userid", typeof(int));
                 dtInsert.Columns.Add("tokenid", typeof(int));
 
-                
+
 
                 SqlCommand cmd = new SqlCommand("SaveUpdateUser", con);
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -7650,7 +7676,7 @@ namespace EuforyServices.ServiceImplementation
                     nr["tokenid"] = iToken;
                     dtInsert.Rows.Add(nr);
                 }
-                 
+
                 if (dtInsert.Rows.Count > 0)
                 {
                     using (SqlBulkCopy bulkCopy = new SqlBulkCopy(con))
@@ -7668,7 +7694,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                 }
 
-                
+
                 con.Close();
                 Result.Responce = "1";
                 return Result;
@@ -8969,58 +8995,72 @@ namespace EuforyServices.ServiceImplementation
             try
             {
                 con.Open();
-                foreach (var iToken in data.TokenList)
+
+                cmd = new SqlCommand("spSavePlaylistAdsSchedule", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.Add(new SqlParameter("@pSchId", SqlDbType.BigInt));
+                cmd.Parameters["@pSchId"].Value = data.id;
+
+
+                cmd.Parameters.Add(new SqlParameter("@dfClientId", SqlDbType.BigInt));
+                cmd.Parameters["@dfClientId"].Value = data.CustomerId;
+
+                cmd.Parameters.Add(new SqlParameter("@splPlaylistId", SqlDbType.BigInt));
+                cmd.Parameters["@splPlaylistId"].Value = data.PlaylistId;
+
+                cmd.Parameters.Add(new SqlParameter("@sDate", SqlDbType.DateTime));
+                cmd.Parameters["@sDate"].Value = string.Format(fi, "{0:dd-MMM-yyyy}", Convert.ToDateTime(data.sDate));
+
+                cmd.Parameters.Add(new SqlParameter("@eDate", SqlDbType.DateTime));
+                cmd.Parameters["@eDate"].Value = string.Format(fi, "{0:dd-MMM-yyyy}", Convert.ToDateTime(data.eDate));
+
+                cmd.Parameters.Add(new SqlParameter("@FormatId", SqlDbType.BigInt));
+                cmd.Parameters["@FormatId"].Value = data.FormatId;
+
+
+                cmd.Parameters.Add(new SqlParameter("@pMode", SqlDbType.VarChar));
+                cmd.Parameters["@pMode"].Value = data.pMode;
+
+
+                cmd.Parameters.Add(new SqlParameter("@Frequency", SqlDbType.Int));
+                cmd.Parameters["@Frequency"].Value = data.TotalFrequancy;
+                Int32 rtPschId = Convert.ToInt32(cmd.ExecuteScalar());
+                cmd.Dispose();
+
+                //=============================== Save Week
+                string str = "delete from tbPlaylistAdsSchedule_Week where pSchId = " + rtPschId;
+                cmd = new SqlCommand(str, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
+
+                foreach (var lstWeek in data.wList)
                 {
-                    cmd = new SqlCommand("spSavePlaylistAdsSchedule", con);
+                    cmd = new SqlCommand("spSavePlaylistAdsSchedule_Week", con);
                     cmd.CommandType = CommandType.StoredProcedure;
 
                     cmd.Parameters.Add(new SqlParameter("@pSchId", SqlDbType.BigInt));
-                    cmd.Parameters["@pSchId"].Value = 0;
+                    cmd.Parameters["@pSchId"].Value = rtPschId;
 
-
-                    cmd.Parameters.Add(new SqlParameter("@dfClientId", SqlDbType.BigInt));
-                    cmd.Parameters["@dfClientId"].Value = data.CustomerId;
-
-                    cmd.Parameters.Add(new SqlParameter("@splPlaylistId", SqlDbType.BigInt));
-                    cmd.Parameters["@splPlaylistId"].Value = data.PlaylistId;
-
-                    cmd.Parameters.Add(new SqlParameter("@sDate", SqlDbType.DateTime));
-                    cmd.Parameters["@sDate"].Value = string.Format(fi, "{0:dd-MMM-yyyy}", Convert.ToDateTime(data.sDate));
-
-                    cmd.Parameters.Add(new SqlParameter("@eDate", SqlDbType.DateTime));
-                    cmd.Parameters["@eDate"].Value = string.Format(fi, "{0:dd-MMM-yyyy}", Convert.ToDateTime(data.eDate));
+                    cmd.Parameters.Add(new SqlParameter("@wId", SqlDbType.Int));
+                    cmd.Parameters["@wId"].Value = lstWeek.id;
 
                     cmd.Parameters.Add(new SqlParameter("@FormatId", SqlDbType.BigInt));
                     cmd.Parameters["@FormatId"].Value = data.FormatId;
+                    cmd.ExecuteNonQuery();
+                    cmd.Dispose();
+                }
+                //=========================================
 
-
-                    cmd.Parameters.Add(new SqlParameter("@pMode", SqlDbType.VarChar));
-                    cmd.Parameters["@pMode"].Value = data.pMode;
-
-
-                    cmd.Parameters.Add(new SqlParameter("@Frequency", SqlDbType.Int));
-                    cmd.Parameters["@Frequency"].Value = data.TotalFrequancy;
-                    Int32 rtPschId = Convert.ToInt32(cmd.ExecuteScalar());
-
-                    //=============================== Save Week
-                    foreach (var lstWeek in data.wList)
-                    {
-                        cmd = new SqlCommand("spSavePlaylistAdsSchedule_Week", con);
-                        cmd.CommandType = CommandType.StoredProcedure;
-
-                        cmd.Parameters.Add(new SqlParameter("@pSchId", SqlDbType.BigInt));
-                        cmd.Parameters["@pSchId"].Value = rtPschId;
-
-                        cmd.Parameters.Add(new SqlParameter("@wId", SqlDbType.Int));
-                        cmd.Parameters["@wId"].Value = lstWeek.id;
-
-                        cmd.Parameters.Add(new SqlParameter("@FormatId", SqlDbType.BigInt));
-                        cmd.Parameters["@FormatId"].Value = data.FormatId;
-                        cmd.ExecuteNonQuery();
-                    }
-                    //=========================================
-
-                    //====================== Save Token Detail
+                //====================== Save Token Detail
+                str = "delete from tbPlaylistAdsSchedule_Token where pSchId = " + rtPschId;
+                cmd = new SqlCommand(str, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
+                foreach (var iToken in data.TokenList)
+                {
                     cmd = new SqlCommand("spSavePlaylistAdsSchedule_Token", con);
                     cmd.CommandType = CommandType.StoredProcedure;
 
@@ -9071,14 +9111,8 @@ namespace EuforyServices.ServiceImplementation
 
 
                 string sQr = "";
-                sQr = "GetCustomerPlaylistAdsSchedule " + data.clientId + " , 0";
-                if (string.IsNullOrEmpty(data.tokenid) == false)
-                {
-                    if (data.tokenid != "0")
-                    {
-                        sQr = "GetCustomerPlaylistAdsSchedule " + data.clientId + " , " + data.tokenid + "";
-                    }
-                }
+
+                sQr = "GetCustomerPlaylistAdsSchedule_New " + data.clientId + " , '" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(data.tokenid)) + "'";
 
                 cmd = new SqlCommand(sQr, con);
                 cmd.CommandType = System.Data.CommandType.Text;
@@ -10550,8 +10584,8 @@ namespace EuforyServices.ServiceImplementation
                     message.To.Add("jan@advikon.eu");
                     message.To.Add("talwinder@advikon.eu");
                     message.From = fromAddress;
-                   // string Manualfile = HttpContext.Current.Server.MapPath("~/Manual.pdf");
-                   // message.Attachments.Add(new Attachment(Manualfile));
+                    // string Manualfile = HttpContext.Current.Server.MapPath("~/Manual.pdf");
+                    // message.Attachments.Add(new Attachment(Manualfile));
                     smtp.Send(message);
                     Result.Responce = "1";
                     con.Close();
@@ -10601,8 +10635,8 @@ namespace EuforyServices.ServiceImplementation
                     message.Subject = subject;
                     message.Body = body;
                     message.To.Add(toAddress);
-                   // string Manualfile = HttpContext.Current.Server.MapPath("~/Manual.pdf");
-                   // message.Attachments.Add(new Attachment(Manualfile));
+                    // string Manualfile = HttpContext.Current.Server.MapPath("~/Manual.pdf");
+                    // message.Attachments.Add(new Attachment(Manualfile));
                     message.To.Add("info@sanisign.eu");
                     message.To.Add("talwinder@advikon.eu");
                     message.From = fromAddress;
@@ -10715,7 +10749,7 @@ namespace EuforyServices.ServiceImplementation
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         str = "";
-                        str = "select * from tbSpecialPlaylists where splplaylistname ='" + dt.Rows[i]["splPlaylistName"].ToString().Trim().ToLower() + "' and formatid= " + data.CopyFormatId; 
+                        str = "select * from tbSpecialPlaylists where splplaylistname ='" + dt.Rows[i]["splPlaylistName"].ToString().Trim().ToLower() + "' and formatid= " + data.CopyFormatId;
                         DataTable dtPl = new DataTable();
                         SqlCommand cmdPL = new SqlCommand(str, con);
                         cmdPL.CommandType = System.Data.CommandType.Text;
@@ -10725,7 +10759,7 @@ namespace EuforyServices.ServiceImplementation
                         cmdPL.Dispose();
                         if (dtPl.Rows.Count > 0)
                         {
-                            splId =Convert.ToInt32(dtPl.Rows[0]["splPlaylistId"]);
+                            splId = Convert.ToInt32(dtPl.Rows[0]["splPlaylistId"]);
                             str = "";
                             str = "delete from tbSpecialPlaylists_Titles where splPlaylistId =" + splId + "";
                             SqlCommand cmdplDel = new SqlCommand(str, con);
@@ -12207,7 +12241,7 @@ namespace EuforyServices.ServiceImplementation
 
                     clsData.id = data.id;
                     clsData.type = "Song";
-                    clsData.url = "http://api.advikon.com/mp3files/" + data.id + ""+ ext;
+                    clsData.url = "http://api.advikon.com/mp3files/" + data.id + "" + ext;
                     clsData.DeviceToken = ds.Rows[iFCM]["FcmId"].ToString();
                     clsData.title = data.title;
                     clsData.albumid = data.albumid;
@@ -12890,7 +12924,7 @@ namespace EuforyServices.ServiceImplementation
         {
             ResResponce result = new ResResponce();
             SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
-            Int32 Title_Id= 0;
+            Int32 Title_Id = 0;
             try
             {
                 con.Open();
@@ -12972,6 +13006,7 @@ namespace EuforyServices.ServiceImplementation
                     var client = new HttpClient();
                     var response = await client.GetAsync(item.Url);
                     var fsize = "0";
+                    Title_Id = 7777;
                     using (var stream = await response.Content.ReadAsStreamAsync())
                     {
                         fsize = stream.Length.ToString();
@@ -13130,7 +13165,7 @@ namespace EuforyServices.ServiceImplementation
                         cmd.ExecuteNonQuery();
                     }
                 }
-                 
+
                 result.Responce = "1";
                 return result;
 
@@ -14198,7 +14233,7 @@ namespace EuforyServices.ServiceImplementation
 
                     }
 
-                   string st = "";
+                    string st = "";
                     st = "update AMPlayerTokens set ScheduleType='" + iToken.schType + "' where tokenid = " + iToken.tokenId;
                     cmd = new SqlCommand(st, con);
                     cmd.CommandType = System.Data.CommandType.Text;
@@ -14597,7 +14632,7 @@ namespace EuforyServices.ServiceImplementation
                 }
                 if (data.status == "Active")
                 {
-                     
+
                     IsTemplateActive = "1";
                 }
                 dt2 = Convert.ToDateTime(string.Format("{0:yyyy-mm-dd}", data.ExpiryDate));
@@ -14728,11 +14763,11 @@ namespace EuforyServices.ServiceImplementation
                 string delDate = "";
                 for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
                 {
-                    if ((string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Tables[0].Rows[i]["DeleteDate"])) == "01-Jan-1900") || (Convert.ToBoolean(ds.Tables[0].Rows[i]["IsAutoDelete"])==false))
+                    if ((string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Tables[0].Rows[i]["DeleteDate"])) == "01-Jan-1900") || (Convert.ToBoolean(ds.Tables[0].Rows[i]["IsAutoDelete"]) == false))
                     {
                         delDate = string.Format("{0:dd-MMM-yyyy}", DateTime.Now);
                     }
-                    
+
                     else
                     {
                         delDate = string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Tables[0].Rows[i]["DeleteDate"]));
@@ -14802,7 +14837,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                     else
                     {
-                        del_titleId = del_titleId +','+ dtDeleteContent.Rows[i]["titleId"].ToString();
+                        del_titleId = del_titleId + ',' + dtDeleteContent.Rows[i]["titleId"].ToString();
                     }
                 }
 
@@ -14822,7 +14857,7 @@ namespace EuforyServices.ServiceImplementation
                 cmdDel.Dispose();
 
                 for (int iPl = 0; iPl < dtPlaylistContent.Rows.Count; iPl++)
-                {       
+                {
                     for (int iCont = 0; iCont < dtNewContent.Rows.Count; iCont++)
                     {
                         int sr = 5;
@@ -14835,7 +14870,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                 }
 
-                 
+
 
                 if (dt.Rows.Count > 0)
                 {
@@ -14934,7 +14969,7 @@ namespace EuforyServices.ServiceImplementation
                     }
                 }
 
-                
+
                 con.Close();
                 Result.Responce = "1";
                 return Result;
@@ -15048,7 +15083,7 @@ namespace EuforyServices.ServiceImplementation
                 ad = new SqlDataAdapter(cmd);
                 DataTable ds = new DataTable();
                 ad.Fill(ds);
-                string[] ar = { "","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday","Sunday" };
+                string[] ar = { "", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
                 for (int i = 0; i < ds.Rows.Count; i++)
                 {
                     lstUser.Add(new ReqOfflineAlert()
@@ -15056,8 +15091,8 @@ namespace EuforyServices.ServiceImplementation
                         id = ds.Rows[i]["id"].ToString(),
                         email = ds.Rows[i]["email"].ToString(),
                         interval = ds.Rows[i]["interval"].ToString(),
-                        fromdate = string.Format("{0:dd-MMM-yyyy}",ds.Rows[i]["fromdate"]),
-                        todate= string.Format("{0:dd-MMM-yyyy}", ds.Rows[i]["todate"])
+                        fromdate = string.Format("{0:dd-MMM-yyyy}", ds.Rows[i]["fromdate"]),
+                        todate = string.Format("{0:dd-MMM-yyyy}", ds.Rows[i]["todate"])
                     });
                 }
                 con.Close();
@@ -15237,7 +15272,7 @@ namespace EuforyServices.ServiceImplementation
                 else
                 {
                     str = "";
-                    str = "update titles set title='" + Data.urlName + "', IsAnnouncement =" + Convert.ToInt32(Data.IsAnnouncement) + ", duration ='" + Data.duration + "' , genreid=" + Data.cmbGenre + ", folderid=" + Data.cmbFolder+", refershtime ='" + Data.refersh + "', url='" + Data.urlLink + "' where titleid= " + Data.id + "";
+                    str = "update titles set title='" + Data.urlName + "', IsAnnouncement =" + Convert.ToInt32(Data.IsAnnouncement) + ", duration ='" + Data.duration + "' , genreid=" + Data.cmbGenre + ", folderid=" + Data.cmbFolder + ", refershtime ='" + Data.refersh + "', url='" + Data.urlLink + "' where titleid= " + Data.id + "";
                     SqlCommand cmd = new SqlCommand(str, con);
                     cmd.CommandType = CommandType.Text;
                     cmd.ExecuteNonQuery();
@@ -15312,12 +15347,12 @@ namespace EuforyServices.ServiceImplementation
                 SqlCommand cmd = new SqlCommand(str, con);
                 cmd.CommandType = CommandType.Text;
                 cmd.ExecuteNonQuery();
-                
+
                 str = "delete from tbSpecialPlaylists_Titles where TitleID=  " + data.id;
                 cmd = new SqlCommand(str, con);
                 cmd.CommandType = CommandType.Text;
                 cmd.ExecuteNonQuery();
-                
+
                 con.Close();
                 result.Responce = "1";
                 return result;
@@ -15465,6 +15500,90 @@ namespace EuforyServices.ServiceImplementation
                 return result;
             }
         }
+
+        public ResUpdatePlaylistAds FillSavePlaylistAds(ReqAdsId data)
+        {
+            ResUpdatePlaylistAds result = new ResUpdatePlaylistAds();
+            List<ReqSFWeek> wLst = new List<ReqSFWeek>();
+            DateTimeFormatInfo fi = new DateTimeFormatInfo();
+            List<string> TokenArray = new List<string>();
+
+
+            fi.AMDesignator = "AM";
+            fi.PMDesignator = "PM";
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                con.Open();
+                string st = "select * from tbPlaylistAdsSchedule where pSchId = " + data.advtid;
+                SqlCommand cmd = new SqlCommand(st, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                DataTable ds = new DataTable();
+                ad.Fill(ds);
+                if (ds.Rows.Count > 0)
+                {
+                    result.clientId = ds.Rows[0]["dfClientId"].ToString();
+                    result.splId = ds.Rows[0]["splPlaylistId"].ToString();
+                    result.formatid = ds.Rows[0]["FormatId"].ToString();
+                    result.sDate = string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(ds.Rows[0]["sDate"]));
+                    result.eDate = string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(ds.Rows[0]["eDate"]));
+
+                    result.pMode = ds.Rows[0]["pMode"].ToString();
+                    result.TotalFrequancy = ds.Rows[0]["Frequency"].ToString();
+
+                    //====================== Get Week Days
+                    st = "select distinct wid from tbPlaylistAdsSchedule_Week  where pSchId=" + data.advtid + " ";
+                    cmd = new SqlCommand(st, con);
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    ad = new SqlDataAdapter(cmd);
+                    ds = new DataTable();
+                    ad.Fill(ds);
+                    if (ds.Rows.Count > 0)
+                    {
+                        for (int i = 0; i < ds.Rows.Count; i++)
+                        {
+                            wLst.Add(new ReqSFWeek()
+                            {
+                                id = ds.Rows[i]["wid"].ToString(),
+                                itemName = "",
+                            });
+                        }
+                    }
+
+                    //============================ Fill Ads Token
+                    var sQr = "select tokenid from tbPlaylistAdsSchedule_Token where pSchId= " + data.advtid + " ";
+                    cmd = new SqlCommand(sQr, con);
+                    cmd.CommandType = CommandType.Text;
+                    ad = new SqlDataAdapter(cmd);
+                    ds = new DataTable();
+                    ad.Fill(ds);
+                    for (int i = 0; i < ds.Rows.Count; i++)
+                    {
+
+                        TokenArray.Add(ds.Rows[i]["tokenid"].ToString());
+
+                    }
+                    //===========================================
+                    result.wList = wLst;
+                    result.TokenLst = TokenArray;
+                }
+                con.Close();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+
+        }
+
+
+
+
+
     }
 }
 //spGetAdvtAdmin_NativeOnly_New
