@@ -13006,7 +13006,6 @@ namespace EuforyServices.ServiceImplementation
                     var client = new HttpClient();
                     var response = await client.GetAsync(item.Url);
                     var fsize = "0";
-                    Title_Id = 7777;
                     using (var stream = await response.Content.ReadAsStreamAsync())
                     {
                         fsize = stream.Length.ToString();
@@ -15580,6 +15579,202 @@ namespace EuforyServices.ServiceImplementation
 
         }
 
+
+
+        public async Task<ResResponce> DownloadTemplatesConvertTOMp4(ReqDownloadTemplates data)
+        {
+            ResResponce result = new ResResponce();
+            ResUploadurl resUploadurl = new ResUploadurl();
+            ResConvert resConvert = new ResConvert();
+            ResMediaDownload resMedia = new ResMediaDownload();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            Int32 Title_Id = 0;
+            try
+            {
+                con.Open();
+                string width = "0", height="0";
+                foreach (var item in data.tList)
+                {
+                    if (data.GenreId == 496)
+                    {
+                        width = "1920";
+                        height = "1080";
+                        data.GenreId = 297;
+                    }
+                    else
+                    {
+                        width = "1080";
+                        height = "1920";
+                        data.GenreId = 303;
+                    }
+                    var duration = "00:00:" + item.duration.ToString();
+                    var client = new RestClient("https://html5animationtogif.com/api/uploadurl.ashx");
+                    client.Timeout = -1;
+                    var request = new RestRequest(Method.POST);
+                    //request.AlwaysMultipartFormData = true;
+                    request.AddParameter("url", item.Url);
+                    request.AddHeader("Content-Type", "multipart/form-data");
+                    IRestResponse response = client.Execute(request);
+                    resUploadurl = JsonConvert.DeserializeObject<ResUploadurl>(response.Content);
+                    if (resUploadurl.status == "success")
+                    {
+                        var clientConvert = new RestClient("https://html5animationtogif.com/api/converttovideo.ashx");
+                        clientConvert.Timeout = -1;
+                        var requestConvert = new RestRequest(Method.POST);
+                        requestConvert.AddHeader("Content-Type", "multipart/form-data");
+                        requestConvert.AddParameter("clientid", "1108");
+                        requestConvert.AddParameter("apikey", "0db86ee4-3f8a-459e-847d-eba983260843");
+                        requestConvert.AddParameter("creativeid", resUploadurl.creativeid);
+                        requestConvert.AddParameter("width", width);
+                        requestConvert.AddParameter("height", height);
+                        requestConvert.AddParameter("duration", item.duration);
+                        requestConvert.AddParameter("fps", "60");
+                        requestConvert.AddParameter("audio", "N");
+                        requestConvert.AddParameter("webhookurl", "");
+                        requestConvert.AddParameter("creativefitoption", "lefttop");
+                        requestConvert.AddParameter("bitrateoption", "CBR");
+                        requestConvert.AddParameter("bitratevalue", "17");
+                        requestConvert.AddParameter("pixelformat", "YUV420P");
+                        IRestResponse responseConvert = clientConvert.Execute(requestConvert);
+                        resConvert = JsonConvert.DeserializeObject<ResConvert>(responseConvert.Content);
+                        if (resConvert.status == "success")
+                        {
+                            hitagain:
+                            var clientMedia = new RestClient("https://html5animationtogif.com/api/checkstatus.ashx?creativeid=" + resUploadurl.creativeid + "&mediaid=" + resConvert.mediaid + "&fileext=mp4");
+                            clientMedia.Timeout = -1;
+                            var requestMedia = new RestRequest(Method.GET);
+                            IRestResponse responseMedia = clientMedia.Execute(requestMedia);
+                            resMedia = JsonConvert.DeserializeObject<ResMediaDownload>(responseMedia.Content);
+                            if ((resMedia.status == "success") && (resMedia.jobstatus != "done"))
+                            {
+                                System.Threading.Thread.Sleep(20000);
+                                goto hitagain;
+
+                            }
+                            if ((resMedia.status == "success") && (resMedia.jobstatus == "done"))
+                            {
+
+                                SqlCommand cmd = new SqlCommand("InsertContent", con);
+                                cmd.CommandType = CommandType.StoredProcedure;
+
+                                cmd.Parameters.Add(new SqlParameter("@TiTleTiTle", SqlDbType.VarChar));
+                                cmd.Parameters["@TiTleTiTle"].Value = item.TemplateName;
+
+                                cmd.Parameters.Add(new SqlParameter("@TitleArtistName", SqlDbType.VarChar));
+                                cmd.Parameters["@TitleArtistName"].Value = item.TemplateName;
+
+                                cmd.Parameters.Add(new SqlParameter("@AlbumName", SqlDbType.VarChar));
+                                cmd.Parameters["@AlbumName"].Value = "Templates";
+
+                                cmd.Parameters.Add(new SqlParameter("@titlecategoryid", SqlDbType.BigInt));
+                                cmd.Parameters["@titlecategoryid"].Value = 4;
+
+                                cmd.Parameters.Add(new SqlParameter("@titleSubcategoryid", SqlDbType.VarChar));
+                                cmd.Parameters["@titleSubcategoryid"].Value = 22;
+
+                                cmd.Parameters.Add(new SqlParameter("@Time", SqlDbType.VarChar));
+                                cmd.Parameters["@Time"].Value = duration;
+
+                                cmd.Parameters.Add(new SqlParameter("@AlbumLabel", SqlDbType.VarChar));
+                                cmd.Parameters["@AlbumLabel"].Value = "0";
+
+                                cmd.Parameters.Add(new SqlParameter("@CatalogCode", SqlDbType.VarChar));
+                                cmd.Parameters["@CatalogCode"].Value = "0";
+
+                                cmd.Parameters.Add(new SqlParameter("@titleYear", SqlDbType.Int));
+                                cmd.Parameters["@titleYear"].Value = 0;
+
+
+                                cmd.Parameters.Add(new SqlParameter("@GenreId", SqlDbType.Int));
+                                cmd.Parameters["@GenreId"].Value = data.GenreId;
+
+                                cmd.Parameters.Add(new SqlParameter("@tempo", SqlDbType.VarChar));
+                                cmd.Parameters["@tempo"].Value = "Mid";
+
+
+                                cmd.Parameters.Add(new SqlParameter("@mType", SqlDbType.VarChar));
+                                cmd.Parameters["@mType"].Value = "Video";
+
+                                cmd.Parameters.Add(new SqlParameter("@acategory", SqlDbType.VarChar));
+                                cmd.Parameters["@acategory"].Value = "Templates";
+
+                                cmd.Parameters.Add(new SqlParameter("@language", SqlDbType.VarChar));
+                                cmd.Parameters["@language"].Value = "";
+
+                                cmd.Parameters.Add(new SqlParameter("@isRF", SqlDbType.VarChar));
+                                cmd.Parameters["@isRF"].Value = "0";
+
+                                cmd.Parameters.Add(new SqlParameter("@isrc", SqlDbType.VarChar));
+                                cmd.Parameters["@isrc"].Value = "";
+
+                                cmd.Parameters.Add(new SqlParameter("@FileSize", SqlDbType.VarChar));
+                                cmd.Parameters["@FileSize"].Value = "0";
+
+                                cmd.Parameters.Add(new SqlParameter("@dfclientid", SqlDbType.BigInt));
+                                cmd.Parameters["@dfclientid"].Value = data.dfClientId;
+
+                                cmd.Parameters.Add(new SqlParameter("@folderid", SqlDbType.BigInt));
+                                cmd.Parameters["@folderid"].Value = data.FolderId;
+
+                                cmd.Parameters.Add(new SqlParameter("@dbType", SqlDbType.VarChar));
+                                cmd.Parameters["@dbType"].Value = data.dbType.Trim();
+
+                                cmd.Parameters.Add(new SqlParameter("@IsAnnouncement", SqlDbType.Int));
+                                cmd.Parameters["@IsAnnouncement"].Value = "0";
+
+                                Title_Id = Convert.ToInt32(cmd.ExecuteScalar());
+                                cmd.Dispose();
+
+                                var httpclient = new HttpClient();
+                                var responseClient = await httpclient.GetAsync(resMedia.url);
+                                var fsize = "0";
+                                using (var stream = await responseClient.Content.ReadAsStreamAsync())
+                                {
+                                    fsize = stream.Length.ToString();
+                                    var fName = "~/mp3files/" + Title_Id.ToString() + ".mp4";
+                                    var filePath = System.Web.Hosting.HostingEnvironment.MapPath(fName);
+                                    var fileInfo = new FileInfo(filePath);
+                                    using (var fileStream = fileInfo.OpenWrite())
+                                    {
+                                        await stream.CopyToAsync(fileStream);
+                                    }
+                                }
+                                string strDel = "";
+                                strDel = "update titles set filesize='" + fsize + "' where titleid =" + Title_Id.ToString();
+                                cmd = new SqlCommand(strDel, con);
+                                cmd.CommandType = CommandType.Text;
+                                cmd.ExecuteNonQuery();
+                                cmd.Dispose();
+                            }
+                        }
+                    }
+
+
+
+                    
+
+
+
+                }
+
+
+
+
+                con.Close();
+                result.Responce = "1";
+                result.TitleId = Title_Id.ToString();
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
 
 
 

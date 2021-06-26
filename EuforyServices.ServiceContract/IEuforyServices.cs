@@ -1045,5 +1045,10 @@ namespace EuforyServices.ServiceContract
         [Description("FillSavePlaylistAds")]
         ResUpdatePlaylistAds FillSavePlaylistAds(ReqAdsId data);
 
+        [WebInvoke(Method = "POST", UriTemplate = "DownloadTemplatesConvertTOMp4", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("DownloadTemplatesConvertTOMp4")]
+        Task<ResResponce> DownloadTemplatesConvertTOMp4(ReqDownloadTemplates data);
+
     }
 }

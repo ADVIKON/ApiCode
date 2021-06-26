@@ -46,3 +46,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 /EuforyServices/mp3files
+/EuforyServices/mp3files/*.jpg
+/EuforyServices/mp3files/*.jpg

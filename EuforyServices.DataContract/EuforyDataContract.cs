@@ -3145,5 +3145,30 @@ namespace EuforyServices.DataContract
         public string Fre { get; set; }
 
     }
+    public class ResUploadurl
+    {
+        [DataMember]
+        public string status { get; set; }
+        [DataMember]
+        public string creativeid { get; set; }
+    }
+    public class ResConvert
+    {
+        [DataMember]
+        public string status { get; set; }
+        [DataMember]
+        public string message { get; set; }
+        [DataMember]
+        public string mediaid { get; set; }
+    }
+    public class ResMediaDownload
+    {
+        [DataMember]
+        public string status { get; set; }
+        [DataMember]
+        public string jobstatus { get; set; }
+        [DataMember]
+        public string url { get; set; }
+    }
 }
 
