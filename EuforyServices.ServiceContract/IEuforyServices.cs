@@ -1050,5 +1050,10 @@ namespace EuforyServices.ServiceContract
         [Description("DownloadTemplatesConvertTOMp4")]
         Task<ResResponce> DownloadTemplatesConvertTOMp4(ReqDownloadTemplates data);
 
+        [WebInvoke(Method = "POST", UriTemplate = "SavePlaylistContentExpiry", ResponseFormat = WebMessageFormat.Json, RequestFormat = WebMessageFormat.Json)]
+        [FaultContract(typeof(FaultException))]
+        [Description("SavePlaylistContentExpiry")]
+        ResResponce SavePlaylistContentExpiry(List<ReqPlaylistContentExpiry> data);
+
     }
 }

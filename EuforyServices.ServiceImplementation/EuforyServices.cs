@@ -4296,7 +4296,7 @@ namespace EuforyServices.ServiceImplementation
                 if (data.IsBestOffPlaylist == "Yes")
                 {
                     sQr = "SELECT Titles.TitleID as Id, Titles.TitleID, rtrim(ltrim(Titles.Title)) as Title, Titles.Time,rtrim(ltrim(Albums.Name)) AS AlbumName ,";
-                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName,'' as Category  ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, '0' as srno , isnull(tbGenre.genre,'') as genre, isnull(Titles.label,'') as label, '5' as ImgTimeInterval , isnull(Titles.genreid,0) as genreId , isnull(titles.url,'') as url FROM ((( TitlesInPlaylists  ";
+                    sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName,'' as Category  ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, '0' as srno , isnull(tbGenre.genre,'') as genre, isnull(Titles.label,'') as label, '5' as ImgTimeInterval , isnull(Titles.genreid,0) as genreId , isnull(titles.url,'') as url,  '' as dDate FROM ((( TitlesInPlaylists  ";
                     sQr = sQr + " INNER JOIN Titles ON TitlesInPlaylists.TitleID = Titles.TitleID )  ";
                     sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID ) ";
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID ) ";
@@ -4307,7 +4307,7 @@ namespace EuforyServices.ServiceImplementation
                 {
                     sQr = "SELECT  Titles.TitleID, rtrim(ltrim(Titles.Title)) as Title, Titles.Time,rtrim(ltrim(Albums.Name)) AS AlbumName ,";
                     sQr = sQr + " Titles.TitleYear ,  rtrim(ltrim(Artists.Name)) as ArtistName , isnull(tbGenre.genre,'') as genre, isnull(Titles.tempo,'') as Tempo  , isnull(acategory,'') as Category ,Titles.AlbumID, Titles.ArtistID, Titles.mediatype, tbSpecialPlaylists_Titles.srno, isnull(Titles.label,'') as label, tbSpecialPlaylists_Titles.id ,";
-                    sQr = sQr + " iif(tbSpecialPlaylists_Titles.ImgTimeInterval = 0, 5, isnull(tbSpecialPlaylists_Titles.ImgTimeInterval, 5)) as ImgTimeInterval , isnull(Titles.genreid,0) as genreId , isnull(titles.url,'') as url FROM   tbSpecialPlaylists_Titles  ";
+                    sQr = sQr + " iif(tbSpecialPlaylists_Titles.ImgTimeInterval = 0, 5, isnull(tbSpecialPlaylists_Titles.ImgTimeInterval, 5)) as ImgTimeInterval , isnull(Titles.genreid,0) as genreId , isnull(titles.url,'') as url , isnull(tbSpecialPlaylists_Titles.DeleteDate,'') as dDate FROM   tbSpecialPlaylists_Titles  ";
                     sQr = sQr + " INNER JOIN Titles ON tbSpecialPlaylists_Titles.TitleID = Titles.TitleID   ";
                     sQr = sQr + " INNER JOIN Albums ON Titles.AlbumID = Albums.AlbumID  ";
                     sQr = sQr + " INNER JOIN Artists ON Titles.ArtistID = Artists.ArtistID  ";
@@ -4348,6 +4348,18 @@ namespace EuforyServices.ServiceImplementation
                             btnImgAll = "Hide";
                         }
                     }
+
+                    var rDate = "";
+                    if (string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Rows[i]["dDate"])) == "01-Jan-1900")
+                    {
+                        rDate = "";
+                    }
+                    else
+                    {
+                        rDate = string.Format("{0:dd-MMM-yyyy}", Convert.ToDateTime(ds.Rows[i]["dDate"]));
+                    }
+
+
                     url = "http://api.advikon.com/mp3files/" + ds.Rows[i]["titleId"].ToString() + mtypeFormat;
                     if (ds.Rows[i]["MediaType"].ToString().Trim() == "Url")
                     {
@@ -4377,6 +4389,7 @@ namespace EuforyServices.ServiceImplementation
                         ImgAllBtn = btnImgAll,
                         isImgFind = isImgFind,
                         genreId = ds.Rows[i]["genreId"].ToString(),
+                        DeleteDate= rDate
                     });
                 }
                 con.Close();
@@ -15722,7 +15735,7 @@ namespace EuforyServices.ServiceImplementation
                                 cmd.Parameters.Add(new SqlParameter("@IsAnnouncement", SqlDbType.Int));
                                 cmd.Parameters["@IsAnnouncement"].Value = "0";
 
-                                Title_Id = Convert.ToInt32(cmd.ExecuteScalar());
+                                Title_Id = 7777; //Convert.ToInt32(cmd.ExecuteScalar());
                                 cmd.Dispose();
 
                                 var httpclient = new HttpClient();
@@ -15743,7 +15756,7 @@ namespace EuforyServices.ServiceImplementation
                                 strDel = "update titles set filesize='" + fsize + "' where titleid =" + Title_Id.ToString();
                                 cmd = new SqlCommand(strDel, con);
                                 cmd.CommandType = CommandType.Text;
-                                cmd.ExecuteNonQuery();
+                                //cmd.ExecuteNonQuery();
                                 cmd.Dispose();
                             }
                         }
@@ -15776,6 +15789,40 @@ namespace EuforyServices.ServiceImplementation
             }
         }
 
+        public ResResponce SavePlaylistContentExpiry(List<ReqPlaylistContentExpiry> lstdata)
+        {
+            ResResponce result = new ResResponce();
+            SqlConnection con = new SqlConnection(WebConfigurationManager.ConnectionStrings["Panel"].ConnectionString);
+            try
+            {
+                string str = "";
+                con.Open();
+                foreach (var item in lstdata)
+                {
+                    if ((item.NewDeleteDate != "") && (item.NewDeleteDate != null))
+                    {
+                        str = "update tbSpecialPlaylists_Titles set IsAutoDelete=1, deletedate='" + string.Format("{0:dd/MMM/yyyy}", Convert.ToDateTime(item.NewDeleteDate)) + "' where TitleID=  " + item.id + " and id=" + item.sId;
+                        SqlCommand cmd = new SqlCommand(str, con);
+                        cmd.CommandType = CommandType.Text;
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
+                    }
+                }
+
+                con.Close();
+                result.Responce = "1";
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+
+                var g = ex.Message;
+                HttpContext.Current.Response.StatusCode = 1;
+                return result;
+            }
+        }
 
 
 

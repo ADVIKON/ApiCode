@@ -1474,6 +1474,8 @@ namespace EuforyServices.DataContract
         public string isImgFind { get; set; }
         [DataMember]
         public string genreId { get; set; }
+        [DataMember]
+        public string DeleteDate { get; set; }
     }
 
     [DataContract]
@@ -3169,6 +3171,17 @@ namespace EuforyServices.DataContract
         public string jobstatus { get; set; }
         [DataMember]
         public string url { get; set; }
+    }
+    [DataContract]
+    public class ReqPlaylistContentExpiry
+    {
+        [DataMember]
+        public string id { get; set; }
+        [DataMember]
+        public string sId { get; set; }
+        [DataMember]
+        public string NewDeleteDate { get; set; }
+
     }
 }
 
